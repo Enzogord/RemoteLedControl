@@ -4,10 +4,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace RLC_Server
+namespace RemoteLEDServer
 {
     static class Program
     {
+        public static RemoteLEDControl RemoteLEDControlMainForm;
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
@@ -16,7 +17,8 @@ namespace RLC_Server
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Form1());
+            RemoteLEDControlMainForm = new RemoteLEDControl();
+            Application.Run(RemoteLEDControlMainForm);
         }
     }
 }

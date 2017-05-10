@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace RLC_Server.Properties
+namespace RemoteLEDServer.Properties
 {
 
 
