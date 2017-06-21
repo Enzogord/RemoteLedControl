@@ -1692,25 +1692,6 @@ namespace RemoteLEDServer
         //    }
         //}
 
-        private void button5_Click(object sender, EventArgs e)
-        {
-            ClientValues cv = new ClientValues();
-            if (project.ClientList.Count == 0)
-            {
-                cv.Number = "1";
-            }
-            else
-            {
-                cv.Number = (project.ClientList.Last().Number + 1).ToString();
-            }
-            cv.Name = "Client" + cv.Number;
-            cv.WifiSSID = "DSL_2740NRU";
-            cv.WifiPassword = "J0Lp().G";
-            cv.UDPPort = 11010;
-            cv.LEDCount = "10";
-            cv.RelativeFolderPath = "\\" + project.ClientsFolderName + "\\" + cv.Name;
-            project.AddClient(cv);
-        }
 
         private void RemoteLEDControl_FormClosing(object sender, FormClosingEventArgs e)
         {

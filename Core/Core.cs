@@ -9,6 +9,7 @@ using System.Xml.Serialization;
 using System.IO;
 using System.Runtime.Serialization;
 using System.Xml;
+using System.Collections.ObjectModel;
 
 namespace Core
 {
