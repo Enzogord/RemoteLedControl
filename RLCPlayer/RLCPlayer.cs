@@ -234,6 +234,8 @@ namespace RLCPlayer
 
         public delegate void DMouseSetTime();
         public event DMouseSetTime OnMouseSetTime;
+        public delegate void DInitializedPlayer(string FilePath);
+        public event DInitializedPlayer OnInitializedPlayer;
 
         // Methods
 
@@ -556,6 +558,7 @@ namespace RLCPlayer
                 MessageBox.Show("Could not open file: " + ex.Message);
             }
             FileLabelString = MP3Path;
+            OnInitializedPlayer?.Invoke(MP3Path);
         }
 
         public void InitializePlayer(string MusicFilePath)

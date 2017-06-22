@@ -49,6 +49,8 @@ namespace Core
         /// Хранит список открытых потоков для конвертирования циклограмм
         /// </summary>
         private List<Thread> FRuningThreadsList = new List<Thread>();
+        [DataMember]
+        private FileInfo FBindedAudioFile;
 
         // Properties        
 
@@ -124,6 +126,19 @@ namespace Core
         {
             get { return FRuningThreadsList; }
             set { FRuningThreadsList = value; }
+        }
+
+        public FileInfo BindedAudioFile
+        {
+            get { return FBindedAudioFile; }
+            set
+            {
+                if (value != FBindedAudioFile)
+                {
+                    Saved = false;
+                    FBindedAudioFile = value;
+                }
+            }
         }
 
         // Events

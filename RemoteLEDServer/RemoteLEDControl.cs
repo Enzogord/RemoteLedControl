@@ -176,6 +176,14 @@ namespace RemoteLEDServer
                 project.Saved = true;
                 ToolStripMenuItem_SaveProject.Enabled = true;
                 ToolStripMenuItem_SaveAsProject.Enabled = true;
+                if (project.BindedAudioFile.Exists)
+                {
+                    rlcPlayer1.InitializePlayer(project.BindedAudioFile.FullName);
+                }
+                else
+                {
+                    MessageBox.Show("Сохраненного в проекта файла \"" + project.BindedAudioFile.FullName + "\" не существует на диске. Необходимо вручную добавить аудио файл в плеер.", "Ошибка открытия аудио файла");
+                }
                 OnProjectStart();
             }
 
@@ -348,6 +356,7 @@ namespace RemoteLEDServer
                     project.DeletedClientList.RemoveAt(i);
                 }
             }
+            project.BindedAudioFile = project.BindedAudioFile.CopyTo(Path.Combine(project.AbsoluteFolderPath, Path.GetFileName(project.BindedAudioFile.FullName)), true);
             XMLSaver xmlsaver = new XMLSaver();
             xmlsaver.Fields = project;
             xmlsaver.WriteXml(project.AbsoluteFilePath);
@@ -389,6 +398,7 @@ namespace RemoteLEDServer
                 project.ClientList[i].Renamed = false;
                 project.ClientList[i].Saved = true;
             }
+            project.BindedAudioFile = project.BindedAudioFile.CopyTo(Path.Combine(FolderPath, Path.GetFileName(project.BindedAudioFile.FullName)), true);
             XMLSaver xmlsaver = new XMLSaver();
             xmlsaver.Fields = project;
             xmlsaver.WriteXml(FilePath);
@@ -2265,6 +2275,18 @@ namespace RemoteLEDServer
                 maskedTextBox_SetTime.Text = String.Format("{0,2}:{1,2}", rlcPlayer1.CurrentTime.Minutes.ToString("D2"), rlcPlayer1.CurrentTime.Seconds.ToString("D2"));
                 rlcPlayer1.Play();
                 project.Server.Send_PlayFromAll_7(rlcPlayer1.CurrentTime);
+            }
+        }
+
+        private void rlcPlayer1_OnInitializedPlayer(string FilePath)
+        {
+            FileInfo tmpFile = new FileInfo(FilePath);
+            if (tmpFile.Exists)
+            {
+                if (project != null)
+                {
+                    project.BindedAudioFile = tmpFile;
+                }
             }
         }
     }
