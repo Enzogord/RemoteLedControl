@@ -176,13 +176,16 @@ namespace RemoteLEDServer
                 project.Saved = true;
                 ToolStripMenuItem_SaveProject.Enabled = true;
                 ToolStripMenuItem_SaveAsProject.Enabled = true;
-                if (project.BindedAudioFile.Exists)
+                if (project.BindedAudioFile != null)
                 {
-                    rlcPlayer1.InitializePlayer(project.BindedAudioFile.FullName);
-                }
-                else
-                {
-                    MessageBox.Show("Сохраненного в проекта файла \"" + project.BindedAudioFile.FullName + "\" не существует на диске. Необходимо вручную добавить аудио файл в плеер.", "Ошибка открытия аудио файла");
+                    if (project.BindedAudioFile.Exists)
+                    {
+                        rlcPlayer1.InitializePlayer(project.BindedAudioFile.FullName);
+                    }
+                    else
+                    {
+                        MessageBox.Show("Сохраненного в проекта файла \"" + project.BindedAudioFile.FullName + "\" не существует на диске. Необходимо вручную добавить аудио файл в плеер.", "Ошибка открытия аудио файла");
+                    }
                 }
                 OnProjectStart();
             }
@@ -356,7 +359,18 @@ namespace RemoteLEDServer
                     project.DeletedClientList.RemoveAt(i);
                 }
             }
-            project.BindedAudioFile = project.BindedAudioFile.CopyTo(Path.Combine(project.AbsoluteFolderPath, Path.GetFileName(project.BindedAudioFile.FullName)), true);
+            if (project.BindedAudioFile != null)
+            {
+                try
+                {
+                    project.BindedAudioFile = project.BindedAudioFile.CopyTo(Path.Combine(project.AbsoluteFolderPath, Path.GetFileName(project.BindedAudioFile.FullName)), true);
+                }
+                catch (Exception)
+                {
+
+                }
+            }
+            
             XMLSaver xmlsaver = new XMLSaver();
             xmlsaver.Fields = project;
             xmlsaver.WriteXml(project.AbsoluteFilePath);
@@ -398,7 +412,17 @@ namespace RemoteLEDServer
                 project.ClientList[i].Renamed = false;
                 project.ClientList[i].Saved = true;
             }
-            project.BindedAudioFile = project.BindedAudioFile.CopyTo(Path.Combine(FolderPath, Path.GetFileName(project.BindedAudioFile.FullName)), true);
+            if (project.BindedAudioFile != null)
+            {
+                try
+                {
+                    project.BindedAudioFile = project.BindedAudioFile.CopyTo(Path.Combine(FolderPath, Path.GetFileName(project.BindedAudioFile.FullName)), true);
+                }
+                catch (Exception)
+                {
+
+                }                
+            }            
             XMLSaver xmlsaver = new XMLSaver();
             xmlsaver.Fields = project;
             xmlsaver.WriteXml(FilePath);
@@ -2285,7 +2309,13 @@ namespace RemoteLEDServer
             {
                 if (project != null)
                 {
-                    project.BindedAudioFile = tmpFile;
+                    if (project.BindedAudioFile != null)
+                    {
+                        if (project.BindedAudioFile.FullName != tmpFile.FullName)
+                        {
+                            project.BindedAudioFile = tmpFile;
+                        }
+                    }                    
                 }
             }
         }
