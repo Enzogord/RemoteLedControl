@@ -2315,7 +2315,11 @@ namespace RemoteLEDServer
                         {
                             project.BindedAudioFile = tmpFile;
                         }
-                    }                    
+                    }
+                    else
+                    {
+                        project.BindedAudioFile = tmpFile;
+                    }                   
                 }
             }
         }
