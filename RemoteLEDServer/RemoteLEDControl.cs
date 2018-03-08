@@ -1787,12 +1787,14 @@ namespace RemoteLEDServer
                 if (project.Server.IsRun)
                 {
                     project.Server.StopReceiving();
+                    ResetPlayer();
                 }
                 else
                 {
                     try
                     {
                         project.Server.StartReceiving();
+                        ResetPlayer();
                     }
                     catch (Exception)
                     {
@@ -1802,9 +1804,18 @@ namespace RemoteLEDServer
             }
         }
 
+        private void ResetPlayer()
+        {
+            rlcPlayer1.Stop();
+            rlcPlayer1.CurrentTime = TimeSpan.Zero;
+        }
         private void button_Play_Click(object sender, EventArgs e)
         {
-            if (rlcPlayer1.TotalTime != TimeSpan.Zero && project.Server.UDPPort > 0)
+            if (rlcPlayer1.TotalTime == TimeSpan.Zero)
+            {
+                return;
+            }
+            if (project.Server.IsRun)
             {
                 if (rlcPlayer1.PlaybackStateStr == PlaybackState.Stopped || rlcPlayer1.PlaybackStateStr == PlaybackState.Paused)
                 {
@@ -1812,11 +1823,19 @@ namespace RemoteLEDServer
                     project.Server.Send_PlayAll_1();
                 }
             }
+            else
+            {
+                rlcPlayer1.Play();
+            }
         }
 
         private void button_Pause_Click(object sender, EventArgs e)
         {
-            if (rlcPlayer1.TotalTime != TimeSpan.Zero && project.Server.UDPPort > 0)
+            if (rlcPlayer1.TotalTime == TimeSpan.Zero)
+            {
+                return;
+            }
+            if (project.Server.IsRun)
             {
                 if (rlcPlayer1.PlaybackStateStr == PlaybackState.Playing)
                 {
@@ -1825,11 +1844,19 @@ namespace RemoteLEDServer
                     rlcPlayer1.Pause();
                 }
             }
+            else
+            {
+                rlcPlayer1.Pause();
+            }
         }
 
         private void button_Stop_Click(object sender, EventArgs e)
         {
-            if (rlcPlayer1.TotalTime != TimeSpan.Zero && project.Server.UDPPort > 0)
+            if (rlcPlayer1.TotalTime == TimeSpan.Zero)
+            {
+                return;
+            }
+            if (project.Server.IsRun)
             {
                 if (rlcPlayer1.PlaybackStateStr == PlaybackState.Playing || rlcPlayer1.PlaybackStateStr == PlaybackState.Paused)
                 {
@@ -1837,6 +1864,11 @@ namespace RemoteLEDServer
                     rlcPlayer1.CurrentTime = TimeSpan.Zero;
                     project.Server.Send_StopAll_2();
                 }
+            }
+            else
+            {
+                rlcPlayer1.Stop();
+                rlcPlayer1.CurrentTime = TimeSpan.Zero;
             }
         }
 
@@ -1863,9 +1895,19 @@ namespace RemoteLEDServer
                 double min = TimeSpan.FromMinutes((double)minutes).TotalMilliseconds;
                 double sec = TimeSpan.FromSeconds((double)seconds).TotalMilliseconds;
                 rlcPlayer1.CurrentTime = TimeSpan.FromMilliseconds(min + sec);
-                project.Server.Send_PlayFromAll_7(rlcPlayer1.CurrentTime);
-                Thread.Sleep(2);
-                rlcPlayer1.Play();
+                if (project.Server.IsRun)
+                {
+                    if (rlcPlayer1.PlaybackStateStr == PlaybackState.Stopped || rlcPlayer1.PlaybackStateStr == PlaybackState.Paused)
+                    {                        
+                        project.Server.Send_PlayFromAll_7(rlcPlayer1.CurrentTime);
+                        Thread.Sleep(2);
+                        rlcPlayer1.Play();
+                    }
+                }
+                else
+                {
+                    rlcPlayer1.Play();
+                }                
             }
         }
 
@@ -1921,11 +1963,22 @@ namespace RemoteLEDServer
 
         private void rlcPlayer1_OnMouseSetTime()
         {
-            if (rlcPlayer1.CurrentTime.Minutes < 99)
+            if (rlcPlayer1.CurrentTime.Minutes >= 99)
             {
-                maskedTextBox_SetTime.Text = String.Format("{0,2}:{1,2}", rlcPlayer1.CurrentTime.Minutes.ToString("D2"), rlcPlayer1.CurrentTime.Seconds.ToString("D2"));
+                return;
+            }
+            if (project.Server.IsRun)
+            {
+                if (rlcPlayer1.PlaybackStateStr == PlaybackState.Stopped || rlcPlayer1.PlaybackStateStr == PlaybackState.Paused)
+                {
+                    maskedTextBox_SetTime.Text = String.Format("{0,2}:{1,2}", rlcPlayer1.CurrentTime.Minutes.ToString("D2"), rlcPlayer1.CurrentTime.Seconds.ToString("D2"));
+                    project.Server.Send_PlayFromAll_7(rlcPlayer1.CurrentTime);
+                    rlcPlayer1.Play();
+                }
+            }
+            else
+            {
                 rlcPlayer1.Play();
-                project.Server.Send_PlayFromAll_7(rlcPlayer1.CurrentTime);
             }
         }
 
