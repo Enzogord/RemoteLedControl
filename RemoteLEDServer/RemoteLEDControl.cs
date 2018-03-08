@@ -33,7 +33,6 @@ namespace RemoteLEDServer
             ComboBoxAudioOutputs_Fill();
             dataGridView_Clients.AutoGenerateColumns = false;
             dataGridView_PinList.AutoGenerateColumns = false;
-            //dataGridView_CyclogrammList.AutoGenerateColumns = false;
         }
 
         #region Forms Control Events
@@ -898,7 +897,6 @@ namespace RemoteLEDServer
             }
         }
 
-
         private bool PinValidation(string PinText)
         {
             bool result = false;
@@ -926,6 +924,7 @@ namespace RemoteLEDServer
             }
             return result;
         }
+
         private void textBox_PinLEDCount_TextChanged(object sender, EventArgs e)
         {
             ServiceFunc.TextBoxValidation(sender as TextBox, TypesNumeric.t_uint16);
@@ -1113,11 +1112,6 @@ namespace RemoteLEDServer
         {
             bool Valid = true;
 
-            //if (!ServiceFunc.ColoringTextBox(textBox_CyclogrammName, ServiceFunc.TextBoxValidation(textBox_CyclogrammName, TypesString.EnglishDigitUnder)))
-            //{
-            //    Valid = false;
-            //}
-
             if (comboBox_Client.Items.Count > 0)
             {
                 if ((comboBox_Client.SelectedItem as Client).Cyclogramm != null)
@@ -1289,7 +1283,6 @@ namespace RemoteLEDServer
             {
             }
         }
-
 
         private void Project_OnSave()
         {
@@ -1504,7 +1497,6 @@ namespace RemoteLEDServer
         }
 
         #endregion
-
 
         private void comboBox_AudioOutputs_SelectionChangeCommitted(object sender, EventArgs e)
         {
