@@ -45,7 +45,6 @@
   <ItemGroup>
     <Compile Include="Client.cs" />
     <Compile Include="ClientValues.cs" />
-    <Compile Include="Core.cs" />
     <Compile Include="Cyclogramm.cs" />
     <Compile Include="Enums.cs" />
     <Compile Include="Pin.cs" />
