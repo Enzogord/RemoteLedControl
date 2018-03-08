@@ -1170,13 +1170,10 @@ namespace RemoteLEDServer
             project.OnActiveThreadsChange += Project_OnActiveThreadsChange;
             project.OnChangeClientList += LoadDataSourceClient;
             project.OnSave += Project_OnSave;
-            project.OnChangeMode += Project_OnChangeMode;
             project.Server.OnSendNumberPlate += Server_OnSendNumberPlate;
             project.Server.ServerIPAdress = (comboBox_IP.SelectedItem as IPAddress);
             project.Server.OnStatusChange += ShowServerStatus;
             project.Server.OnServerIPChange += ShowServerIP;
-            //project.Server.OnSendCyclogrammName += Server_OnSendCyclogrammName;
-            //project.Server.OnSendFinalCyclogrammName += Server_OnSendFinalCyclogrammName;
             project.Server.StartReceiving();
             SetClientsEvents();
             LoadDataSourceClient();
@@ -1185,26 +1182,6 @@ namespace RemoteLEDServer
             panel_Status.Visible = true;
             tabControl1.Enabled = true;
             Project_OnSave();
-            project.Mode = ProjectServerMode.Test;
-        }
-
-        private void Project_OnChangeMode()
-        {
-            if (project.Mode == ProjectServerMode.Release)
-            {
-                label_ProjectServerMode.Text = "Выступление";
-                label_ProjectServerMode.ForeColor = Color.Green;
-                rlcPlayer1.CanClickPlayerTrack = false;
-                comboBox_AudioOutputs.Enabled = false;
-            }
-            else
-            {
-                label_ProjectServerMode.Text = "Репетиция";
-                label_ProjectServerMode.ForeColor = Color.RoyalBlue;
-                rlcPlayer1.CanClickPlayerTrack = true;
-                comboBox_AudioOutputs.Enabled = true;
-            }
-
         }
 
         /// <summary>
@@ -1224,19 +1201,6 @@ namespace RemoteLEDServer
             }
         }
 
-        //private void Server_OnSendFinalCyclogrammName(byte ClientNumber, string CyclogrammName)
-        //{
-        //    BeginInvoke(new Action(delegate ()
-        //    {
-        //        Client tmpClient = project.ClientList.Find(x => x.Number == ClientNumber);
-        //        Cyclogramm tmpCyc = tmpClient.CyclogrammList.Find(x => (x.Name + ".cyc").ToUpper() == CyclogrammName.ToUpper());
-        //        if (tmpCyc != null)
-        //        {
-        //            tmpCyc.IsFinal = true;
-        //        }
-        //    }));
-        //}
-
         private void SetClientsEvents()
         {
             if (project != null)
@@ -1249,39 +1213,10 @@ namespace RemoteLEDServer
                         client.OnChange += Client_OnChange;
                         client.OnChangeStatus -= Client_OnChangeStatus;
                         client.OnChangeStatus += Client_OnChangeStatus;
-                        //client.OnChangeCurrentCyclogramm -= Client_OnChangeCurrentCyclogramm;
-                        //client.OnChangeCurrentCyclogramm += Client_OnChangeCurrentCyclogramm;
-                        //client.OnRefreshCyclogrammList -= Client_OnRefreshCyclogrammList;
-                        //client.OnRefreshCyclogrammList += Client_OnRefreshCyclogrammList;
-                        //foreach (Cyclogramm cyc in client.CyclogrammList)
-                        //{
-                        //    cyc.OnFinalFlagChange -= TmpCyclogramm_OnFinalFlagChange;
-                        //    cyc.OnFinalFlagChange += TmpCyclogramm_OnFinalFlagChange;
-                        //}
                     }
                 }
             }
         }
-
-        //private void TmpCyclogramm_OnFinalFlagChange(object sender)
-        //{
-        //    (sender as Cyclogramm).Parent.FinalCyclogramm = (sender as Cyclogramm);
-        //    //FFinalCyclogramm = (sender as Cyclogramm);
-        //    foreach (Cyclogramm cyc in (sender as Cyclogramm).Parent.CyclogrammList)
-        //    {
-        //        if (cyc != (sender as Cyclogramm).Parent.FinalCyclogramm)
-        //        {
-        //            cyc.IsFinal = false;
-        //        }
-        //    }
-        //    //OnRefreshCyclogrammList?.Invoke();
-        //    dataGridView_CyclogrammList.Invalidate();
-        //}
-
-        //private void Client_OnRefreshCyclogrammList()
-        //{
-        //    dataGridView_CyclogrammList.Invalidate();
-        //}
 
         private void Client_OnChangeStatus()
         {
@@ -1292,83 +1227,6 @@ namespace RemoteLEDServer
         {
             LoadDataSourceClient();
         }
-
-        //private void Server_OnSendCyclogrammName(byte ClientNumber, byte CyclogrammSendType, string CyclogrammName)
-        //{
-        //    BeginInvoke(new Action(delegate ()
-        //    {
-        //        Client tmpClient = project.ClientList.Find(x => x.Number == ClientNumber);
-        //        if (CyclogrammSendType == 1)
-        //        {
-        //            if (tmpClient.CyclogrammList.Exists(x => (x.Name + ".cyc").ToUpper() == CyclogrammName.ToUpper()))
-        //            {
-        //                tmpClient.Send_SelectCyclogrammName_9(CyclogrammName, 2);
-        //                tmpClient.CurrentCyclogramm = tmpClient.CyclogrammList.Find(x => (x.Name + ".cyc").ToUpper() == CyclogrammName.ToUpper());
-        //                dataGridView_Clients.Rows[project.ClientList.IndexOf(tmpClient)].Cells["Column_CurCycStr"].Style.BackColor = ServiceFunc.AcceptColor;
-        //            }
-        //            else
-        //            {
-        //                tmpClient.Send_SelectCyclogrammName_9(CyclogrammName, 3);
-        //            }
-        //        }
-
-        //        if (CyclogrammSendType == 4)
-        //        {
-        //            tmpClient.CurrentCyclogramm = null;
-        //            dataGridView_Clients.Rows[project.ClientList.IndexOf(tmpClient)].Cells["Column_CurCycStr"].Style.BackColor = ServiceFunc.RefuseColor;
-        //        }
-
-        //        if (CyclogrammSendType == 2)
-        //        {
-        //            if (tmpClient.CyclogrammList.Exists(x => (x.Name + ".cyc").ToUpper() == CyclogrammName.ToUpper()))
-        //            {
-        //                tmpClient.CurrentCyclogramm = tmpClient.CyclogrammList.Find(x => (x.Name + ".cyc").ToUpper() == CyclogrammName.ToUpper());
-        //                dataGridView_Clients.Rows[project.ClientList.IndexOf(tmpClient)].Cells["Column_CurCycStr"].Style.BackColor = ServiceFunc.AcceptColor;
-        //            }
-        //        }
-
-        //        /*
-        //        if (tmpClient.CurrentCyclogramm == null)
-        //        {
-        //            tmpClient.CurrentCyclogramm = tmpClient.CyclogrammList.Find(x => (x.Name + ".cyc").ToUpper() == CyclogrammName.ToUpper());
-        //            richTextBox1.AppendText("Автоматически выбрана циклограмма: \"" + CyclogrammName + "\" на клиенте: \"" + ClientNumber.ToString() + "\"\n");
-        //            dataGridView_Clients.Rows[project.ClientList.FindIndex(x => x.Number == ClientNumber)].Cells["Column_Cyclogramms"].Style.BackColor = Color.Green;
-        //            return;
-        //        }
-        //        if (tmpClient.CyclogrammList.Exists(x => (x.Name + ".cyc").ToUpper() == CyclogrammName.ToUpper()))
-        //        {
-        //            if (tmpClient.CurrentCyclogramm !=
-        //            tmpClient.CyclogrammList.Find(x => (x.Name + ".cyc").ToUpper() == CyclogrammName.ToUpper()))
-        //            {
-        //                tmpClient.CurrentCyclogramm = tmpClient.CyclogrammList.Find(x => (x.Name + ".cyc").ToUpper() == CyclogrammName.ToUpper());
-        //                richTextBox1.AppendText("Подтверждена циклограмма: \"" + CyclogrammName + "\" на клиенте: \"" + ClientNumber.ToString() + "\"\n");
-        //                dataGridView_Clients.Rows[project.ClientList.FindIndex(x => x.Number == ClientNumber)].Cells["Column_Cyclogramms"].Style.BackColor = Color.Green;
-        //            }
-        //        }
-        //        else
-        //        {
-        //            richTextBox1.AppendText("!! Не найдена циклограмма: \"" + CyclogrammName + "\" на клиенте: \"" + ClientNumber.ToString() + "\"!!\n");
-        //            dataGridView_Clients.Rows[project.ClientList.FindIndex(x => x.Number == ClientNumber)].Cells["Column_Cyclogramms"].Style.BackColor = Color.Red;
-        //        }
-        //        //if (tmpClient.CurrentCyclogramm != )
-        //        //{
-
-        //        //}
-        //        dataGridView_Clients.Invalidate();*/
-        //    }));
-        //}
-
-        //private void Client_OnChangeCurrentCyclogramm(object sender, Cyclogramm CurrentCyclogramm)
-        //{
-        //    if (CurrentCyclogramm != null)
-        //    {
-        //        //project.Server.CommandSender(IPAddress.Parse("255.255.255.255"), project.Server.UDPPort, (sender as Client).Number, CurrentCyclogramm.Name);
-        //        richTextBox1.AppendText("На клиенте: \"" + (sender as Client).Name + "\" выбрана циклограмма: \"" + CurrentCyclogramm.Name + "\"\n");
-        //        dataGridView_Clients.Rows[project.ClientList.FindIndex(x => x.Number == (sender as Client).Number)].Cells["Column_Cyclogramms"].Value = CurrentCyclogramm;
-        //        dataGridView_Clients.Refresh();
-        //    }
-        //    //dataGridView_Clients.SelectedCells[0].Style.BackColor = ServiceFunc.RefuseColor;
-        //}
 
         private void Timer_Tick(object sender, EventArgs e)
         {
@@ -1390,9 +1248,6 @@ namespace RemoteLEDServer
 
         private void Server_OnSendNumberPlate(byte plateNumber, IPEndPoint ip, ClientState state)
         {
-            Debug.WriteLine("--------------");
-            Debug.WriteLine("[MESSAGE] [Time: {1}] Получен пакет с номером платы: {0}", plateNumber, DateTime.Now.TimeOfDay);
-
             try
             {
                 BeginInvoke(
@@ -1401,18 +1256,9 @@ namespace RemoteLEDServer
                             Client client = project.ClientList.FirstOrDefault(x => x.Number == plateNumber);
                             if (client != null)
                             {
-                                Debug.WriteLine("[MESSAGE] Клиент с номером {0} найден.", client.Number);
-                                Debug.WriteLine("[MESSAGE] Данные проекта: Mode - {0}", project.Mode);
-                                Debug.WriteLine("[MESSAGE] Данные клиента: WaitPlayingStatus - {0}", client.WaitPlayingStatus);
-                                Debug.WriteLine("[MESSAGE] Данные клиента: OnlineStatus - {0}", client.OnlineStatus);
-                                Debug.WriteLine("[MESSAGE] Данные удаленного клиента: state - {0}", state);
-                                Debug.WriteLine("[MESSAGE] Данные плеера: state - {0}", rlcPlayer1.PlaybackStateStr);
-
                                 if (
-                                // проект в состоянии выступления
-                                project.Mode == ProjectServerMode.Release
                                 // не ожидается ответа от клиента о воспроизведнии
-                                && !client.WaitPlayingStatus 
+                                !client.WaitPlayingStatus 
                                 // если не онлайн
                                 && !client.OnlineStatus 
                                 // состояние клиента - ожидание воспроизведения
@@ -1439,11 +1285,11 @@ namespace RemoteLEDServer
                     )
                 );
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                Debug.WriteLine("[ERROR] Ошибка при обработке полученного пакета с номером платы: {0}", e.Message);
             }
         }
+
 
         private void Project_OnSave()
         {
@@ -1551,18 +1397,6 @@ namespace RemoteLEDServer
             source.DataSource = project.ClientList;
             comboBox_Client.DataSource = source;
             dataGridView_Clients.DataSource = source;
-
-            // Загружает данные в комбобоксы циклограмм в списке клиентов
-            //(dataGridView_Clients.Columns["Column_Cyclogramms"] as DataGridViewComboBoxColumn).DisplayMember = "Name";
-            //(dataGridView_Clients.Columns["Column_Cyclogramms"] as DataGridViewComboBoxColumn).ValueType = typeof(Cyclogramm);
-            //(dataGridView_Clients.Columns["Column_Cyclogramms"] as DataGridViewComboBoxColumn).ValueMember = "Self";
-            //for (int i = 0; i < dataGridView_Clients.Rows.Count; i++)
-            //{
-            //    (dataGridView_Clients.Rows[i].Cells["Column_Cyclogramms"] as DataGridViewComboBoxCell).DataSource = (dataGridView_Clients.Rows[i].DataBoundItem as Client).CyclogrammList;
-            //}
-            //--------------
-
-
             dataGridView_Clients.Refresh();
             if (project.ClientList.Count > 0)
             {
@@ -1600,27 +1434,6 @@ namespace RemoteLEDServer
             }
         }
 
-        ///// <summary>
-        ///// Загружает список циклограмм текущего клиента на форму
-        ///// </summary>
-        //private void LoadCyclogrammList()
-        //{
-        //    if ((project.ClientList.Count > 0) && (comboBox_Client.Items.Count > 0))
-        //    {
-        //        (comboBox_Client.SelectedItem as Client).OnChangeCyclogrammList += () =>
-        //        {
-        //            BindingSource source = new BindingSource();
-        //            source.DataSource = (comboBox_Client.SelectedItem as Client).CyclogrammList;
-        //            dataGridView_CyclogrammList.DataSource = source;
-        //            ClientSettingValidation();
-        //        };
-
-        //        BindingSource source2 = new BindingSource();
-        //        source2.DataSource = (comboBox_Client.SelectedItem as Client).CyclogrammList;
-        //        dataGridView_CyclogrammList.DataSource = source2;
-        //    }
-        //}
-
         /// <summary>
         /// Очищает елементы формы и данные использемого проекта
         /// </summary>
@@ -1632,7 +1445,6 @@ namespace RemoteLEDServer
             textBox_ClientPasswordWifi.Text = "";
             textBox_ClientUDPPort.Text = "";
             textBox_ClientLEDCount.Text = "";
-            //textBox_CyclogrammName.Text = "";
             textBox_InputCyclogramm.Text = "";
             textBox_LEDCountCheck.Text = "";
             textBox_localPort.Text = "";
@@ -1658,22 +1470,7 @@ namespace RemoteLEDServer
         {
             textBox_PinNumber.Text = "";
             textBox_PinLEDCount.Text = "";
-            //textBox_CyclogrammName.Text = "";
             textBox_InputCyclogramm.Text = "";
-        }
-
-        private bool ReleaseAcceptOperation()
-        {
-            bool result = true;
-
-            if (project.Mode == ProjectServerMode.Release)
-            {
-                if (MessageBox.Show("Подтвердите операцию", "Внимание", MessageBoxButtons.OKCancel) == DialogResult.Cancel)
-                {
-                    result = false;
-                }
-            }
-            return result;
         }
 
         #endregion
@@ -1732,32 +1529,14 @@ namespace RemoteLEDServer
             comboBox_AudioOutputs.ValueMember = "DeviceID";
         }
 
-        //private void dataGridView_CyclogrammList_KeyDown(object sender, KeyEventArgs e)
-        //{
-        //    if (e.KeyCode == Keys.Delete)
-        //    {
-        //        (comboBox_Client.SelectedItem as Client).DeleteCyclogramm((dataGridView_CyclogrammList.SelectedRows[0].DataBoundItem as Cyclogramm));
-        //        LoadCyclogrammList();
-        //        //ClientSettingValidation();
-        //    }
-        //}
-
-
         private void RemoteLEDControl_FormClosing(object sender, FormClosingEventArgs e)
         {
             if (project != null)
             {
                 string message = "";
 
-                if (project.Mode == ProjectServerMode.Release)
-                {
-                    message += "Программа находится в режиме выступления, закрытие вызовет остановку клиентов!\n";
-                }
-                //if (!project.Saved)
-                //{
-                //    
-                //}
                 message += "Все не сохраненные данные будут утеряны...\n";
+                message += "ЕСЛИ ЗАПУЩЕН ПРОЕКТ, ВСЕ КЛИЕНТЫ БУДУТ ОСТАНОВЛЕНЫ!!! \n";
                 message += "Продолжить?\n";
 
                 if (MessageBox.Show(message, "Закрытие программы", MessageBoxButtons.YesNo) == DialogResult.No)
@@ -1770,10 +1549,7 @@ namespace RemoteLEDServer
                     {
                         if (project.Server.IsRun)
                         {
-                            if (project.Mode == ProjectServerMode.Release)
-                            {
-                                project.Server.Send_StopAll_2();
-                            }                            
+                            project.Server.Send_StopAll_2();
                             project.Server.StopReceiving();
                             while (project.Server.IsRun) { }
                         }
@@ -1873,7 +1649,6 @@ namespace RemoteLEDServer
                                 project.Server.ProjectKey = project.Key;
                             }
                         }
-                        //project.Server = new UDPServer(project.Key);
                         project.Saved = true;
                         ToolStripMenuItem_SaveProject.Enabled = true;
                         ToolStripMenuItem_SaveAsProject.Enabled = true;
@@ -1912,142 +1687,16 @@ namespace RemoteLEDServer
                     project.Server.ProjectKey = project.Key;
                 }
             }
-            //project.Server = new UDPServer(project.Key);
             project.Saved = true;
             ToolStripMenuItem_SaveProject.Enabled = true;
             ToolStripMenuItem_SaveAsProject.Enabled = true;
             OnProjectStart();
         }
 
-        private void dataGridView1_DataError(object sender, DataGridViewDataErrorEventArgs e)
-        {
-            //richTextBox1.AppendText(e.Exception.Message + "\n");
-        }
-
         private void richTextBox1_DoubleClick(object sender, EventArgs e)
         {
             (sender as RichTextBox).Clear();
         }
-
-        //private void dataGridView1_CellEndEdit(object sender, DataGridViewCellEventArgs e)
-        //{
-        //    richTextBox1.AppendText(project.ClientList[0].CurrentCyclogramm.Name + "\n");
-        //}
-
-        //private void dataGridView1_EditingControlShowing(object sender, DataGridViewEditingControlShowingEventArgs e)
-        //{
-        //    //richTextBox1.AppendText("EditingControlShowing" + "\n");
-        //    (e.Control as ComboBox).SelectedIndexChanged -= RemoteLEDControl_SelectedIndexChanged;
-        //    (e.Control as ComboBox).SelectedIndexChanged += RemoteLEDControl_SelectedIndexChanged;
-        //}
-
-        //private void RemoteLEDControl_SelectedIndexChanged(object sender, EventArgs e)
-        //{
-        //    if ((sender as ComboBox).SelectedItem != null)
-        //    {
-        //        project.ClientList[0].CurrentCyclogramm = ((sender as ComboBox).SelectedItem as Cyclogramm);
-        //    }
-        //}
-
-        //private void dataGridView_Clients_CellMouseLeave(object sender, DataGridViewCellEventArgs e)
-        //{
-        //    if ((sender as DataGridView).IsCurrentCellInEditMode)
-        //    {
-        //        (sender as DataGridView).EndEdit();
-        //    }
-        //}
-
-        //private void dataGridView_Clients_CellEndEdit(object sender, DataGridViewCellEventArgs e)
-        //{
-        //    //if (e.ColumnIndex == (sender as DataGridView).Columns["Column_Cyclogramms"].Index)
-        //    //{
-        //    //    richTextBox1.AppendText((dataGridView_Clients.SelectedCells[0].OwningRow.DataBoundItem as Client).CurrentCyclogramm.Name + "\n");
-        //    //}
-        //}
-
-        //private void dataGridView_Clients_CellMouseClick(object sender, DataGridViewCellMouseEventArgs e)
-        //{
-        //    if (e.RowIndex >= 0)
-        //    {
-        //        if (e.ColumnIndex == (sender as DataGridView).Columns["Column_Cyclogramms"].Index && project.Mode == ProjectServerMode.Test)
-        //        {
-        //            (sender as DataGridView).CurrentCell = (sender as DataGridView).Rows[e.RowIndex].Cells[e.ColumnIndex];
-        //            //((sender as DataGridView).CurrentCell as DataGridViewComboBoxCell).
-        //            //((sender as DataGridView).CurrentCell as DataGridViewComboBoxCell).Items.Add("testeteststet");
-        //            (sender as DataGridView).BeginEdit(false);
-        //        }
-        //    }
-        //}
-
-        //private void dataGridView_Clients_CurrentCellDirtyStateChanged(object sender, EventArgs e)
-        //{
-        //    if ((sender as DataGridView).IsCurrentCellDirty)
-        //    {
-        //        (sender as DataGridView).CommitEdit(DataGridViewDataErrorContexts.Commit);
-        //        (sender as DataGridView).EndEdit();
-        //        (sender as DataGridView).Invalidate();
-        //    }
-        //}
-
-        //private void dataGridView_Clients_EditingControlShowing(object sender, DataGridViewEditingControlShowingEventArgs e)
-        //{
-        //    //(e.Control as ComboBox).SelectedIndexChanged -= RemoteLEDControl_SelectedIndexChanged2;
-        //    //(e.Control as ComboBox).SelectedIndexChanged += RemoteLEDControl_SelectedIndexChanged2;
-        //    (e.Control as ComboBox).SelectionChangeCommitted -= RemoteLEDControl_SelectionChangeCommitted;
-        //    (e.Control as ComboBox).SelectionChangeCommitted += RemoteLEDControl_SelectionChangeCommitted;
-        //}
-
-        //private void RemoteLEDControl_SelectionChangeCommitted(object sender, EventArgs e)
-        //{            
-        //    if ((sender as ComboBox).SelectedItem != null)
-        //    {
-        //        if (((sender as ComboBox).SelectedItem as Cyclogramm) != (dataGridView_Clients.SelectedCells[0].OwningRow.DataBoundItem as Client).CurrentCyclogramm)
-        //        {
-        //            (dataGridView_Clients.SelectedCells[0].OwningRow.DataBoundItem as Client).Send_SelectCyclogrammName_9(((sender as ComboBox).SelectedItem as Cyclogramm).Name, 1);
-        //        }
-        //    }
-        //    (sender as ComboBox).SelectedItem = null;
-        //    //if ((sender as ComboBox).SelectedItem != null)
-        //    //{
-        //    //    if ((dataGridView_Clients.SelectedCells[0].OwningRow.DataBoundItem as Client).CurrentCyclogramm != ((sender as ComboBox).SelectedItem as Cyclogramm))
-        //    //    {
-        //    //        (dataGridView_Clients.SelectedCells[0].OwningRow.DataBoundItem as Client).Send_SelectCyclogrammName_9(((sender as ComboBox).SelectedItem as Cyclogramm).Name);
-        //    //        //project.Server.CommandSender(IPAddress.Parse("255.255.255.255"), project.Server.UDPPort, (dataGridView_Clients.SelectedCells[0].OwningRow.DataBoundItem as Client).Number, ((sender as ComboBox).SelectedItem as Cyclogramm).Name, 9);
-        //    //        dataGridView_Clients.SelectedCells[0].Style.BackColor = Color.Red;
-        //    //        //(dataGridView_Clients.SelectedCells[0].OwningRow.DataBoundItem as Client).CurrentCyclogramm = ((sender as ComboBox).SelectedItem as Cyclogramm);
-        //    //    }
-
-
-        //    //}            
-        //}
-
-        //private void RemoteLEDControl_SelectedIndexChanged2(object sender, EventArgs e)
-        //{
-        //    //if ((sender as ComboBox).SelectedItem != null)
-        //    //{
-        //    //    if ((dataGridView_Clients.SelectedCells[0].OwningRow.DataBoundItem as Client).CurrentCyclogramm != ((sender as ComboBox).SelectedItem as Cyclogramm))
-        //    //    {
-        //    //        project.Server.CommandSender(IPAddress.Parse("255.255.255.255"), project.Server.UDPPort, (dataGridView_Clients.SelectedCells[0].OwningRow.DataBoundItem as Client).Number, ((sender as ComboBox).SelectedItem as Cyclogramm).Name);
-        //    //        //(dataGridView_Clients.SelectedCells[0].OwningRow.DataBoundItem as Client).CurrentCyclogramm = ((sender as ComboBox).SelectedItem as Cyclogramm);
-        //    //    }
-
-
-        //    //}
-        //}
-
-        //private void dataGridView_CyclogrammList_CellContentClick(object sender, DataGridViewCellEventArgs e)
-        //{
-        //    ((sender as DataGridView).Rows[e.RowIndex].DataBoundItem as Cyclogramm).Parent.Send_DefaultCyclogrammName_13(((sender as DataGridView).Rows[e.RowIndex].DataBoundItem as Cyclogramm).Name);
-        //    //project.Server.CommandSender(IPAddress.Parse("255.255.255.255"), project.Server.UDPPort,
-        //    //    ((sender as DataGridView).Rows[e.RowIndex].DataBoundItem as Cyclogramm).Parent.Number, ((sender as DataGridView).Rows[e.RowIndex].DataBoundItem as Cyclogramm).Name, 13);
-        //    //if (true)
-        //    //{
-
-        //    //}
-        //    //((sender as DataGridView).Rows[e.RowIndex].DataBoundItem as Cyclogramm).IsFinal = !((sender as DataGridView).Rows[e.RowIndex].DataBoundItem as Cyclogramm).IsFinal;
-        //    //MessageBox.Show("click");
-        //    //(sender as DataGridView).Invalidate();
-        //}
 
         private void button2_Click_1(object sender, EventArgs e)
         {
@@ -2139,24 +1788,6 @@ namespace RemoteLEDServer
             }
         }
 
-        private void button_SwitchMode_Click(object sender, EventArgs e)
-        {
-            if (project != null)
-            {
-                if (project.Mode == ProjectServerMode.Release)
-                {
-                    if (MessageBox.Show("Подтвердите переход с режима \"Выступление\"", "Внимание", MessageBoxButtons.OKCancel) == DialogResult.OK)
-                    {
-                        project.Mode = ProjectServerMode.Test;
-                    }
-                }
-                else
-                {
-                    project.Mode = ProjectServerMode.Release;
-                }
-            }
-        }
-
         private void button_TurnOffServer_Click(object sender, EventArgs e)
         {
             if (project != null)
@@ -2193,32 +1824,26 @@ namespace RemoteLEDServer
 
         private void button_Pause_Click(object sender, EventArgs e)
         {
-            if (ReleaseAcceptOperation())
+            if (rlcPlayer1.TotalTime != TimeSpan.Zero && project.Server.UDPPort > 0)
             {
-                if (rlcPlayer1.TotalTime != TimeSpan.Zero && project.Server.UDPPort > 0)
+                if (rlcPlayer1.PlaybackStateStr == PlaybackState.Playing)
                 {
-                    if (rlcPlayer1.PlaybackStateStr == PlaybackState.Playing)
-                    {
-                        project.Server.Send_PauseAll_6();
-                        Thread.Sleep(2);
-                        rlcPlayer1.Pause();
-                    }
+                    project.Server.Send_PauseAll_6();
+                    Thread.Sleep(2);
+                    rlcPlayer1.Pause();
                 }
             }
         }
 
         private void button_Stop_Click(object sender, EventArgs e)
         {
-            if (ReleaseAcceptOperation())
+            if (rlcPlayer1.TotalTime != TimeSpan.Zero && project.Server.UDPPort > 0)
             {
-                if (rlcPlayer1.TotalTime != TimeSpan.Zero && project.Server.UDPPort > 0)
+                if (rlcPlayer1.PlaybackStateStr == PlaybackState.Playing || rlcPlayer1.PlaybackStateStr == PlaybackState.Paused)
                 {
-                    if (rlcPlayer1.PlaybackStateStr == PlaybackState.Playing || rlcPlayer1.PlaybackStateStr == PlaybackState.Paused)
-                    {
-                        rlcPlayer1.Stop();
-                        rlcPlayer1.CurrentTime = TimeSpan.Zero;
-                        project.Server.Send_StopAll_2();
-                    }
+                    rlcPlayer1.Stop();
+                    rlcPlayer1.CurrentTime = TimeSpan.Zero;
+                    project.Server.Send_StopAll_2();
                 }
             }
         }
@@ -2226,35 +1851,29 @@ namespace RemoteLEDServer
         private void button_Open_Click(object sender, EventArgs e)
         {
             //открыть
-            if (ReleaseAcceptOperation())
+            OpenFileDialog od = new OpenFileDialog();
+            od.InitialDirectory = Environment.CurrentDirectory;
+            od.Filter = CodecFactory.SupportedFilesFilterEn;
+            od.Multiselect = false;
+            if (od.ShowDialog() == DialogResult.OK)
             {
-                OpenFileDialog od = new OpenFileDialog();
-                od.InitialDirectory = Environment.CurrentDirectory;
-                od.Filter = CodecFactory.SupportedFilesFilterEn;
-                od.Multiselect = false;
-                if (od.ShowDialog() == DialogResult.OK)
-                {
-                    rlcPlayer1.InitializePlayer(od.FileName);
-                }
+                rlcPlayer1.InitializePlayer(od.FileName);
             }
         }
 
         private void button_PlayFrom_Click(object sender, EventArgs e)
         {
-            if (ReleaseAcceptOperation())
+            int minutes;
+            int seconds;
+            if (int.TryParse(maskedTextBox_SetTime.Text.Substring(0, 2), out minutes) &&
+                int.TryParse(maskedTextBox_SetTime.Text.Substring(3, 2), out seconds))
             {
-                int minutes;
-                int seconds;
-                if (int.TryParse(maskedTextBox_SetTime.Text.Substring(0, 2), out minutes) &&
-                    int.TryParse(maskedTextBox_SetTime.Text.Substring(3, 2), out seconds))
-                {
-                    double min = TimeSpan.FromMinutes((double)minutes).TotalMilliseconds;
-                    double sec = TimeSpan.FromSeconds((double)seconds).TotalMilliseconds;
-                    rlcPlayer1.CurrentTime = TimeSpan.FromMilliseconds(min + sec);
-                    project.Server.Send_PlayFromAll_7(rlcPlayer1.CurrentTime);
-                    Thread.Sleep(2);
-                    rlcPlayer1.Play();
-                }
+                double min = TimeSpan.FromMinutes((double)minutes).TotalMilliseconds;
+                double sec = TimeSpan.FromSeconds((double)seconds).TotalMilliseconds;
+                rlcPlayer1.CurrentTime = TimeSpan.FromMilliseconds(min + sec);
+                project.Server.Send_PlayFromAll_7(rlcPlayer1.CurrentTime);
+                Thread.Sleep(2);
+                rlcPlayer1.Play();
             }
         }
 

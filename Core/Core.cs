@@ -52,20 +52,7 @@ namespace Core
         [DataMember]
         private FileInfo FBindedAudioFile;
 
-        // Properties        
-
-        public ProjectServerMode Mode
-        {
-            get { return FMode; }
-            set
-            {
-                if (FMode != value)
-                {
-                    FMode = value;
-                    OnChangeMode?.Invoke();
-                }
-            }
-        }
+        // Properties
 
         public List<Client> DeletedClientList
         {
@@ -142,8 +129,6 @@ namespace Core
         }
 
         // Events
-        public delegate void DChangeMode();
-        public event DChangeMode OnChangeMode;
         public delegate void DChangeClientList();
         public event DChangeClientList OnChangeClientList;
         public delegate void DHaveActiveThreads(bool HaveTreads);
@@ -633,50 +618,7 @@ namespace Core
                 }
             }
         }
-        //public int AddCyclogramm(string Name, string InCycFile)
-        //{
-        //    int result = -1;
-        //    if ((Name == "") || (InCycFile == ""))
-        //    {
-        //        return result;
-        //    }
-        //    int t = CyclogrammList.FindIndex(x => x.Name == Name);
-        //    if (t < 0)
-        //    {
-        //        Cyclogramm TmpCyclogramm = new Cyclogramm();
-        //        TmpCyclogramm.Name = Name;
-        //        TmpCyclogramm.Parent = this;
-        //        TmpCyclogramm.InputFileName = InCycFile;
-        //        TmpCyclogramm.Converted = false;
-        //        TmpCyclogramm.OnConverted += () =>
-        //        {
-        //            //OnRefreshCyclogrammList?.Invoke();
-        //        };
-        //        TmpCyclogramm.OnFinalFlagChange += TmpCyclogramm_OnFinalFlagChange;
-        //        CyclogrammList.Add(TmpCyclogramm);
-        //        result = CyclogrammList.IndexOf(TmpCyclogramm);
-        //        OnChangeCyclogrammList?.Invoke();
-        //        Saved = false;
-        //    }
-        //    return result;
-        //}
-        //public void DeleteCyclogramm(Cyclogramm cyclogramm)
-        //{
-        //    if (CyclogrammList == null)
-        //    {
-        //        return;
-        //    }
-        //    if (DeletedCyclogrammList == null)
-        //    {
-        //        DeletedCyclogrammList = new List<Cyclogramm>();
-        //    }
-        //    if (CyclogrammList.Remove(cyclogramm))
-        //    {
-        //        DeletedCyclogrammList.Add(cyclogramm);
-        //        OnChangeCyclogrammList?.Invoke();
-        //        Saved = false;
-        //    }
-        //}
+
         public void Send_PlayFrom_12(TimeSpan Time)
         {
             uint FrameTime = (uint)(Time.TotalMilliseconds / 50);
@@ -776,15 +718,6 @@ namespace Core
             }
         }
         
-        //public string OutputFileName
-        //{
-        //    get { return FOutputFileName; }
-        //    set
-        //    {
-        //        FOutputFileName = value;
-        //        OnChange?.Invoke();
-        //    }
-        //}
         public bool Saved
         {
             get { return FSaved; }
@@ -840,8 +773,6 @@ namespace Core
         public event ChangeCyclogram OnChange;
         public delegate void ConvertedCyclogramm();
         public event ConvertedCyclogramm OnConverted;
-        //public delegate void FinalFlagChange(object sender);
-        //public event FinalFlagChange OnFinalFlagChange;
     }
 
     /// <summary>
@@ -937,8 +868,6 @@ namespace Core
         }
 
         // Events
-        //public delegate void SendString(string s);
-        //public event SendString OnParsePackageSendMessage;
         public delegate void SendCyclogrammName(byte ClientNumber, byte CyclogrammSendType, string CyclogrammName);
         public event SendCyclogrammName OnSendCyclogrammName;
         public delegate void SendFinalCyclogrammName(byte ClientNumber, string CyclogrammName);
@@ -1056,130 +985,6 @@ namespace Core
                 OnParsePackage?.Invoke(bytes[4]);
             }
         }
-
-        //public void CommandSender(byte cmd, IPAddress IP, int Port)
-        //{
-        //    if (cmd == 9 || cmd == 13)
-        //    {
-        //        return;
-        //    }
-
-        //    CommandSender1(cmd, IP, Port, new byte[0]);
-        //}
-
-        //public void CommandSender(IPAddress IP, int Port, byte ClientNumber, string CyclogrammName, byte StringCommand)
-        //{
-        //    byte[] tmpBytes = System.Text.Encoding.ASCII.GetBytes(CyclogrammName);
-        //    byte[] content = new byte[tmpBytes.Length + 1];
-        //    content[0] = ClientNumber;
-        //    Array.Copy(tmpBytes, 0, content, 1, tmpBytes.Length);
-        //    CommandSender1(StringCommand, IP, Port, content);
-        //}
-
-        //public void CommandSender1(byte cmd, IPAddress IP, int Port, byte[] Content)
-        //{
-        //    ushort ContentLength;
-        //    byte[] ByteArray = new byte[200];
-        //    ByteArray[0] = (byte)(ProjectKey >> 24);
-        //    ByteArray[1] = (byte)(ProjectKey >> 16);
-        //    ByteArray[2] = (byte)(ProjectKey >> 8);
-        //    ByteArray[3] = (byte)(ProjectKey >> 0);
-        //    ByteArray[4] = cmd;
-        //    switch (cmd)
-        //    {
-        //        case 1:
-        //            ContentLength = 1;
-        //            ByteArray[5] = (byte)(ContentLength >> 8);
-        //            ByteArray[6] = (byte)(ContentLength >> 0);
-        //            ByteArray[7] = 0;
-        //            for (int i = 8; i < ByteArray.Length - 1; i++)
-        //            {
-        //                ByteArray[i] = 0;
-        //            }
-        //            UDPSend(ByteArray, IP, Port);
-        //            break;
-        //        case 2:
-        //            ContentLength = 1;
-        //            ByteArray[5] = (byte)(ContentLength >> 8);
-        //            ByteArray[6] = (byte)(ContentLength >> 0);
-        //            ByteArray[7] = 0;
-        //            for (int i = 8; i < ByteArray.Length - 1; i++)
-        //            {
-        //                ByteArray[i] = 0;
-        //            }
-        //            UDPSend(ByteArray, IP, Port);
-        //            break;
-        //        //case 4:
-        //        //    for (int i = 5; i < ByteArray.Length - 1; i++)
-        //        //    {
-        //        //        ByteArray[i] = 0;
-        //        //    }
-        //        //    UDPSend(ByteArray, IP, Port);
-        //        //    break;
-        //        case 5:
-        //            ContentLength = 4;
-        //            byte[] TempBytes = PServerIPAdress.GetAddressBytes();
-        //            ByteArray[5] = (byte)(ContentLength >> 8);
-        //            ByteArray[6] = (byte)(ContentLength >> 0);
-        //            ByteArray[7] = TempBytes[0];
-        //            ByteArray[8] = TempBytes[1];
-        //            ByteArray[9] = TempBytes[2];
-        //            ByteArray[10] = TempBytes[3];
-
-        //            for (int i = 11; i < ByteArray.Length - 1; i++)
-        //            {
-        //                ByteArray[i] = 0;
-        //            }
-        //            UDPSend(ByteArray, IP, Port);
-        //            break;
-        //        case 6:
-        //            for (int i = 5; i < ByteArray.Length - 1; i++)
-        //            {
-        //                ByteArray[i] = 0;
-        //            }
-        //            UDPSend(ByteArray, IP, Port);
-        //            break;
-        //        case 7:
-        //            ContentLength = 4;
-        //            ByteArray[5] = (byte)(ContentLength >> 8);
-        //            ByteArray[6] = (byte)(ContentLength >> 0);
-        //            ByteArray[7] = (byte)(PSetTime >> 24);
-        //            ByteArray[8] = (byte)(PSetTime >> 16);
-        //            ByteArray[9] = (byte)(PSetTime >> 8);
-        //            ByteArray[10] = (byte)(PSetTime >> 0);
-
-        //            for (int i = 11; i < ByteArray.Length - 1; i++)
-        //            {
-        //                ByteArray[i] = 0;
-        //            }
-        //            UDPSend(ByteArray, IP, Port);
-        //            break;
-        //        case 9:
-        //            ContentLength = (ushort)Content.Length;
-        //            ByteArray[5] = (byte)(ContentLength >> 8);
-        //            ByteArray[6] = (byte)(ContentLength >> 0);
-        //            Array.Copy(Content, 0, ByteArray, 7, Content.Length);
-        //            for (int i = 7 + ContentLength; i < ByteArray.Length - 1; i++)
-        //            {
-        //                ByteArray[i] = 0;
-        //            }
-        //            UDPSend(ByteArray, IP, Port);
-        //            break;
-        //        case 13:
-        //            ContentLength = (ushort)Content.Length;
-        //            ByteArray[5] = (byte)(ContentLength >> 8);
-        //            ByteArray[6] = (byte)(ContentLength >> 0);
-        //            Array.Copy(Content, 0, ByteArray, 7, Content.Length);
-        //            for (int i = 7 + ContentLength; i < ByteArray.Length - 1; i++)
-        //            {
-        //                ByteArray[i] = 0;
-        //            }
-        //            UDPSend(ByteArray, IP, Port);
-        //            break;
-        //        default:
-        //            break;
-        //    }
-        //}
 
         public void Send_PlayAll_1()
         {
@@ -1347,107 +1152,4 @@ namespace Core
             }
         }
     }
-
-    //public class ClientPacketSender
-    //{
-    //    public Client Parent;
-    //    public void Send_SelectCyclogrammName_9(string CyclogrammName)
-    //    {
-    //        byte[] Content = new byte[CyclogrammName.Length + 1];
-    //        Content[0] = Parent.Number;
-    //        Array.Copy(System.Text.Encoding.ASCII.GetBytes(CyclogrammName), 0, Content, 1, CyclogrammName.Length);
-    //        //Parent.Parent.Server.SendCommand(, , 9, Content);
-    //    }
-    //    public void Send_PlayFrom_12(TimeSpan Time)
-    //    {
-
-    //    }
-    //    public void Send_DefaultCyclogrammName_13(string CyclogrammName)
-    //    {
-
-    //    }
-    //}
-
-    //public class CyclogrammConverter
-    //{
-    //    private string OutFileName;
-    //    private string InputFileName;
-
-    //    public CyclogrammConverter(string POutFileName, string InputFile)
-    //    {
-    //        OutFileName = POutFileName;
-    //        InputFileName = InputFile;
-    //    }
-
-    //    public delegate void ConverterSendString(byte s);
-
-    //    public event ConverterSendString OnConverterSendMessage;
-
-    //    public delegate void ConvertionDone(int ThreadID, bool Done);
-    //    public event ConvertionDone OnConvertionDone;
-
-    //    public void Start()
-    //    {
-    //        try
-    //        {
-    //            FileStream FileInput = new FileStream(InputFileName, FileMode.Open, FileAccess.Read);
-    //            byte CurrentByte;
-    //            int CurrentByteBuffer;
-    //            byte Percent = 0;
-    //            uint[] ArPer = new uint[100];
-    //            ArPer[0] = (uint)(FileInput.Length / 100);
-    //            for (int i = 1; i < 99; i++)
-    //            {
-    //                ArPer[i] += ArPer[i - 1] + ArPer[0];
-    //            }
-    //            int ColorByteCount = 1; //счетчик от 1 до 3 (Определяет значение одного цвета)
-    //            string colorBuffer = "";
-    //            FileStream FileOutput = new FileStream(OutFileName, FileMode.OpenOrCreate, FileAccess.Write);
-    //            FileOutput.Position = FileOutput.Length;
-    //            while (FileInput.Position <= FileInput.Length)
-    //            {
-    //                if (ArPer[Percent] == FileInput.Position)
-    //                {
-    //                    OnConverterSendMessage(Percent);
-    //                    Percent++;
-    //                }
-
-    //                CurrentByteBuffer = FileInput.ReadByte();
-    //                if (CurrentByteBuffer > 0)
-    //                {
-    //                    CurrentByte = (byte)(CurrentByteBuffer);
-    //                }
-    //                else
-    //                {
-    //                    break;
-    //                }
-
-    //                // Проверка, является ли текущий байт запятой "," символом перевода на новую строку или символом возврата каретки
-    //                if ((CurrentByte == 44) || (CurrentByte == 13) || (CurrentByte == 10))
-    //                    continue;
-
-    //                if (ColorByteCount <= 3)
-    //                {
-    //                    colorBuffer += Convert.ToChar(CurrentByte);
-    //                    ColorByteCount++;
-    //                }
-
-    //                if (ColorByteCount == 4)
-    //                {
-    //                    ColorByteCount = 1;
-    //                    FileOutput.WriteByte(Convert.ToByte(colorBuffer));
-    //                    colorBuffer = "";
-    //                }
-    //            }
-    //            FileInput.Close();
-    //            FileOutput.Close();
-    //            OnConvertionDone?.Invoke(Thread.CurrentThread.ManagedThreadId, true);
-    //        }
-    //        catch (Exception)
-    //        {
-    //            OnConvertionDone?.Invoke(Thread.CurrentThread.ManagedThreadId, false);
-    //        }
-    //    }
-    //}
-
 }

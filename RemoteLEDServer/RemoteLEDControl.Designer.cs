@@ -29,8 +29,8 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(RemoteLEDControl));
             this.MainMenu = new System.Windows.Forms.MenuStrip();
             this.ToolStripMenuItemFile = new System.Windows.Forms.ToolStripMenuItem();
@@ -109,9 +109,6 @@
             this.Column_Number = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Column_Name = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Column_Status = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.panel8 = new System.Windows.Forms.Panel();
-            this.label_ProjectServerMode = new System.Windows.Forms.Label();
-            this.button_SwitchMode = new System.Windows.Forms.Button();
             this.panel7 = new System.Windows.Forms.Panel();
             this.panel_Player = new System.Windows.Forms.Panel();
             this.rlcPlayer1 = new RLCPlayer.RLCPlayer();
@@ -156,7 +153,6 @@
             this.tabPage1.SuspendLayout();
             this.panel_Clients.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView_Clients)).BeginInit();
-            this.panel8.SuspendLayout();
             this.panel_Player.SuspendLayout();
             this.rlcPlayer1.SuspendLayout();
             this.panel_PlayerControls.SuspendLayout();
@@ -319,7 +315,7 @@
             this.tabPage3.Location = new System.Drawing.Point(4, 23);
             this.tabPage3.Name = "tabPage3";
             this.tabPage3.Padding = new System.Windows.Forms.Padding(1, 2, 2, 2);
-            this.tabPage3.Size = new System.Drawing.Size(979, 577);
+            this.tabPage3.Size = new System.Drawing.Size(979, 337);
             this.tabPage3.TabIndex = 2;
             this.tabPage3.Text = "Настройки клиентов";
             this.tabPage3.UseVisualStyleBackColor = true;
@@ -340,7 +336,7 @@
             this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel1.Location = new System.Drawing.Point(1, 2);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(976, 573);
+            this.panel1.Size = new System.Drawing.Size(976, 333);
             this.panel1.TabIndex = 0;
             // 
             // panel3
@@ -350,7 +346,7 @@
             this.panel3.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel3.Location = new System.Drawing.Point(0, 32);
             this.panel3.Name = "panel3";
-            this.panel3.Size = new System.Drawing.Size(976, 541);
+            this.panel3.Size = new System.Drawing.Size(976, 301);
             this.panel3.TabIndex = 1;
             // 
             // panel5
@@ -360,7 +356,7 @@
             this.panel5.Location = new System.Drawing.Point(0, 195);
             this.panel5.Name = "panel5";
             this.panel5.Padding = new System.Windows.Forms.Padding(6, 0, 6, 6);
-            this.panel5.Size = new System.Drawing.Size(976, 346);
+            this.panel5.Size = new System.Drawing.Size(976, 106);
             this.panel5.TabIndex = 66;
             // 
             // groupBox_Cyclogramm
@@ -373,7 +369,7 @@
             this.groupBox_Cyclogramm.Dock = System.Windows.Forms.DockStyle.Fill;
             this.groupBox_Cyclogramm.Location = new System.Drawing.Point(6, 0);
             this.groupBox_Cyclogramm.Name = "groupBox_Cyclogramm";
-            this.groupBox_Cyclogramm.Size = new System.Drawing.Size(964, 340);
+            this.groupBox_Cyclogramm.Size = new System.Drawing.Size(964, 100);
             this.groupBox_Cyclogramm.TabIndex = 64;
             this.groupBox_Cyclogramm.TabStop = false;
             this.groupBox_Cyclogramm.Text = "Циклограмма";
@@ -542,14 +538,14 @@
             this.dataGridView_PinList.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
             this.dataGridView_PinList.ClipboardCopyMode = System.Windows.Forms.DataGridViewClipboardCopyMode.Disable;
             this.dataGridView_PinList.ColumnHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.Single;
-            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle1.BackColor = System.Drawing.Color.LightSkyBlue;
-            dataGridViewCellStyle1.Font = new System.Drawing.Font("Cambria", 9F);
-            dataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.WindowText;
-            dataGridViewCellStyle1.SelectionBackColor = System.Drawing.Color.DeepSkyBlue;
-            dataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
-            this.dataGridView_PinList.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle1;
+            dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle3.BackColor = System.Drawing.Color.LightSkyBlue;
+            dataGridViewCellStyle3.Font = new System.Drawing.Font("Cambria", 9F);
+            dataGridViewCellStyle3.ForeColor = System.Drawing.SystemColors.WindowText;
+            dataGridViewCellStyle3.SelectionBackColor = System.Drawing.Color.DeepSkyBlue;
+            dataGridViewCellStyle3.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle3.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
+            this.dataGridView_PinList.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle3;
             this.dataGridView_PinList.ColumnHeadersHeight = 18;
             this.dataGridView_PinList.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
             this.dataGridView_PinList.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
@@ -839,7 +835,7 @@
             this.tabPage2.Location = new System.Drawing.Point(4, 23);
             this.tabPage2.Name = "tabPage2";
             this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage2.Size = new System.Drawing.Size(979, 577);
+            this.tabPage2.Size = new System.Drawing.Size(725, 260);
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "Настройки сервера";
             this.tabPage2.UseVisualStyleBackColor = true;
@@ -960,13 +956,12 @@
             // tabPage1
             // 
             this.tabPage1.Controls.Add(this.panel_Clients);
-            this.tabPage1.Controls.Add(this.panel8);
             this.tabPage1.Controls.Add(this.panel7);
             this.tabPage1.Controls.Add(this.panel_Player);
             this.tabPage1.Location = new System.Drawing.Point(4, 23);
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage1.Size = new System.Drawing.Size(979, 577);
+            this.tabPage1.Size = new System.Drawing.Size(979, 337);
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "Выступление";
             this.tabPage1.UseVisualStyleBackColor = true;
@@ -975,9 +970,9 @@
             // 
             this.panel_Clients.Controls.Add(this.dataGridView_Clients);
             this.panel_Clients.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panel_Clients.Location = new System.Drawing.Point(3, 37);
+            this.panel_Clients.Location = new System.Drawing.Point(3, 3);
             this.panel_Clients.Name = "panel_Clients";
-            this.panel_Clients.Size = new System.Drawing.Size(973, 440);
+            this.panel_Clients.Size = new System.Drawing.Size(973, 234);
             this.panel_Clients.TabIndex = 26;
             // 
             // dataGridView_Clients
@@ -991,14 +986,14 @@
             this.dataGridView_Clients.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
             this.dataGridView_Clients.ClipboardCopyMode = System.Windows.Forms.DataGridViewClipboardCopyMode.Disable;
             this.dataGridView_Clients.ColumnHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.Single;
-            dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle2.BackColor = System.Drawing.Color.LightSkyBlue;
-            dataGridViewCellStyle2.Font = new System.Drawing.Font("Cambria", 9F);
-            dataGridViewCellStyle2.ForeColor = System.Drawing.SystemColors.WindowText;
-            dataGridViewCellStyle2.SelectionBackColor = System.Drawing.Color.DeepSkyBlue;
-            dataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
-            this.dataGridView_Clients.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle2;
+            dataGridViewCellStyle4.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle4.BackColor = System.Drawing.Color.LightSkyBlue;
+            dataGridViewCellStyle4.Font = new System.Drawing.Font("Cambria", 9F);
+            dataGridViewCellStyle4.ForeColor = System.Drawing.SystemColors.WindowText;
+            dataGridViewCellStyle4.SelectionBackColor = System.Drawing.Color.DeepSkyBlue;
+            dataGridViewCellStyle4.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle4.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
+            this.dataGridView_Clients.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle4;
             this.dataGridView_Clients.ColumnHeadersHeight = 24;
             this.dataGridView_Clients.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
             this.dataGridView_Clients.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
@@ -1017,7 +1012,7 @@
             this.dataGridView_Clients.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.CellSelect;
             this.dataGridView_Clients.ShowCellToolTips = false;
             this.dataGridView_Clients.ShowEditingIcon = false;
-            this.dataGridView_Clients.Size = new System.Drawing.Size(973, 440);
+            this.dataGridView_Clients.Size = new System.Drawing.Size(973, 234);
             this.dataGridView_Clients.TabIndex = 22;
             this.dataGridView_Clients.CellPainting += new System.Windows.Forms.DataGridViewCellPaintingEventHandler(this.dataGridView_Clients_CellPainting);
             // 
@@ -1042,42 +1037,11 @@
             this.Column_Status.Name = "Column_Status";
             this.Column_Status.Width = 70;
             // 
-            // panel8
-            // 
-            this.panel8.Controls.Add(this.label_ProjectServerMode);
-            this.panel8.Controls.Add(this.button_SwitchMode);
-            this.panel8.Dock = System.Windows.Forms.DockStyle.Top;
-            this.panel8.Location = new System.Drawing.Point(3, 3);
-            this.panel8.Name = "panel8";
-            this.panel8.Size = new System.Drawing.Size(973, 34);
-            this.panel8.TabIndex = 25;
-            // 
-            // label_ProjectServerMode
-            // 
-            this.label_ProjectServerMode.AutoSize = true;
-            this.label_ProjectServerMode.Font = new System.Drawing.Font("Cambria", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label_ProjectServerMode.ForeColor = System.Drawing.SystemColors.WindowText;
-            this.label_ProjectServerMode.Location = new System.Drawing.Point(165, 6);
-            this.label_ProjectServerMode.Name = "label_ProjectServerMode";
-            this.label_ProjectServerMode.Size = new System.Drawing.Size(92, 19);
-            this.label_ProjectServerMode.TabIndex = 26;
-            this.label_ProjectServerMode.Text = "Репетиция";
-            // 
-            // button_SwitchMode
-            // 
-            this.button_SwitchMode.Location = new System.Drawing.Point(0, 5);
-            this.button_SwitchMode.Name = "button_SwitchMode";
-            this.button_SwitchMode.Size = new System.Drawing.Size(159, 23);
-            this.button_SwitchMode.TabIndex = 24;
-            this.button_SwitchMode.Text = "Переключение режима";
-            this.button_SwitchMode.UseVisualStyleBackColor = true;
-            this.button_SwitchMode.Click += new System.EventHandler(this.button_SwitchMode_Click);
-            // 
             // panel7
             // 
             this.panel7.BackColor = System.Drawing.Color.Transparent;
             this.panel7.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.panel7.Location = new System.Drawing.Point(3, 477);
+            this.panel7.Location = new System.Drawing.Point(3, 237);
             this.panel7.Name = "panel7";
             this.panel7.Size = new System.Drawing.Size(973, 4);
             this.panel7.TabIndex = 24;
@@ -1086,7 +1050,7 @@
             // 
             this.panel_Player.Controls.Add(this.rlcPlayer1);
             this.panel_Player.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.panel_Player.Location = new System.Drawing.Point(3, 481);
+            this.panel_Player.Location = new System.Drawing.Point(3, 241);
             this.panel_Player.Name = "panel_Player";
             this.panel_Player.Size = new System.Drawing.Size(973, 93);
             this.panel_Player.TabIndex = 23;
@@ -1260,7 +1224,7 @@
             this.tabControl1.Location = new System.Drawing.Point(1, 24);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(987, 604);
+            this.tabControl1.Size = new System.Drawing.Size(987, 364);
             this.tabControl1.TabIndex = 6;
             // 
             // tabPage4
@@ -1368,13 +1332,13 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 14F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(988, 628);
+            this.ClientSize = new System.Drawing.Size(988, 388);
             this.Controls.Add(this.ProjectSaveImage);
             this.Controls.Add(this.tabControl1);
             this.Controls.Add(this.panel_Status);
             this.Controls.Add(this.MainMenu);
             this.Font = new System.Drawing.Font("Cambria", 9F);
-            this.MinimumSize = new System.Drawing.Size(1004, 480);
+            this.MinimumSize = new System.Drawing.Size(1004, 350);
             this.Name = "RemoteLEDControl";
             this.Padding = new System.Windows.Forms.Padding(1, 0, 0, 0);
             this.Text = "Remote LED Control Server";
@@ -1404,8 +1368,6 @@
             this.tabPage1.ResumeLayout(false);
             this.panel_Clients.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView_Clients)).EndInit();
-            this.panel8.ResumeLayout(false);
-            this.panel8.PerformLayout();
             this.panel_Player.ResumeLayout(false);
             this.rlcPlayer1.ResumeLayout(false);
             this.panel_PlayerControls.ResumeLayout(false);
@@ -1485,7 +1447,6 @@
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.TextBox textBox_localPort;
         private System.Windows.Forms.TabPage tabPage1;
-        private System.Windows.Forms.Panel panel8;
         private System.Windows.Forms.DataGridView dataGridView_Clients;
         private System.Windows.Forms.Panel panel7;
         private System.Windows.Forms.Panel panel_Player;
@@ -1499,7 +1460,6 @@
         private System.Windows.Forms.Button button_Stop;
         private System.Windows.Forms.TabControl tabControl1;
         private System.Windows.Forms.Panel panel_Clients;
-        private System.Windows.Forms.Button button_SwitchMode;
         private System.Windows.Forms.MaskedTextBox maskedTextBox_SetTime;
         private System.Windows.Forms.Button button_PlayFrom;
         private System.Windows.Forms.BindingSource cyclogrammBindingSource;
@@ -1507,7 +1467,6 @@
         private System.Windows.Forms.BindingSource cyclogrammBindingSource2;
         private System.Windows.Forms.ComboBox comboBox_RemovableDrive;
         private System.Windows.Forms.Button button_LoadToSD;
-        private System.Windows.Forms.Label label_ProjectServerMode;
         private System.Windows.Forms.Button button_TurnOffServer;
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.GroupBox groupBox_Audio;
