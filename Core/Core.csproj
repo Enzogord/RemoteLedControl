@@ -43,6 +43,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ClientValues.cs" />
     <Compile Include="Core.cs" />
     <Compile Include="Enums.cs" />
     <Compile Include="Project.cs" />

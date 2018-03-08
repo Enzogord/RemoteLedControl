@@ -13,17 +13,6 @@ using System.Collections.ObjectModel;
 
 namespace Core
 {
-    public struct ClientValues
-    {
-        public string Name;
-        public string Number;
-        public string WifiSSID;
-        public string WifiPassword;
-        public ushort UDPPort;
-        public string LEDCount;
-        public string RelativeFolderPath;
-    }
-
     /// <summary>
     /// Информация о настройке и состоянии клиента
     /// </summary>
