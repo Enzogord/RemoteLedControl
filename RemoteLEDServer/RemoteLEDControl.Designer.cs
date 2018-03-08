@@ -29,8 +29,8 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(RemoteLEDControl));
             this.MainMenu = new System.Windows.Forms.MenuStrip();
             this.ToolStripMenuItemFile = new System.Windows.Forms.ToolStripMenuItem();
@@ -114,15 +114,6 @@
             this.button_SwitchMode = new System.Windows.Forms.Button();
             this.panel7 = new System.Windows.Forms.Panel();
             this.panel_Player = new System.Windows.Forms.Panel();
-            this.tabControl1 = new System.Windows.Forms.TabControl();
-            this.tabPage4 = new System.Windows.Forms.TabPage();
-            this.label10 = new System.Windows.Forms.Label();
-            this.label7 = new System.Windows.Forms.Label();
-            this.label11 = new System.Windows.Forms.Label();
-            this.label8 = new System.Windows.Forms.Label();
-            this.label5 = new System.Windows.Forms.Label();
-            this.label1 = new System.Windows.Forms.Label();
-            this.ProjectSaveImage = new System.Windows.Forms.PictureBox();
             this.rlcPlayer1 = new RLCPlayer.RLCPlayer();
             this.panel_PlayerControls = new System.Windows.Forms.Panel();
             this.panel11 = new System.Windows.Forms.Panel();
@@ -135,6 +126,15 @@
             this.button_Play = new System.Windows.Forms.Button();
             this.button_Pause = new System.Windows.Forms.Button();
             this.button_Stop = new System.Windows.Forms.Button();
+            this.tabControl1 = new System.Windows.Forms.TabControl();
+            this.tabPage4 = new System.Windows.Forms.TabPage();
+            this.label10 = new System.Windows.Forms.Label();
+            this.label7 = new System.Windows.Forms.Label();
+            this.label11 = new System.Windows.Forms.Label();
+            this.label8 = new System.Windows.Forms.Label();
+            this.label5 = new System.Windows.Forms.Label();
+            this.label1 = new System.Windows.Forms.Label();
+            this.ProjectSaveImage = new System.Windows.Forms.PictureBox();
             this.cyclogrammBindingSource2 = new System.Windows.Forms.BindingSource(this.components);
             this.cyclogrammBindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.cyclogrammBindingSource1 = new System.Windows.Forms.BindingSource(this.components);
@@ -158,14 +158,14 @@
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView_Clients)).BeginInit();
             this.panel8.SuspendLayout();
             this.panel_Player.SuspendLayout();
-            this.tabControl1.SuspendLayout();
-            this.tabPage4.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.ProjectSaveImage)).BeginInit();
             this.rlcPlayer1.SuspendLayout();
             this.panel_PlayerControls.SuspendLayout();
             this.panel11.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.panel10.SuspendLayout();
+            this.tabControl1.SuspendLayout();
+            this.tabPage4.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.ProjectSaveImage)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.cyclogrammBindingSource2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.cyclogrammBindingSource)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.cyclogrammBindingSource1)).BeginInit();
@@ -542,14 +542,14 @@
             this.dataGridView_PinList.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
             this.dataGridView_PinList.ClipboardCopyMode = System.Windows.Forms.DataGridViewClipboardCopyMode.Disable;
             this.dataGridView_PinList.ColumnHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.Single;
-            dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle3.BackColor = System.Drawing.Color.LightSkyBlue;
-            dataGridViewCellStyle3.Font = new System.Drawing.Font("Cambria", 9F);
-            dataGridViewCellStyle3.ForeColor = System.Drawing.SystemColors.WindowText;
-            dataGridViewCellStyle3.SelectionBackColor = System.Drawing.Color.DeepSkyBlue;
-            dataGridViewCellStyle3.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle3.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
-            this.dataGridView_PinList.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle3;
+            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle1.BackColor = System.Drawing.Color.LightSkyBlue;
+            dataGridViewCellStyle1.Font = new System.Drawing.Font("Cambria", 9F);
+            dataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.WindowText;
+            dataGridViewCellStyle1.SelectionBackColor = System.Drawing.Color.DeepSkyBlue;
+            dataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
+            this.dataGridView_PinList.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle1;
             this.dataGridView_PinList.ColumnHeadersHeight = 18;
             this.dataGridView_PinList.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
             this.dataGridView_PinList.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
@@ -991,14 +991,14 @@
             this.dataGridView_Clients.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
             this.dataGridView_Clients.ClipboardCopyMode = System.Windows.Forms.DataGridViewClipboardCopyMode.Disable;
             this.dataGridView_Clients.ColumnHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.Single;
-            dataGridViewCellStyle4.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle4.BackColor = System.Drawing.Color.LightSkyBlue;
-            dataGridViewCellStyle4.Font = new System.Drawing.Font("Cambria", 9F);
-            dataGridViewCellStyle4.ForeColor = System.Drawing.SystemColors.WindowText;
-            dataGridViewCellStyle4.SelectionBackColor = System.Drawing.Color.DeepSkyBlue;
-            dataGridViewCellStyle4.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle4.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
-            this.dataGridView_Clients.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle4;
+            dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle2.BackColor = System.Drawing.Color.LightSkyBlue;
+            dataGridViewCellStyle2.Font = new System.Drawing.Font("Cambria", 9F);
+            dataGridViewCellStyle2.ForeColor = System.Drawing.SystemColors.WindowText;
+            dataGridViewCellStyle2.SelectionBackColor = System.Drawing.Color.DeepSkyBlue;
+            dataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
+            this.dataGridView_Clients.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle2;
             this.dataGridView_Clients.ColumnHeadersHeight = 24;
             this.dataGridView_Clients.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
             this.dataGridView_Clients.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
@@ -1090,109 +1090,6 @@
             this.panel_Player.Name = "panel_Player";
             this.panel_Player.Size = new System.Drawing.Size(973, 93);
             this.panel_Player.TabIndex = 23;
-            // 
-            // tabControl1
-            // 
-            this.tabControl1.Controls.Add(this.tabPage1);
-            this.tabControl1.Controls.Add(this.tabPage2);
-            this.tabControl1.Controls.Add(this.tabPage3);
-            this.tabControl1.Controls.Add(this.tabPage4);
-            this.tabControl1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tabControl1.Enabled = false;
-            this.tabControl1.Location = new System.Drawing.Point(1, 24);
-            this.tabControl1.Name = "tabControl1";
-            this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(987, 604);
-            this.tabControl1.TabIndex = 6;
-            // 
-            // tabPage4
-            // 
-            this.tabPage4.Controls.Add(this.label10);
-            this.tabPage4.Controls.Add(this.label7);
-            this.tabPage4.Controls.Add(this.label11);
-            this.tabPage4.Controls.Add(this.label8);
-            this.tabPage4.Controls.Add(this.label5);
-            this.tabPage4.Controls.Add(this.label1);
-            this.tabPage4.Location = new System.Drawing.Point(4, 23);
-            this.tabPage4.Name = "tabPage4";
-            this.tabPage4.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage4.Size = new System.Drawing.Size(979, 577);
-            this.tabPage4.TabIndex = 3;
-            this.tabPage4.Text = "О программе";
-            this.tabPage4.UseVisualStyleBackColor = true;
-            // 
-            // label10
-            // 
-            this.label10.AutoSize = true;
-            this.label10.Font = new System.Drawing.Font("Cambria", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.label10.Location = new System.Drawing.Point(28, 177);
-            this.label10.Name = "label10";
-            this.label10.Size = new System.Drawing.Size(109, 15);
-            this.label10.TabIndex = 5;
-            this.label10.Text = "Copyright ©  2017";
-            // 
-            // label7
-            // 
-            this.label7.AutoSize = true;
-            this.label7.Font = new System.Drawing.Font("Cambria", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.label7.Location = new System.Drawing.Point(28, 142);
-            this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(114, 15);
-            this.label7.TabIndex = 6;
-            this.label7.Text = "Skype: enzovadim1";
-            // 
-            // label11
-            // 
-            this.label11.Font = new System.Drawing.Font("Cambria", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.label11.Location = new System.Drawing.Point(27, 57);
-            this.label11.Name = "label11";
-            this.label11.Size = new System.Drawing.Size(567, 39);
-            this.label11.TabIndex = 7;
-            this.label11.Text = "Программа для удаленного управления по WiFi сети светодиодными массивами покдлюче" +
-    "нными к клиентскому контроллеру Esp8266";
-            // 
-            // label8
-            // 
-            this.label8.AutoSize = true;
-            this.label8.Font = new System.Drawing.Font("Cambria", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.label8.Location = new System.Drawing.Point(27, 108);
-            this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(70, 15);
-            this.label8.TabIndex = 8;
-            this.label8.Text = "Для связи:";
-            // 
-            // label5
-            // 
-            this.label5.AutoSize = true;
-            this.label5.Font = new System.Drawing.Font("Cambria", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.label5.Location = new System.Drawing.Point(28, 126);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(170, 15);
-            this.label5.TabIndex = 9;
-            this.label5.Text = "E-mail: enzogord@gmail.com";
-            // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Font = new System.Drawing.Font("Cambria", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.label1.Location = new System.Drawing.Point(27, 26);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(304, 19);
-            this.label1.TabIndex = 4;
-            this.label1.Text = "Remote LED Control Server    Version 1.0";
-            // 
-            // ProjectSaveImage
-            // 
-            this.ProjectSaveImage.BackgroundImage = global::RemoteLEDServer.Properties.Resources.save_error;
-            this.ProjectSaveImage.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.ProjectSaveImage.ErrorImage = null;
-            this.ProjectSaveImage.InitialImage = null;
-            this.ProjectSaveImage.Location = new System.Drawing.Point(56, 1);
-            this.ProjectSaveImage.Name = "ProjectSaveImage";
-            this.ProjectSaveImage.Size = new System.Drawing.Size(20, 20);
-            this.ProjectSaveImage.TabIndex = 59;
-            this.ProjectSaveImage.TabStop = false;
-            this.ProjectSaveImage.Visible = false;
             // 
             // rlcPlayer1
             // 
@@ -1352,6 +1249,109 @@
             this.button_Stop.UseVisualStyleBackColor = false;
             this.button_Stop.Click += new System.EventHandler(this.button_Stop_Click);
             // 
+            // tabControl1
+            // 
+            this.tabControl1.Controls.Add(this.tabPage1);
+            this.tabControl1.Controls.Add(this.tabPage2);
+            this.tabControl1.Controls.Add(this.tabPage3);
+            this.tabControl1.Controls.Add(this.tabPage4);
+            this.tabControl1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tabControl1.Enabled = false;
+            this.tabControl1.Location = new System.Drawing.Point(1, 24);
+            this.tabControl1.Name = "tabControl1";
+            this.tabControl1.SelectedIndex = 0;
+            this.tabControl1.Size = new System.Drawing.Size(987, 604);
+            this.tabControl1.TabIndex = 6;
+            // 
+            // tabPage4
+            // 
+            this.tabPage4.Controls.Add(this.label10);
+            this.tabPage4.Controls.Add(this.label7);
+            this.tabPage4.Controls.Add(this.label11);
+            this.tabPage4.Controls.Add(this.label8);
+            this.tabPage4.Controls.Add(this.label5);
+            this.tabPage4.Controls.Add(this.label1);
+            this.tabPage4.Location = new System.Drawing.Point(4, 23);
+            this.tabPage4.Name = "tabPage4";
+            this.tabPage4.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage4.Size = new System.Drawing.Size(979, 577);
+            this.tabPage4.TabIndex = 3;
+            this.tabPage4.Text = "О программе";
+            this.tabPage4.UseVisualStyleBackColor = true;
+            // 
+            // label10
+            // 
+            this.label10.AutoSize = true;
+            this.label10.Font = new System.Drawing.Font("Cambria", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.label10.Location = new System.Drawing.Point(28, 177);
+            this.label10.Name = "label10";
+            this.label10.Size = new System.Drawing.Size(109, 15);
+            this.label10.TabIndex = 5;
+            this.label10.Text = "Copyright ©  2017";
+            // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Font = new System.Drawing.Font("Cambria", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.label7.Location = new System.Drawing.Point(28, 142);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(114, 15);
+            this.label7.TabIndex = 6;
+            this.label7.Text = "Skype: enzovadim1";
+            // 
+            // label11
+            // 
+            this.label11.Font = new System.Drawing.Font("Cambria", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.label11.Location = new System.Drawing.Point(27, 57);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(567, 39);
+            this.label11.TabIndex = 7;
+            this.label11.Text = "Программа для удаленного управления по WiFi сети светодиодными массивами покдлюче" +
+    "нными к клиентскому контроллеру Esp8266";
+            // 
+            // label8
+            // 
+            this.label8.AutoSize = true;
+            this.label8.Font = new System.Drawing.Font("Cambria", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.label8.Location = new System.Drawing.Point(27, 108);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(70, 15);
+            this.label8.TabIndex = 8;
+            this.label8.Text = "Для связи:";
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Font = new System.Drawing.Font("Cambria", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.label5.Location = new System.Drawing.Point(28, 126);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(170, 15);
+            this.label5.TabIndex = 9;
+            this.label5.Text = "E-mail: enzogord@gmail.com";
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Font = new System.Drawing.Font("Cambria", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.label1.Location = new System.Drawing.Point(27, 26);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(304, 19);
+            this.label1.TabIndex = 4;
+            this.label1.Text = "Remote LED Control Server    Version 1.0";
+            // 
+            // ProjectSaveImage
+            // 
+            this.ProjectSaveImage.BackgroundImage = global::RemoteLEDServer.Properties.Resources.save_error;
+            this.ProjectSaveImage.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.ProjectSaveImage.ErrorImage = null;
+            this.ProjectSaveImage.InitialImage = null;
+            this.ProjectSaveImage.Location = new System.Drawing.Point(56, 1);
+            this.ProjectSaveImage.Name = "ProjectSaveImage";
+            this.ProjectSaveImage.Size = new System.Drawing.Size(20, 20);
+            this.ProjectSaveImage.TabIndex = 59;
+            this.ProjectSaveImage.TabStop = false;
+            this.ProjectSaveImage.Visible = false;
+            // 
             // cyclogrammBindingSource2
             // 
             this.cyclogrammBindingSource2.DataSource = typeof(Core.Cyclogramm);
@@ -1407,16 +1407,16 @@
             this.panel8.ResumeLayout(false);
             this.panel8.PerformLayout();
             this.panel_Player.ResumeLayout(false);
-            this.tabControl1.ResumeLayout(false);
-            this.tabPage4.ResumeLayout(false);
-            this.tabPage4.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.ProjectSaveImage)).EndInit();
             this.rlcPlayer1.ResumeLayout(false);
             this.panel_PlayerControls.ResumeLayout(false);
             this.panel11.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.panel10.ResumeLayout(false);
             this.panel10.PerformLayout();
+            this.tabControl1.ResumeLayout(false);
+            this.tabPage4.ResumeLayout(false);
+            this.tabPage4.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.ProjectSaveImage)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.cyclogrammBindingSource2)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.cyclogrammBindingSource)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.cyclogrammBindingSource1)).EndInit();

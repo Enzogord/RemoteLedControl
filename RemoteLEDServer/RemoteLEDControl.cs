@@ -1388,44 +1388,60 @@ namespace RemoteLEDServer
             }
         }
 
-        private void Server_OnSendNumberPlate(byte s, IPEndPoint ip, ClientState state)
+        private void Server_OnSendNumberPlate(byte plateNumber, IPEndPoint ip, ClientState state)
         {
+            Debug.WriteLine("--------------");
+            Debug.WriteLine("[MESSAGE] [Time: {1}] Получен пакет с номером платы: {0}", plateNumber, DateTime.Now.TimeOfDay);
+
             try
             {
-                BeginInvoke(new Action(delegate ()
-                {
-                    Client tmpClient = project.ClientList.Find(x => x.Number == s);
-                    if (tmpClient != null)
-                    {
-                        int index = project.ClientList.IndexOf(tmpClient);
-
-                        if (project.Mode == ProjectServerMode.Release && !tmpClient.WaitPlayingStatus && !tmpClient.OnlineStatus && state == ClientState.Wait && rlcPlayer1.PlaybackStateStr == PlaybackState.Playing)
+                BeginInvoke(
+                    new Action(delegate ()
                         {
-                            tmpClient.Send_PlayFrom_12(rlcPlayer1.CurrentTime);
-                            tmpClient.WaitPlayingStatus = true;
-                        }
-                        if (state == ClientState.Play || state == ClientState.Pause)
-                        {
-                            tmpClient.WaitPlayingStatus = false;
-                        }
+                            Client client = project.ClientList.FirstOrDefault(x => x.Number == plateNumber);
+                            if (client != null)
+                            {
+                                Debug.WriteLine("[MESSAGE] Клиент с номером {0} найден.", client.Number);
+                                Debug.WriteLine("[MESSAGE] Данные проекта: Mode - {0}", project.Mode);
+                                Debug.WriteLine("[MESSAGE] Данные клиента: WaitPlayingStatus - {0}", client.WaitPlayingStatus);
+                                Debug.WriteLine("[MESSAGE] Данные клиента: OnlineStatus - {0}", client.OnlineStatus);
+                                Debug.WriteLine("[MESSAGE] Данные удаленного клиента: state - {0}", state);
+                                Debug.WriteLine("[MESSAGE] Данные плеера: state - {0}", rlcPlayer1.PlaybackStateStr);
 
-                        //if (tmpClient.CurrentCyclogramm == null && tmpClient.OnlineStatus && state == ClientState.Wait)
-                        //{
-                        //    tmpClient.Send_SelectCyclogrammName_9("", 5);
-                        //}
+                                if (
+                                // проект в состоянии выступления
+                                project.Mode == ProjectServerMode.Release
+                                // не ожидается ответа от клиента о воспроизведнии
+                                && !client.WaitPlayingStatus 
+                                // если не онлайн
+                                && !client.OnlineStatus 
+                                // состояние клиента - ожидание воспроизведения
+                                && state == ClientState.Wait 
+                                // статус плеера - вопсроизведение
+                                && rlcPlayer1.PlaybackStateStr == PlaybackState.Playing)
+                                {
+                                    client.Send_PlayFrom_12(rlcPlayer1.CurrentTime);
+                                    client.WaitPlayingStatus = true;
+                                }
+                                if (state == ClientState.Play || state == ClientState.Pause)
+                                {
+                                    client.WaitPlayingStatus = false;
+                                }
 
-                        project.ClientList[index].OnlineTime = 0; // Сбрасывание времени ожидания клиента, если время меньше определенного числа то клиент онлайн
+                                client.OnlineTime = 0; // Сбрасывание времени ожидания клиента, если время меньше определенного числа то клиент онлайн
 
-                        if (project.ClientList[index].IPAdress != ip.Address)
-                        {
-                            project.ClientList[index].IPAdress = ip.Address; // Установка IP адреса клиента, если указанный в клиенте не совпадает с адресом в пакете
+                                if (client.IPAdress != ip.Address)
+                                {
+                                    client.IPAdress = ip.Address; // Установка IP адреса клиента, если указанный в клиенте не совпадает с адресом в пакете
+                                }
+                            }
                         }
-                    }
-                }));
+                    )
+                );
             }
-            catch (Exception)
+            catch (Exception e)
             {
-
+                Debug.WriteLine("[ERROR] Ошибка при обработке полученного пакета с номером платы: {0}", e.Message);
             }
         }
 
@@ -2197,7 +2213,7 @@ namespace RemoteLEDServer
             {
                 if (rlcPlayer1.TotalTime != TimeSpan.Zero && project.Server.UDPPort > 0)
                 {
-                    if (rlcPlayer1.PlaybackStateStr == PlaybackState.Playing)
+                    if (rlcPlayer1.PlaybackStateStr == PlaybackState.Playing || rlcPlayer1.PlaybackStateStr == PlaybackState.Paused)
                     {
                         rlcPlayer1.Stop();
                         rlcPlayer1.CurrentTime = TimeSpan.Zero;

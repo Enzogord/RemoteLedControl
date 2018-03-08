@@ -101,12 +101,12 @@ namespace Core
         /// </summary>
         /// <param name="StrIn">Входящая строка с числом</param>
         /// <param name="type">Тип числа, по которому будет производиться проверка</param>
-        /// <param name="StrOut">Исходящая строка с правильным числом, если возможно было скорректировать</param>
+        /// <param name="strOut">Исходящая строка с правильным числом, если возможно было скорректировать</param>
         /// <returns>true если число правильно, или скорректировано, false если число невозможно скорректировать</returns>
-        public static bool NumericValidation(string StrIn, TypesNumeric type, out string StrOut)
+        public static bool NumericValidation(string StrIn, TypesNumeric type, out string strOut)
         {
             bool result = false;
-            StrOut = "";
+            strOut = "";
             string NewStr;
             switch (type)
             {
@@ -125,23 +125,23 @@ namespace Core
                         if (TmpUint64 > UInt32.MaxValue)
                         {                            
                             TmpUint64 = UInt32.MaxValue;
-                            StrOut = TmpUint64.ToString();
+                            strOut = TmpUint64.ToString();
                             result = true;
                         }
                         else if (TmpUint64 > 0)
                         {
-                            StrOut = TmpUint64.ToString();
+                            strOut = TmpUint64.ToString();
                             result = true;
                         }
                         else
                         {
-                            StrOut = NewStr;
+                            strOut = NewStr;
                             result = false;
                         }
                     }
                     else
                     {
-                        StrOut = NewStr;
+                        strOut = NewStr;
                         result = false;
                     }
                     break;
@@ -160,23 +160,23 @@ namespace Core
                         if (TmpUint32 > UInt16.MaxValue)
                         {
                             TmpUint32 = UInt16.MaxValue;
-                            StrOut = TmpUint32.ToString();
+                            strOut = TmpUint32.ToString();
                             result = true;
                         }
                         else if (TmpUint32 > 0)
                         {
-                            StrOut = TmpUint32.ToString();
+                            strOut = TmpUint32.ToString();
                             result = true;
                         }
                         else
                         {
-                            StrOut = NewStr;
+                            strOut = NewStr;
                             result = false;
                         }
                     }
                     else
                     {
-                        StrOut = NewStr;
+                        strOut = NewStr;
                         result = false;
                     }
                     break;
@@ -195,23 +195,23 @@ namespace Core
                         if (TmpUint16 > Byte.MaxValue)
                         {
                             TmpUint16 = Byte.MaxValue;
-                            StrOut = TmpUint16.ToString();
+                            strOut = TmpUint16.ToString();
                             result = true;
                         }
                         else if (TmpUint16 > 0)
                         {
-                            StrOut = TmpUint16.ToString();
+                            strOut = TmpUint16.ToString();
                             result = true;
                         }
                         else
                         {
-                            StrOut = NewStr;
+                            strOut = NewStr;
                             result = false;
                         }
                     }
                     else
                     {
-                        StrOut = NewStr;
+                        strOut = NewStr;
                         result = false;
                     }
                     break;
@@ -230,23 +230,23 @@ namespace Core
                         if (_TmpUint16 > Byte.MaxValue)
                         {
                             _TmpUint16 = Byte.MaxValue;
-                            StrOut = _TmpUint16.ToString();
+                            strOut = _TmpUint16.ToString();
                             result = true;
                         }
                         else if (_TmpUint16 >= 0)
                         {
-                            StrOut = _TmpUint16.ToString();
+                            strOut = _TmpUint16.ToString();
                             result = true;
                         }
                         else
                         {
-                            StrOut = NewStr;
+                            strOut = NewStr;
                             result = false;
                         }
                     }
                     else
                     {
-                        StrOut = NewStr;
+                        strOut = NewStr;
                         result = false;
                     }
                     break;
@@ -287,15 +287,15 @@ namespace Core
             return result;
         }
 
-        public static bool ColoringTextBox(TextBox TB, bool isValid)
+        public static bool ColoringTextBox(TextBox textBox, bool isValid)
         {            
             if (isValid)
             {
-                TB.BackColor = AcceptColor;
+                textBox.BackColor = AcceptColor;
             }
             else
             {
-                TB.BackColor = RefuseColor;
+                textBox.BackColor = RefuseColor;
             }
             return isValid;
         }

@@ -426,6 +426,10 @@ namespace Core
         }
         [DataMember]
         public string RelativePath { get; set; }
+
+        /// <summary>
+        /// Ожидание ответа от клиента о воспроизведении
+        /// </summary>
         public bool WaitPlayingStatus { get; set; }
         public string StatusString
         {
