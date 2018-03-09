@@ -137,7 +137,7 @@ namespace RemoteLEDServer
         private void FormConvertion_Shown(object sender, EventArgs e)
         {
             this.Refresh();
-            Thread newThread = new Thread((ConvertCyclogramm));
+            Thread newThread = new Thread(ConvertCyclogramm);
             newThread.Start();
         }
 

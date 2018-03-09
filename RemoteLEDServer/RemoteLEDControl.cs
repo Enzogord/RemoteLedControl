@@ -16,6 +16,7 @@ using System.Diagnostics;
 using CSCore;
 using CSCore.Codecs;
 using CSCore.SoundOut;
+using Microsoft.VisualBasic.FileIO;
 
 namespace RemoteLEDServer
 {
@@ -1767,10 +1768,12 @@ namespace RemoteLEDServer
                         return;
                     }
 
-                    foreach (FileInfo file in ListFiles)
-                    {
-                        File.Copy(tmpClient.Parent.AbsoluteFolderPath + tmpClient.RelativePath + "\\" + file.Name, file.FullName, true);
-                    }
+                    // Вызывает стандартный диалог копирования файлов в каталоге
+                    FileSystem.CopyDirectory(
+                        tmpClient.Parent.AbsoluteFolderPath + tmpClient.RelativePath,
+                        (comboBox_RemovableDrive.SelectedItem as DriveInfo).RootDirectory.FullName,
+                        UIOption.AllDialogs,
+                        UICancelOption.DoNothing);
                 }
                 else
                 {
