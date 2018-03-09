@@ -17,6 +17,8 @@ namespace RemoteLEDServer
         public string InputFile;
         public string OutputFile;
 
+        public bool StopConvertion { get; set; } = false;
+
         public FormConvertion()
         {
             InitializeComponent();
@@ -61,10 +63,13 @@ namespace RemoteLEDServer
                 int ColorByteCount = 1; //счетчик от 1 до 3 (Определяет значение одного цвета)
                 string colorBuffer = "";
                 FileStream FileOutput = new FileStream(OutFile, FileMode.OpenOrCreate, FileAccess.Write);
-                //FileOutput.Position = FileOutput.Length;
                 FileOutput.Position = 0;
                 while (FileInput.Position <= FileInput.Length)
                 {
+                    if (StopConvertion)
+                    {
+                        break;
+                    }
                     if (ArPer[Percent] == FileInput.Position)
                     {
                         BeginInvoke(new Action(delegate ()
@@ -111,7 +116,15 @@ namespace RemoteLEDServer
                     this.Close();
                 })); 
             }
-            catch (Exception e)
+            catch (Exception)
+            {
+                BeginInvoke(new Action(delegate ()
+                {
+                    DialogResult = DialogResult.No;
+                    this.Close();
+                }));
+            }
+            if (StopConvertion)
             {
                 BeginInvoke(new Action(delegate ()
                 {
@@ -126,6 +139,11 @@ namespace RemoteLEDServer
             this.Refresh();
             Thread newThread = new Thread((ConvertCyclogramm));
             newThread.Start();
+        }
+
+        private void buttonCancel_Click(object sender, EventArgs e)
+        {
+            StopConvertion = true;
         }
     }
 }
