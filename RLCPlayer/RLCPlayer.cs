@@ -62,7 +62,7 @@ namespace RLCPlayer
         // Fields
         //      Common
         public bool CanClickPlayerTrack = true;
-        private readonly CSMusicPlayer _musicPlayer = new CSMusicPlayer();
+        private CSMusicPlayer _musicPlayer = new CSMusicPlayer();
         private MMDevice FDevice;
         public readonly ObservableCollection<MMDevice> _devices = new ObservableCollection<MMDevice>();
         private Timer Timer;
@@ -541,7 +541,7 @@ namespace RLCPlayer
 
         public void ChangeDevice()
         {
-            if (FileLabelString != null)
+            if(!String.IsNullOrWhiteSpace(FileLabelString))
             {
                 InitializePlayer(FileLabelString, Device);
             }
@@ -571,6 +571,13 @@ namespace RLCPlayer
         public RLCPlayer()
         {
             InitializeComponent();
+            Init();
+        }
+
+        void Init()
+        {
+            components.Remove(_musicPlayer);
+            _musicPlayer = new CSMusicPlayer();
             components.Add(_musicPlayer);
 
             using (var mmdeviceEnumerator = new MMDeviceEnumerator())
@@ -585,6 +592,7 @@ namespace RLCPlayer
                 }
             }
             Device = _devices[0];
+            _musicPlayer.PlaybackStopped -= _musicPlayer_PlaybackStopped;
             _musicPlayer.PlaybackStopped += _musicPlayer_PlaybackStopped;
             this.Timer = new System.Windows.Forms.Timer();
             this.Timer.Interval = 100;
@@ -595,6 +603,7 @@ namespace RLCPlayer
             StringFormatLeft = new StringFormat();
             StringFormatLeft.Alignment = StringAlignment.Near;
             this.AllowDrop = true;
+            this.DragEnter -= MP3DragEnter;
             this.DragEnter += MP3DragEnter;
             GenerateElementsPositions();
         }
@@ -616,6 +625,12 @@ namespace RLCPlayer
                 GenerateCurrentTimeString();
                 Invalidate();
             }
+        }
+
+        public void Reset()
+        {
+            FileLabelString = "";
+            Init();
         }
     }
 }

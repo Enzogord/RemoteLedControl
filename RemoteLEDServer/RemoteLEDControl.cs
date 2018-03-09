@@ -1444,6 +1444,8 @@ namespace RemoteLEDServer
             textBox_localPort.Text = "";
             textBox_PinLEDCount.Text = "";
             textBox_PinNumber.Text = "";
+            label_CyclogrammStatus.Text = "";
+            rlcPlayer1.Reset();
 
             if (project != null)
             {
