@@ -1974,12 +1974,9 @@ namespace RemoteLEDServer
             }
             if (project.Server.IsRun)
             {
-                if (rlcPlayer1.PlaybackStateStr == PlaybackState.Stopped || rlcPlayer1.PlaybackStateStr == PlaybackState.Paused)
-                {
-                    maskedTextBox_SetTime.Text = String.Format("{0,2}:{1,2}", rlcPlayer1.CurrentTime.Minutes.ToString("D2"), rlcPlayer1.CurrentTime.Seconds.ToString("D2"));
-                    project.Server.Send_PlayFromAll_7(rlcPlayer1.CurrentTime);
-                    rlcPlayer1.Play();
-                }
+                maskedTextBox_SetTime.Text = String.Format("{0,2}:{1,2}", rlcPlayer1.CurrentTime.Minutes.ToString("D2"), rlcPlayer1.CurrentTime.Seconds.ToString("D2"));
+                project.Server.Send_PlayFromAll_7(rlcPlayer1.CurrentTime);
+                rlcPlayer1.Play();
             }
             else
             {
