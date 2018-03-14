@@ -461,7 +461,14 @@ namespace RLCPlayer
             {
                 if (_musicPlayer != null)
                 {
-                    _musicPlayer.Volume = value;
+                    try
+                    {
+                        _musicPlayer.Volume = value;
+                    }
+                    catch (Exception)
+                    {
+                        MessageBox.Show("Произошла ошибка в устройстве воспроизведения. Возможно оно было отключено. Выберите другое устройство воспроизведения.");
+                    }
                 }
             }
         }
@@ -503,7 +510,14 @@ namespace RLCPlayer
         {
             if (_musicPlayer.PlaybackState != PlaybackState.Playing)
             {
-                _musicPlayer.Play();
+                try
+                {
+                    _musicPlayer.Play();
+                }
+                catch (Exception)
+                {
+                    MessageBox.Show("Произошла ошибка в устройстве воспроизведения. Возможно оно было отключено. Выберите другое устройство воспроизведения.");
+                }
             }
         }
 
@@ -511,7 +525,14 @@ namespace RLCPlayer
         {
             if (_musicPlayer.PlaybackState == PlaybackState.Playing)
             {
-                _musicPlayer.Pause();
+                try
+                {
+                    _musicPlayer.Pause();
+                }
+                catch (Exception)
+                {
+                    MessageBox.Show("Произошла ошибка в устройстве воспроизведения. Возможно оно было отключено. Выберите другое устройство воспроизведения.");
+                }
             }
         }
 
@@ -519,8 +540,15 @@ namespace RLCPlayer
         {
             if (_musicPlayer.PlaybackState != PlaybackState.Stopped)
             {
-                _musicPlayer.Stop();
-                _musicPlayer.Position = TimeSpan.Zero;
+                try
+                {
+                    _musicPlayer.Stop();
+                    _musicPlayer.Position = TimeSpan.Zero;
+                }
+                catch (Exception)
+                {
+                    MessageBox.Show("Произошла ошибка в устройстве воспроизведения. Возможно оно было отключено. Выберите другое устройство воспроизведения.");
+                }                
             }
         }
 
@@ -541,7 +569,7 @@ namespace RLCPlayer
 
         public void ChangeDevice()
         {
-            if(!String.IsNullOrWhiteSpace(FileLabelString))
+            if (!String.IsNullOrWhiteSpace(FileLabelString))
             {
                 InitializePlayer(FileLabelString, Device);
             }
@@ -574,14 +602,11 @@ namespace RLCPlayer
             Init();
         }
 
-        void Init()
+        public void ReloadDevices()
         {
-            components.Remove(_musicPlayer);
-            _musicPlayer = new CSMusicPlayer();
-            components.Add(_musicPlayer);
-
             using (var mmdeviceEnumerator = new MMDeviceEnumerator())
             {
+                _devices.Clear();
                 using (
                     var mmdeviceCollection = mmdeviceEnumerator.EnumAudioEndpoints(DataFlow.Render, DeviceState.Active))
                 {
@@ -591,6 +616,15 @@ namespace RLCPlayer
                     }
                 }
             }
+        }
+
+        void Init()
+        {
+            components.Remove(_musicPlayer);
+            _musicPlayer = new CSMusicPlayer();
+            components.Add(_musicPlayer);
+
+            ReloadDevices();
             Device = _devices[0];
             _musicPlayer.PlaybackStopped -= _musicPlayer_PlaybackStopped;
             _musicPlayer.PlaybackStopped += _musicPlayer_PlaybackStopped;

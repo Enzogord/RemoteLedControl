@@ -17,6 +17,7 @@ using CSCore;
 using CSCore.Codecs;
 using CSCore.SoundOut;
 using Microsoft.VisualBasic.FileIO;
+using RLCPlayer;
 
 namespace RemoteLEDServer
 {
@@ -1519,9 +1520,12 @@ namespace RemoteLEDServer
 
         private void ComboBoxAudioOutputs_Fill()
         {
-            comboBox_AudioOutputs.DataSource = rlcPlayer1._devices;
-            comboBox_AudioOutputs.DisplayMember = "FriendlyName";
-            comboBox_AudioOutputs.ValueMember = "DeviceID";
+            rlcPlayer1.ReloadDevices();
+            var listDevices = rlcPlayer1._devices.Where(x => x.DeviceState == DeviceState.Active).ToList();
+
+            comboBox_AudioOutputs.DataSource = listDevices;
+                comboBox_AudioOutputs.DisplayMember = "FriendlyName";
+                comboBox_AudioOutputs.ValueMember = "DeviceID";
         }
 
         private void RemoteLEDControl_FormClosing(object sender, FormClosingEventArgs e)
@@ -2003,6 +2007,21 @@ namespace RemoteLEDServer
                         project.BindedAudioFile = tmpFile;
                     }                   
                 }
+            }
+        }
+
+        private void comboBox_AudioOutputs_DropDown(object sender, EventArgs e)
+        {
+            ComboBoxAudioOutputs_Fill();
+        }
+
+        private void buttonPlayerRestart_Click(object sender, EventArgs e)
+        {
+            string openedFile = rlcPlayer1.CurrentAudioFile;
+            rlcPlayer1.Reset();
+            if (!String.IsNullOrEmpty(openedFile))
+            {
+                rlcPlayer1.InitializePlayer(openedFile);
             }
         }
     }

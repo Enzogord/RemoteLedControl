@@ -54,14 +54,30 @@ namespace RLCPlayer
             get
             {
                 if (_soundOut != null)
-                    return Math.Min(100, Math.Max((int)(_soundOut.Volume * 100), 0));
+                {
+                    try
+                    {
+                        return Math.Min(100, Math.Max((int)(_soundOut.Volume * 100), 0));
+                    }
+                    catch (Exception e)
+                    {
+                        throw e;
+                    }
+                }
                 return 100;
             }
             set
             {
                 if (_soundOut != null)
                 {
-                    _soundOut.Volume = Math.Min(1.0f, Math.Max(value / 100f, 0f));
+                    try
+                    {
+                        _soundOut.Volume = Math.Min(1.0f, Math.Max(value / 100f, 0f));
+                    }
+                    catch (Exception e)
+                    {
+                        throw e;
+                    }
                 }
             }
         }
@@ -83,19 +99,46 @@ namespace RLCPlayer
         public void Play()
         {
             if (_soundOut != null)
-                _soundOut.Play();
+            {
+                try
+                {
+                    _soundOut.Play();
+                }
+                catch (Exception e)
+                {
+                    throw e;
+                }
+            }
         }
 
         public void Pause()
         {
             if (_soundOut != null)
-                _soundOut.Pause();
+            {
+                try
+                {
+                    _soundOut.Pause();
+                }
+                catch (Exception e)
+                {
+                    throw e;
+                }
+            }
         }
 
         public void Stop()
         {
             if (_soundOut != null)
-                _soundOut.Stop();
+            {
+                try
+                {
+                    _soundOut.Stop();
+                }
+                catch (Exception e)
+                {
+                    throw e;
+                }
+            }                
         }
 
         private void CleanupPlayback()
