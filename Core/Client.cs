@@ -91,8 +91,9 @@ namespace Core
                         OldRelativePath = RelativePath;
                         FName = value;
                         RelativePath = "\\" + Parent.ClientsFolderName + "\\" + FName;
+                        var fi = new DirectoryInfo(this.Parent.AbsoluteFolderPath + OldRelativePath);
+                        Renamed = fi.Exists;
                         Saved = false;
-                        Renamed = true;
                         OnChange?.Invoke();
                     }
                 }

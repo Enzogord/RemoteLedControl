@@ -216,6 +216,7 @@ namespace Core
             }
             FDeletedClientList.Add(client);
             OnChangeClientList?.Invoke();
+            Saved = false;
         }
     }
 
