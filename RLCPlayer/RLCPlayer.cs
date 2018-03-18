@@ -607,12 +607,20 @@ namespace RLCPlayer
             using (var mmdeviceEnumerator = new MMDeviceEnumerator())
             {
                 _devices.Clear();
-                using (
-                    var mmdeviceCollection = mmdeviceEnumerator.EnumAudioEndpoints(DataFlow.Render, DeviceState.Active))
+                using ( var mmdeviceCollection = mmdeviceEnumerator.EnumAudioEndpoints(DataFlow.Render, DeviceState.Active))
                 {
                     foreach (var device in mmdeviceCollection)
                     {
-                        _devices.Add(device);
+                        try
+                        {
+                            if (device.DeviceState == DeviceState.Active)
+                            {
+                                _devices.Add(device);
+                            }
+                        }
+                        catch (Exception)
+                        {
+                        }
                     }
                 }
             }
@@ -625,10 +633,22 @@ namespace RLCPlayer
             components.Add(_musicPlayer);
 
             ReloadDevices();
-            Device = _devices[0];
+            var device = _devices.FirstOrDefault(x => x.DeviceState == DeviceState.Active);
+            if (device == null)
+            {
+                MessageBox.Show("Не найдено активного аудиоустройства, подключите устройство воспроизведения, выберите его в настройках и перезапустите плеер.");
+                this.Enabled = false;
+                return;
+            }
+            else
+            {
+                this.Enabled = true;
+            }
+
+            Device = device;
             _musicPlayer.PlaybackStopped -= _musicPlayer_PlaybackStopped;
             _musicPlayer.PlaybackStopped += _musicPlayer_PlaybackStopped;
-            this.Timer = new System.Windows.Forms.Timer();
+            this.Timer = new Timer();
             this.Timer.Interval = 100;
             this.Timer.Tick += Timer_Tick;
             this.Timer.Enabled = true;

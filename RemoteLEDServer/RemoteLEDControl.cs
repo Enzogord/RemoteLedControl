@@ -1520,12 +1520,33 @@ namespace RemoteLEDServer
 
         private void ComboBoxAudioOutputs_Fill()
         {
+            var selectedObject = comboBox_AudioOutputs.SelectedItem;
+            string deviceId = "";
+            MMDevice selectedDevice;
+            try
+            {
+                selectedDevice = selectedObject as MMDevice;
+                if (selectedDevice.DeviceState == DeviceState.Active)
+                {
+                    deviceId = selectedDevice.DeviceID;
+                }
+            }
+            catch (Exception)
+            {
+            }
+
             rlcPlayer1.ReloadDevices();
             var listDevices = rlcPlayer1._devices.Where(x => x.DeviceState == DeviceState.Active).ToList();
+            var currentItem = listDevices.FirstOrDefault(x => x.DeviceID == deviceId);            
 
             comboBox_AudioOutputs.DataSource = listDevices;
-                comboBox_AudioOutputs.DisplayMember = "FriendlyName";
-                comboBox_AudioOutputs.ValueMember = "DeviceID";
+
+            if (currentItem != null)
+            {
+                comboBox_AudioOutputs.SelectedItem = currentItem;
+            }
+            comboBox_AudioOutputs.DisplayMember = "FriendlyName";
+            comboBox_AudioOutputs.ValueMember = "DeviceID";
         }
 
         private void RemoteLEDControl_FormClosing(object sender, FormClosingEventArgs e)
@@ -2018,11 +2039,15 @@ namespace RemoteLEDServer
         private void buttonPlayerRestart_Click(object sender, EventArgs e)
         {
             string openedFile = rlcPlayer1.CurrentAudioFile;
-            rlcPlayer1.Reset();
-            if (!String.IsNullOrEmpty(openedFile))
+            if(MessageBox.Show("Будет остановлено воспроизведение и перезагружен плеер!", "Внимание!", MessageBoxButtons.OKCancel) == DialogResult.OK)
             {
-                rlcPlayer1.InitializePlayer(openedFile);
+                rlcPlayer1.Reset();
+                if (!String.IsNullOrEmpty(openedFile))
+                {
+                    rlcPlayer1.InitializePlayer(openedFile);
+                }
             }
+            
         }
     }
 }
