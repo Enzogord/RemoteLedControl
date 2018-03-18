@@ -307,10 +307,20 @@ namespace RemoteLEDServer
             {
                 if (!project.ClientList[i].Saved)
                 {
+                    if (project.ClientList[i].DeletedCyclogramm != null)
+                    {
+
+                        if (File.Exists(project.AbsoluteFolderPath + project.ClientList[i].RelativePath + "Data.cyc"))
+                        {
+                            File.Delete(project.AbsoluteFolderPath + project.ClientList[i].RelativePath + "Data.cyc");
+                        }
+                    }
+
                     if (project.ClientList[i].Renamed)
                     {
                         Directory.Move(project.AbsoluteFolderPath + project.ClientList[i].OldRelativePath, project.AbsoluteFolderPath + project.ClientList[i].RelativePath);
                     }
+
                     if (!Directory.Exists(project.AbsoluteFolderPath + project.ClientList[i].RelativePath))
                     {
                         Directory.CreateDirectory(project.AbsoluteFolderPath + project.ClientList[i].RelativePath);
@@ -332,16 +342,7 @@ namespace RemoteLEDServer
                                 project.ClientList[i].Cyclogramm.Saved = true;
                             }
                         }
-                    }
-
-                    if (project.ClientList[i].DeletedCyclogramm != null)
-                    {
-
-                        if (File.Exists(project.AbsoluteFolderPath + project.ClientList[i].RelativePath + "Data.cyc"))
-                        {
-                            File.Delete(project.AbsoluteFolderPath + project.ClientList[i].RelativePath + "Data.cyc");
-                        }
-                    }
+                    }                    
 
                     project.ClientList[i].Renamed = false;
                     project.ClientList[i].Saved = true;
@@ -356,7 +357,18 @@ namespace RemoteLEDServer
             {
                 for (int i = 0; i < project.DeletedClientList.Count; i++)
                 {
-                    Directory.Delete(project.AbsoluteFolderPath + project.DeletedClientList[i].RelativePath, true);
+                    try
+                    {
+                        Directory.Delete(project.AbsoluteFolderPath + project.DeletedClientList[i].RelativePath, true);
+                    }
+                    catch (DirectoryNotFoundException e)
+                    {
+                    }
+
+                    catch (Exception)
+                    {
+                        continue;
+                    }
                     project.DeletedClientList.RemoveAt(i);
                 }
             }
@@ -1027,38 +1039,23 @@ namespace RemoteLEDServer
                     {
                         button_SaveClient.Enabled = false;
                     }
-
+                }
+                if (project.DeletedClientList != null && project.DeletedClientList.Exists(x => x.Name == CurrentName))
+                {
+                    ServiceFunc.ColoringTextBox(textBox_ClientName, false);
+                    button_SaveClient.Enabled = false;
                 }
             }
             if (project.ClientList.Count > 0)
             {
-                //if (!Directory.Exists(project.AbsoluteFolderPath + (comboBox_Client.SelectedItem as Client).RelativePath) && project.Saved && project.AbsoluteFolderPath != null)
-                //{
-                //    Directory.CreateDirectory(project.AbsoluteFolderPath + (comboBox_Client.SelectedItem as Client).RelativePath);
-                //}
                 Client CurrentClient = (comboBox_Client.SelectedItem as Client);
                 CurrentClient.PinListIsLock = false;
-                //if (CurrentClient.CyclogrammList.Count > 0)
-                //{
-                //    CurrentClient.PinListIsLock = true;
-                //}
-                //else
-                //{
-                //    CurrentClient.PinListIsLock = false;
-                //}
                 panel_PinList.Enabled = true;
                 if ((project.ClientList.Count > 0) && (comboBox_Client.Items.Count > 0) && (!CurrentClient.PinListIsLock))
                 {
                     panel_PinList.Enabled = true;
                 }
-                //else
-                //{
-                //    panel_PinList.Enabled = false;
-                //}
-
                 ClientSaveImage.Visible = !CurrentClient.Saved;
-
-
                 if (CurrentClient.PinList.Count > 0)
                 {
                     int TmpSum = CurrentClient.PinList.Sum(x => x.LEDCount);
