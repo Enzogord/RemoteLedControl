@@ -35,7 +35,32 @@ namespace RemoteLEDServer
             ComboBoxAudioOutputs_Fill();
             dataGridView_Clients.AutoGenerateColumns = false;
             dataGridView_PinList.AutoGenerateColumns = false;
+            labelBroadcastAddress.Text = ServerBroadcastIP.ToString();
         }
+
+        private IPAddress ServerIP
+        {
+            get
+            {
+                return (comboBox_IP.SelectedItem as IPAddress);
+            }
+        }
+
+        private IPAddress ServerBroadcastIP
+        {
+            get
+            {
+                try
+                {
+                    return ServiceFunc.GetBroadcastAddress(ServerIP, ServiceFunc.GetSubnetMask(ServerIP));
+                }
+                catch (Exception)
+                {
+                    return IPAddress.Parse("255.255.255.255");
+                }
+            }
+        }
+
 
         #region Forms Control Events
 
@@ -451,7 +476,7 @@ namespace RemoteLEDServer
         /// Сохраняет настройки сервера в проекте
         /// </summary>
         private void button_SaveServerSetting_Click(object sender, EventArgs e)
-        {
+        { 
             //Сохранить сервер
             if (project != null)
             {
@@ -462,7 +487,8 @@ namespace RemoteLEDServer
                         project.Server.StopReceiving();
                     }
                     project.Server.UDPPort = ushort.Parse(textBox_localPort.Text);
-                    project.Server.ServerIPAdress = (comboBox_IP.SelectedItem as IPAddress);
+                    project.Server.ServerIPAdress = ServerIP;
+                    project.Server.SubNetBroadcastAddress = ServerBroadcastIP;
                     try
                     {
                         project.Server.StartReceiving();
@@ -474,7 +500,8 @@ namespace RemoteLEDServer
                 }
                 else
                 {
-                    project.Server.ServerIPAdress = (comboBox_IP.SelectedItem as IPAddress);
+                    project.Server.ServerIPAdress = ServerIP;
+                    project.Server.SubNetBroadcastAddress = ServerBroadcastIP;
                 }
             }
         }
@@ -844,9 +871,15 @@ namespace RemoteLEDServer
         //    }
         //}
 
-        private void button_RefreshIPList_Click(object sender, EventArgs e)
+        private void FillIPAddresses()
         {
             ServiceFunc.GetIPAdressList(comboBox_IP);
+            labelBroadcastAddress.Text = ServerBroadcastIP.ToString();
+        }
+
+        private void button_RefreshIPList_Click(object sender, EventArgs e)
+        {
+            FillIPAddresses();
         }
 
         #endregion
@@ -1150,7 +1183,9 @@ namespace RemoteLEDServer
             catch (Exception)
             {
             }
-            ServiceFunc.GetIPAdressList(comboBox_IP);
+
+            FillIPAddresses();
+
             if (project.timer == null)
             {
                 project.timer = new System.Windows.Forms.Timer();
@@ -1164,7 +1199,8 @@ namespace RemoteLEDServer
             project.OnChangeClientList += LoadDataSourceClient;
             project.OnSave += Project_OnSave;
             project.Server.OnSendNumberPlate += Server_OnSendNumberPlate;
-            project.Server.ServerIPAdress = (comboBox_IP.SelectedItem as IPAddress);
+            project.Server.ServerIPAdress = ServerIP;
+            project.Server.SubNetBroadcastAddress = ServerBroadcastIP;
             project.Server.OnStatusChange += ShowServerStatus;
             project.Server.OnServerIPChange += ShowServerIP;
             project.Server.StartReceiving();
@@ -2045,6 +2081,11 @@ namespace RemoteLEDServer
                 }
             }
             
+        }
+
+        private void comboBox_IP_SelectionChangeCommitted(object sender, EventArgs e)
+        {
+            labelBroadcastAddress.Text = ServerBroadcastIP.ToString();
         }
     }
 }

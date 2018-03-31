@@ -133,6 +133,8 @@
             this.button_Play = new System.Windows.Forms.Button();
             this.button_Pause = new System.Windows.Forms.Button();
             this.button_Stop = new System.Windows.Forms.Button();
+            this.label17 = new System.Windows.Forms.Label();
+            this.labelBroadcastAddress = new System.Windows.Forms.Label();
             this.cyclogrammBindingSource2 = new System.Windows.Forms.BindingSource(this.components);
             this.cyclogrammBindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.cyclogrammBindingSource1 = new System.Windows.Forms.BindingSource(this.components);
@@ -337,7 +339,7 @@
             this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel1.Location = new System.Drawing.Point(1, 2);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(976, 333);
+            this.panel1.Size = new System.Drawing.Size(976, 334);
             this.panel1.TabIndex = 0;
             // 
             // panel3
@@ -347,7 +349,7 @@
             this.panel3.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel3.Location = new System.Drawing.Point(0, 32);
             this.panel3.Name = "panel3";
-            this.panel3.Size = new System.Drawing.Size(976, 301);
+            this.panel3.Size = new System.Drawing.Size(976, 302);
             this.panel3.TabIndex = 1;
             // 
             // panel5
@@ -357,7 +359,7 @@
             this.panel5.Location = new System.Drawing.Point(0, 195);
             this.panel5.Name = "panel5";
             this.panel5.Padding = new System.Windows.Forms.Padding(6, 0, 6, 6);
-            this.panel5.Size = new System.Drawing.Size(976, 106);
+            this.panel5.Size = new System.Drawing.Size(976, 107);
             this.panel5.TabIndex = 66;
             // 
             // groupBox_Cyclogramm
@@ -370,7 +372,7 @@
             this.groupBox_Cyclogramm.Dock = System.Windows.Forms.DockStyle.Fill;
             this.groupBox_Cyclogramm.Location = new System.Drawing.Point(6, 0);
             this.groupBox_Cyclogramm.Name = "groupBox_Cyclogramm";
-            this.groupBox_Cyclogramm.Size = new System.Drawing.Size(964, 100);
+            this.groupBox_Cyclogramm.Size = new System.Drawing.Size(964, 101);
             this.groupBox_Cyclogramm.TabIndex = 64;
             this.groupBox_Cyclogramm.TabStop = false;
             this.groupBox_Cyclogramm.Text = "Циклограмма";
@@ -846,9 +848,9 @@
             this.groupBox_Audio.Controls.Add(this.buttonPlayerRestart);
             this.groupBox_Audio.Controls.Add(this.comboBox_AudioOutputs);
             this.groupBox_Audio.Controls.Add(this.label_audioDevice);
-            this.groupBox_Audio.Location = new System.Drawing.Point(352, 6);
+            this.groupBox_Audio.Location = new System.Drawing.Point(382, 6);
             this.groupBox_Audio.Name = "groupBox_Audio";
-            this.groupBox_Audio.Size = new System.Drawing.Size(355, 160);
+            this.groupBox_Audio.Size = new System.Drawing.Size(355, 131);
             this.groupBox_Audio.TabIndex = 35;
             this.groupBox_Audio.TabStop = false;
             this.groupBox_Audio.Text = "Аудио";
@@ -886,6 +888,8 @@
             // 
             // groupBox_server
             // 
+            this.groupBox_server.Controls.Add(this.labelBroadcastAddress);
+            this.groupBox_server.Controls.Add(this.label17);
             this.groupBox_server.Controls.Add(this.label40);
             this.groupBox_server.Controls.Add(this.button_RefreshIPList);
             this.groupBox_server.Controls.Add(this.textBox_localPort);
@@ -895,25 +899,25 @@
             this.groupBox_server.Controls.Add(this.button_SaveServerSetting);
             this.groupBox_server.Location = new System.Drawing.Point(6, 6);
             this.groupBox_server.Name = "groupBox_server";
-            this.groupBox_server.Size = new System.Drawing.Size(340, 160);
+            this.groupBox_server.Size = new System.Drawing.Size(370, 206);
             this.groupBox_server.TabIndex = 34;
             this.groupBox_server.TabStop = false;
             this.groupBox_server.Text = "Сервер";
             // 
             // label40
             // 
-            this.label40.Location = new System.Drawing.Point(5, 81);
+            this.label40.Location = new System.Drawing.Point(5, 55);
             this.label40.Name = "label40";
-            this.label40.Size = new System.Drawing.Size(108, 18);
+            this.label40.Size = new System.Drawing.Size(137, 18);
             this.label40.TabIndex = 29;
             this.label40.Text = "IP адрес сервера";
             this.label40.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // button_RefreshIPList
             // 
-            this.button_RefreshIPList.Location = new System.Drawing.Point(249, 78);
+            this.button_RefreshIPList.Location = new System.Drawing.Point(282, 51);
             this.button_RefreshIPList.Name = "button_RefreshIPList";
-            this.button_RefreshIPList.Size = new System.Drawing.Size(71, 23);
+            this.button_RefreshIPList.Size = new System.Drawing.Size(69, 25);
             this.button_RefreshIPList.TabIndex = 33;
             this.button_RefreshIPList.Text = "Обновить";
             this.button_RefreshIPList.UseVisualStyleBackColor = true;
@@ -921,7 +925,7 @@
             // 
             // textBox_localPort
             // 
-            this.textBox_localPort.Location = new System.Drawing.Point(118, 50);
+            this.textBox_localPort.Location = new System.Drawing.Point(151, 21);
             this.textBox_localPort.Name = "textBox_localPort";
             this.textBox_localPort.Size = new System.Drawing.Size(81, 22);
             this.textBox_localPort.TabIndex = 7;
@@ -929,7 +933,7 @@
             // 
             // button_TurnOffServer
             // 
-            this.button_TurnOffServer.Location = new System.Drawing.Point(117, 17);
+            this.button_TurnOffServer.Location = new System.Drawing.Point(151, 162);
             this.button_TurnOffServer.Name = "button_TurnOffServer";
             this.button_TurnOffServer.Size = new System.Drawing.Size(147, 23);
             this.button_TurnOffServer.TabIndex = 32;
@@ -939,9 +943,9 @@
             // 
             // label3
             // 
-            this.label3.Location = new System.Drawing.Point(18, 51);
+            this.label3.Location = new System.Drawing.Point(18, 22);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(95, 18);
+            this.label3.Size = new System.Drawing.Size(124, 18);
             this.label3.TabIndex = 10;
             this.label3.Text = "Порт (1-65535)";
             this.label3.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -951,15 +955,16 @@
             this.comboBox_IP.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboBox_IP.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.comboBox_IP.FormattingEnabled = true;
-            this.comboBox_IP.Location = new System.Drawing.Point(118, 78);
+            this.comboBox_IP.Location = new System.Drawing.Point(151, 52);
             this.comboBox_IP.Name = "comboBox_IP";
             this.comboBox_IP.Size = new System.Drawing.Size(129, 23);
             this.comboBox_IP.TabIndex = 28;
+            this.comboBox_IP.SelectionChangeCommitted += new System.EventHandler(this.comboBox_IP_SelectionChangeCommitted);
             // 
             // button_SaveServerSetting
             // 
             this.button_SaveServerSetting.Enabled = false;
-            this.button_SaveServerSetting.Location = new System.Drawing.Point(117, 114);
+            this.button_SaveServerSetting.Location = new System.Drawing.Point(151, 129);
             this.button_SaveServerSetting.Name = "button_SaveServerSetting";
             this.button_SaveServerSetting.Size = new System.Drawing.Size(147, 23);
             this.button_SaveServerSetting.TabIndex = 30;
@@ -1330,6 +1335,25 @@
             this.button_Stop.UseVisualStyleBackColor = false;
             this.button_Stop.Click += new System.EventHandler(this.button_Stop_Click);
             // 
+            // label17
+            // 
+            this.label17.Location = new System.Drawing.Point(5, 83);
+            this.label17.Name = "label17";
+            this.label17.Size = new System.Drawing.Size(137, 33);
+            this.label17.TabIndex = 35;
+            this.label17.Text = "Широковещательный адрес";
+            this.label17.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // labelBroadcastAddress
+            // 
+            this.labelBroadcastAddress.Font = new System.Drawing.Font("Cambria", 10F, System.Drawing.FontStyle.Bold);
+            this.labelBroadcastAddress.Location = new System.Drawing.Point(148, 91);
+            this.labelBroadcastAddress.Name = "labelBroadcastAddress";
+            this.labelBroadcastAddress.Size = new System.Drawing.Size(137, 19);
+            this.labelBroadcastAddress.TabIndex = 36;
+            this.labelBroadcastAddress.Text = "255.255.255.255";
+            this.labelBroadcastAddress.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
             // cyclogrammBindingSource2
             // 
             this.cyclogrammBindingSource2.DataSource = typeof(Core.Cyclogramm);
@@ -1506,6 +1530,8 @@
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Button buttonPlayerRestart;
+        private System.Windows.Forms.Label labelBroadcastAddress;
+        private System.Windows.Forms.Label label17;
     }
 }
 
