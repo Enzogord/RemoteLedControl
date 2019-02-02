@@ -19,6 +19,7 @@ namespace RemoteLEDServer
             Application.SetCompatibleTextRenderingDefault(false);
             RemoteLEDControlMainForm = new RemoteLEDControl();
             Application.Run(RemoteLEDControlMainForm);
+            int a = 222;
         }
     }
 }
