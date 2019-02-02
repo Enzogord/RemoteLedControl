@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Core;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -18,8 +19,8 @@ namespace RemoteLEDServer
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             RemoteLEDControlMainForm = new RemoteLEDControl();
+            RemoteLEDControlMainForm.ProjectController = new RLCProjectController();
             Application.Run(RemoteLEDControlMainForm);
-            int a = 222;
         }
     }
 }

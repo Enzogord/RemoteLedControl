@@ -23,7 +23,10 @@ namespace RemoteLEDServer
 {
     public partial class RemoteLEDControl : Form
     {
-        Project project;
+        public RLCProjectController ProjectController { get; set; }
+
+        [Obsolete("Временный проброс до исправления всего ссылающегося кода")]
+        Project project => ProjectController.CurrentProject;
 
         public RemoteLEDControl()
         {
@@ -75,7 +78,7 @@ namespace RemoteLEDServer
             if (f.ShowDialog() == DialogResult.OK)
             {
                 ClearProject();
-                project = new Project(f.ProjectKey);
+                ProjectController.CurrentProject = new Project(f.ProjectKey);
                 project.Saved = false;
                 ToolStripMenuItem_SaveProject.Enabled = true;
                 ToolStripMenuItem_SaveAsProject.Enabled = true;
@@ -149,7 +152,7 @@ namespace RemoteLEDServer
                             }
 
                             ClearProject();
-                            project = xml.Fields;
+                            ProjectController.CurrentProject = xml.Fields;
                             project.RuningThreadsList = new List<Thread>();
                             project.AbsoluteFilePath = FilePath;
                             if (project.Server != null)
@@ -188,7 +191,7 @@ namespace RemoteLEDServer
                 }
 
                 ClearProject();
-                project = xml.Fields;
+                ProjectController.CurrentProject = xml.Fields;
                 project.RuningThreadsList = new List<Thread>();
                 project.AbsoluteFilePath = od.FileName;
                 if (project.Server != null)
@@ -231,11 +234,11 @@ namespace RemoteLEDServer
 
             if (project.AbsoluteFilePath == null)
             {
-                SaveProjectAs();
+                ProjectController.SaveProjectAs();
             }
             else
             {
-                SaveProject();
+                ProjectController.SaveProject();
             }
         }
 
@@ -249,227 +252,7 @@ namespace RemoteLEDServer
             {
                 return;
             }
-            SaveProjectAs();
-        }
-
-        private void SaveProjectAs()
-        {
-            SaveFileDialog sd = new SaveFileDialog();
-            sd.InitialDirectory = Environment.CurrentDirectory;
-            sd.Filter = "XML files|*.xml";
-
-            if (sd.ShowDialog() == DialogResult.OK)
-            {
-                // Если выбранный путь не совпадает с путем который указан в текущем открытом проекте, сохранить как новый проект
-                if (sd.FileName != project.AbsoluteFilePath)
-                {
-                    string FileName = Path.GetFileNameWithoutExtension(sd.FileName);
-                    string FolderPath = Path.GetDirectoryName(sd.FileName);
-                    string FolderName = Path.GetFileName(FolderPath);
-                    string FilePath = sd.FileName;
-
-                    if (FolderName != FileName)
-                    {
-                        if (Directory.Exists(FolderPath + "\\" + FileName))
-                        {
-                            MessageBox.Show("Папка " + FileName + " уже существует. Невозможно сохранить проект", "Ошибка сохранения", MessageBoxButtons.OK);
-                            return;
-                        }
-                        else
-                        {
-                            Directory.CreateDirectory(FolderPath + "\\" + FileName);
-                            FolderPath = FolderPath + "\\" + FileName;
-                            FilePath = FolderPath + "\\" + FileName + ".xml";
-                        }
-                    }
-                    else
-                    {
-                        if (Directory.Exists(FolderPath + "\\" + project.ClientsFolderName))
-                        {
-                            if (!ServiceFunc.CheckFolderAccess(FolderPath + "\\" + project.ClientsFolderName))
-                            {
-                                MessageBox.Show("Нет доступа к папке \"" + FolderPath + "\\" + project.ClientsFolderName + "\". Возможно некоторые файлы в ней открыты в другой программе", "Ошибка сохранения", MessageBoxButtons.OK);
-                                return;
-                            }
-                            else
-                            {
-                                Directory.Delete(FolderPath + "\\" + project.ClientsFolderName, true);
-                            }
-                        }
-                    }
-                    Directory.CreateDirectory(FolderPath + "\\" + project.ClientsFolderName);
-
-                    //Сохранить как
-                    SaveAs(FolderPath, FilePath);
-
-                }
-                else //Иначе если совпадает, пересохранить по этомуже пути
-                {
-                    SaveProject();
-                }
-            }
-            ClientSettingValidation();
-        }
-
-        private void SaveProject()
-        {
-            if (ServiceFunc.CheckFolderAccess(project.AbsoluteFolderPath + "\\" + project.ClientsFolderName))
-            {
-                // Сохранить
-                Save();
-            }
-            else
-            {
-                MessageBox.Show("Нет доступа к папке \"" + project.AbsoluteFolderPath + "\\" + project.ClientsFolderName + "\". Возможно некоторые файлы в ней открыты в другой программе", "Ошибка сохранения", MessageBoxButtons.OK);
-                return;
-            }
-            ClientSettingValidation();
-        }
-
-        private void Save()
-        {
-            for (int i = 0; i < project.ClientList.Count; i++)
-            {
-                if (!project.ClientList[i].Saved)
-                {
-                    if (project.ClientList[i].DeletedCyclogramm != null)
-                    {
-
-                        if (File.Exists(project.AbsoluteFolderPath + project.ClientList[i].RelativePath + "Data.cyc"))
-                        {
-                            File.Delete(project.AbsoluteFolderPath + project.ClientList[i].RelativePath + "Data.cyc");
-                        }
-                    }
-
-                    if (project.ClientList[i].Renamed)
-                    {
-                        Directory.Move(project.AbsoluteFolderPath + project.ClientList[i].OldRelativePath, project.AbsoluteFolderPath + project.ClientList[i].RelativePath);
-                    }
-
-                    if (!Directory.Exists(project.AbsoluteFolderPath + project.ClientList[i].RelativePath))
-                    {
-                        Directory.CreateDirectory(project.AbsoluteFolderPath + project.ClientList[i].RelativePath);
-                    }
-                    project.ClientList[i].SaveClientSettingFile(project.AbsoluteFolderPath + project.ClientList[i].RelativePath + "\\" + project.ClientsConfigFileName);
-
-                    if (project.ClientList[i].Cyclogramm != null)
-                    {
-                        if (!project.ClientList[i].Cyclogramm.Saved)
-                        {
-                            string tmpcycpath = project.GetAbsoluteTEMPPath() + project.ClientList[i].RelativePath + "\\Data.cyc";
-                            if (File.Exists(tmpcycpath))
-                            {
-                                if (File.Exists(project.AbsoluteFolderPath + project.ClientList[i].RelativePath + "\\Data.cyc"))
-                                {
-                                    File.Delete(project.AbsoluteFolderPath + project.ClientList[i].RelativePath + "\\Data.cyc");
-                                }
-                                File.Move(tmpcycpath, project.AbsoluteFolderPath + project.ClientList[i].RelativePath + "\\Data.cyc");
-                                project.ClientList[i].Cyclogramm.Saved = true;
-                            }
-                        }
-                    }                    
-
-                    project.ClientList[i].Renamed = false;
-                    project.ClientList[i].Saved = true;
-                    if (project.ClientList[i].DeletedCyclogramm != null)
-                    {
-                        project.ClientList[i].DeletedCyclogramm = null;
-                    }
-
-                }
-            }
-            if (project.DeletedClientList != null)
-            {
-                for (int i = 0; i < project.DeletedClientList.Count; i++)
-                {
-                    try
-                    {
-                        Directory.Delete(project.AbsoluteFolderPath + project.DeletedClientList[i].RelativePath, true);
-                    }
-                    catch (DirectoryNotFoundException e)
-                    {
-                    }
-
-                    catch (Exception)
-                    {
-                        continue;
-                    }
-                    project.DeletedClientList.RemoveAt(i);
-                }
-            }
-            if (project.BindedAudioFile != null)
-            {
-                try
-                {
-                    project.BindedAudioFile = project.BindedAudioFile.CopyTo(Path.Combine(project.AbsoluteFolderPath, Path.GetFileName(project.BindedAudioFile.FullName)), true);
-                }
-                catch (Exception)
-                {
-
-                }
-            }
-            
-            XMLSaver xmlsaver = new XMLSaver();
-            xmlsaver.Fields = project;
-            xmlsaver.WriteXml(project.AbsoluteFilePath);
-            project.Saved = true;
-        }
-
-        private void SaveAs(string FolderPath, string FilePath)
-        {
-            for (int i = 0; i < project.ClientList.Count; i++)
-            {
-                Directory.CreateDirectory(FolderPath + project.ClientList[i].RelativePath);
-                project.ClientList[i].SaveClientSettingFile(FolderPath + project.ClientList[i].RelativePath + "\\" + project.ClientsConfigFileName);
-                if (project.ClientList[i].Cyclogramm != null)
-                {
-                    string tmpcycpath;
-                    if (project.ClientList[i].Cyclogramm.Saved)
-                    {
-                        tmpcycpath = project.AbsoluteFolderPath + project.ClientList[i].RelativePath + "\\Data.cyc";
-                    }
-                    else
-                    {
-                        tmpcycpath = project.GetAbsoluteTEMPPath() + project.ClientList[i].RelativePath + "\\Data.cyc";
-                    }
-
-                    if (File.Exists(tmpcycpath))
-                    {
-                        if (project.ClientList[i].Cyclogramm.Saved)
-                        {
-                            File.Copy(tmpcycpath, FolderPath + project.ClientList[i].RelativePath + "\\Data.cyc");
-                        }
-                        else
-                        {
-                            File.Move(tmpcycpath, FolderPath + project.ClientList[i].RelativePath + "\\Data.cyc");
-                        }
-
-                        project.ClientList[i].Cyclogramm.Saved = true;
-                    }
-                }
-                project.ClientList[i].Renamed = false;
-                project.ClientList[i].Saved = true;
-            }
-            if (project.BindedAudioFile != null)
-            {
-                try
-                {
-                    project.BindedAudioFile = project.BindedAudioFile.CopyTo(Path.Combine(FolderPath, Path.GetFileName(project.BindedAudioFile.FullName)), true);
-                }
-                catch (Exception)
-                {
-
-                }                
-            }            
-            XMLSaver xmlsaver = new XMLSaver();
-            xmlsaver.Fields = project;
-            xmlsaver.WriteXml(FilePath);
-            if (project.DeletedClientList != null)
-            {
-                project.DeletedClientList = null;
-            }
-            project.AbsoluteFilePath = FilePath;
-            project.Saved = true;
+            ProjectController.SaveProjectAs();
         }
 
         /// <summary>
@@ -1692,7 +1475,7 @@ namespace RemoteLEDServer
                         }
 
                         ClearProject();
-                        project = xml.Fields;
+                        ProjectController.CurrentProject = xml.Fields;
                         project.RuningThreadsList = new List<Thread>();
                         project.AbsoluteFilePath = FilePath;
                         if (project.Server != null)
@@ -1730,7 +1513,7 @@ namespace RemoteLEDServer
             }
 
             ClearProject();
-            project = xml.Fields;
+            ProjectController.CurrentProject = xml.Fields;
             project.RuningThreadsList = new List<Thread>();
             project.AbsoluteFilePath = path;
             if (project.Server != null)

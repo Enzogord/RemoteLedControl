@@ -116,6 +116,10 @@
       <Project>{aa403aef-00f3-4890-9007-cff8cba646d5}</Project>
       <Name>RLCPlayer</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Service\Service.csproj">
+      <Project>{E10168F4-2657-4FDF-BF2D-D9DC58AB7E51}</Project>
+      <Name>Service</Name>
+    </ProjectReference>
     <ProjectReference Include="..\VolumeSlider\VolumeSlider.csproj">
       <Project>{e7f9a6c0-1753-4609-add5-77de2ea3d11b}</Project>
       <Name>VolumeSlider</Name>
