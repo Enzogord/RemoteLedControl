@@ -521,7 +521,7 @@ namespace RemoteLEDServer
         {
             if (e.RowIndex >= 0)
             {
-                if (((sender as DataGridView).Rows[e.RowIndex].DataBoundItem as Client).OnlineStatus)
+                if (((sender as DataGridView).Rows[e.RowIndex].DataBoundItem as Client).Status)
                 {
                     (sender as DataGridView).Rows[e.RowIndex].Cells["Column_Status"].Style.BackColor = ServiceFunc.AcceptColor;
                     (sender as DataGridView).Rows[e.RowIndex].Cells["Column_Status"].Style.SelectionBackColor = ServiceFunc.AcceptColor;
@@ -1289,7 +1289,7 @@ namespace RemoteLEDServer
                                 // не ожидается ответа от клиента о воспроизведнии
                                 !client.WaitPlayingStatus 
                                 // если не онлайн
-                                && !client.OnlineStatus 
+                                && !client.Status 
                                 // состояние клиента - ожидание воспроизведения
                                 && state == ClientState.Wait 
                                 // статус плеера - вопсроизведение

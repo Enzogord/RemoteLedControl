@@ -184,7 +184,7 @@ namespace Core
                     TmpClient.Renamed = false;
                     TmpClient.Parent = this;
                     TmpClient.Saved = false;
-                    TmpClient.OnlineStatus = false;
+                    TmpClient.Status = false;
                     TmpClient.OnChange += Client_OnChange;
                     TmpClient.OnChangeStatus += TmpClient_OnChangeStatus;
                     FClientList.Add(TmpClient);

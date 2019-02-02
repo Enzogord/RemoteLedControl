@@ -9,86 +9,86 @@ using System.Threading.Tasks;
 
 namespace Core
 {
-    /// <summary>
-    /// Информация о настройке и состоянии клиента
-    /// </summary>
     [DataContract]
     public class Client
     {
         [DataMember]
-        public Project Parent;
-        [DataMember]
-        private bool FSaved;
-        [DataMember]
-        private string FStatusString;
-        [DataMember]
-        private string FName;
-        [DataMember]
-        private string FOldRelativePath;
-        [DataMember]
-        public bool Renamed;
-        [DataMember]
-        private byte FNumber;
-        [DataMember]
-        private string FWifiSSID;
-        [DataMember]
-        private string FWifiPassword;
-        [DataMember]
-        private ushort FUDPPort;
-        [DataMember]
-        private string FLEDCount;
-        [DataMember]
-        private bool Status;
-        [DataMember]
-        private uint Time;
-        [DataMember]
-        private bool FPinListIsLock;
-        [DataMember]
-        private Cyclogramm FCyclogramm;
-        private IPAddress FIPAdress;
+        private bool saved;
 
-        public IPAddress IPAdress
-        {
-            get { return FIPAdress; }
-            set { FIPAdress = value; }
-        }
-        public bool Saved
-        {
-            get { return FSaved; }
-            set
-            {
-                if (!value && Parent != null)
-                {
+        [DataMember]
+        private string name;
+        
+        [DataMember]
+        private byte number;
+
+        [DataMember]
+        private string wifiSSID;
+
+        [DataMember]
+        private string wifiPassword;
+
+        [DataMember]
+        private ushort udpPort;
+
+        [DataMember]
+        private string ledCount;
+
+        [DataMember]
+        private bool status;
+
+        [DataMember]
+        private uint time;
+
+        [DataMember]
+        private Cyclogramm cyclogramm;
+
+        [DataMember]
+        public Project Parent { get; set; }
+
+        [DataMember]
+        public bool Renamed { get; set; }
+
+        [DataMember]
+        public string OldRelativePath { get; set; }
+
+        [DataMember]
+        public string RelativePath { get; set; }
+
+        [DataMember]
+        public bool PinListIsLock { get; set; }
+
+        [DataMember]
+        public List<Pin> PinList { get; set; }
+
+        public IPAddress IPAdress { get; set; }
+
+        public bool Saved {
+            get => saved;
+            set {
+                if (!value && Parent != null) {
                     Parent.Saved = false;
                 }
-                FSaved = value;
+                saved = value;
             }
-        }
-        public string OldRelativePath
-        {
-            get { return FOldRelativePath; }
-            set
-            {
-                FOldRelativePath = value;
-            }
-        }
+        }        
+
         public string Name
         {
-            get { return FName; }
+            get { return name; }
             set
             {
-                if (FName != value)
+                if (name != value)
                 {
-                    if (FName == null)
+                    if (name == null)
                     {
-                        FName = value;
+                        name = value;
                         Saved = false;
                     }
                     else
                     {
                         OldRelativePath = RelativePath;
-                        FName = value;
-                        RelativePath = "\\" + Parent.ClientsFolderName + "\\" + FName;
+                        name = value;
+                        RelativePath = "\\" + Parent.ClientsFolderName + "\\" + name;
                         var fi = new DirectoryInfo(this.Parent.AbsoluteFolderPath + OldRelativePath);
                         Renamed = fi.Exists;
                         Saved = false;
@@ -97,140 +97,88 @@ namespace Core
                 }
             }
         }
-        public byte Number
-        {
-            get { return FNumber; }
-            set
-            {
-                FNumber = value;
+        public byte Number {
+            get => number;
+            set {
+                number = value;
                 OnChange?.Invoke();
             }
         }
-        public string WifiSSID
-        {
-            get
-            {
-                return FWifiSSID;
-            }
 
-            set
-            {
-                if (FWifiSSID != value)
-                {
-                    FWifiSSID = value;
+        public string WifiSSID {
+            get => wifiSSID;
+            set {
+                if (wifiSSID != value) {
+                    wifiSSID = value;
                     Saved = false;
                 }
             }
         }
-        public string WifiPassword
-        {
-            get
-            {
-                return FWifiPassword;
-            }
-
-            set
-            {
-                if (FWifiPassword != value)
-                {
-                    FWifiPassword = value;
+        public string WifiPassword {
+            get => wifiPassword;
+            set {
+                if (wifiPassword != value) {
+                    wifiPassword = value;
                     Saved = false;
                 }
             }
         }
-        public ushort UDPPort
-        {
-            get
-            {
-                return FUDPPort;
-            }
 
-            set
-            {
-                if (FUDPPort != value)
-                {
-                    FUDPPort = value;
+        public ushort UDPPort {
+            get => udpPort;
+            set {
+                if (udpPort != value) {
+                    udpPort = value;
                     Saved = false;
                 }
             }
         }
-        public string LEDCount
-        {
-            get
-            {
-                return FLEDCount;
-            }
 
-            set
-            {
-                if (FLEDCount != value)
-                {
-                    FLEDCount = value;
+        public string LEDCount {
+            get => ledCount;
+            set {
+                if (ledCount != value) {
+                    ledCount = value;
                     Saved = false;
                 }
             }
         }
-        [DataMember]
-        public string RelativePath { get; set; }
 
-        /// <summary>
-        /// Ожидание ответа от клиента о воспроизведении
-        /// </summary>
         public bool WaitPlayingStatus { get; set; }
-        public string StatusString
+
+        public bool Status
         {
-            get { return FStatusString; }
-        }
-        public bool OnlineStatus
-        {
-            get { return Status; }
+            get { return status; }
             set
             {
-                Status = value;
-                if (Status)
-                {
-                    FStatusString = "Онлайн";
-                }
-                else
-                {
-                    FStatusString = "Оффлайн";
-                }
+                status = value;
                 OnChangeStatus?.Invoke();
             }
         }
+
+        public string StatusString => status ? "Онлайн" : "Оффлайн";
+
         public uint OnlineTime
         {
-            get { return Time; }
+            get { return time; }
             set
             {
-                Time = value;
-                if ((Time > 1000) & (OnlineStatus))
+                time = value;
+                if ((time > 1000) & (Status))
                 {
-                    OnlineStatus = false;
+                    Status = false;
                 }
-                else if ((Time <= 1000) & (!OnlineStatus))
+                else if ((time <= 1000) & (!Status))
                 {
-                    OnlineStatus = true;
+                    Status = true;
                 }
             }
         }
-        public bool PinListIsLock
-        {
-            get { return FPinListIsLock; }
-            set
-            {
-                FPinListIsLock = value;
-                OnPinListLocked?.Invoke(value);
-            }
-        }
-        [DataMember]
-        public List<Pin> PinList { get; set; }
-        public Cyclogramm Cyclogramm
-        {
-            get { return FCyclogramm; }
-            set
-            {
-                FCyclogramm = value;
+
+        public Cyclogramm Cyclogramm {
+            get => cyclogramm;
+            set {
+                cyclogramm = value;
                 Saved = false;
             }
         }
@@ -240,12 +188,8 @@ namespace Core
         public event Change OnChange;
         public delegate void ChangeStatus();
         public event ChangeStatus OnChangeStatus;
-        public delegate void ChangeCurrentCyclogramm(object sender, Cyclogramm CurrentCyclogramm);
-        public event ChangeCurrentCyclogramm OnChangeCurrentCyclogramm;
         public delegate void ChangePinList();
         public event ChangePinList OnChangePinList;
-        public delegate void PinListLocked(bool Value);
-        public event PinListLocked OnPinListLocked;
 
         public Client(string CName, string CNumber)
         {
@@ -261,9 +205,9 @@ namespace Core
             PinList = new List<Pin>();
             Name = CName;
             Number = TmpNumber;
-            OnlineStatus = false;
-            FPinListIsLock = false;
-            Time = 500;
+            Status = false;
+            PinListIsLock = false;
+            time = 500;
         }
         public void SaveClientSettingFile(string FullPath)
         {
@@ -315,20 +259,20 @@ namespace Core
                 FileOutput.Close();
             }
         }
-        public void AddPin(string _Pin, string _LEDCount)
+        public void AddPin(string pin, string ledCount)
         {
             if (PinListIsLock)
             {
                 return;
             }
             byte TmpPin;
-            if (!byte.TryParse(_Pin, out TmpPin))
+            if (!byte.TryParse(pin, out TmpPin))
             {
                 return;
             }
 
             ushort TmpLEDCount;
-            if (!ushort.TryParse(_LEDCount, out TmpLEDCount))
+            if (!ushort.TryParse(ledCount, out TmpLEDCount))
             {
                 return;
             }
@@ -347,7 +291,7 @@ namespace Core
             }
             else
             {
-                PinList.Add(new Pin(byte.Parse(_Pin), ushort.Parse(_LEDCount)));
+                PinList.Add(new Pin(byte.Parse(pin), ushort.Parse(ledCount)));
                 OnChangePinList?.Invoke();
                 Saved = false;
             }
@@ -367,9 +311,9 @@ namespace Core
             }
         }
 
-        public void Send_PlayFrom_12(TimeSpan Time)
+        public void Send_PlayFrom_12(TimeSpan time)
         {
-            uint FrameTime = (uint)(Time.TotalMilliseconds / 50);
+            uint FrameTime = (uint)(time.TotalMilliseconds / 50);
             byte[] Content = new byte[5];
             Content[0] = Number;
             Content[1] = (byte)(FrameTime >> 24);
