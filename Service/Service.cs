@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Net;
 
-namespace RemoteLEDControl.Service
+namespace Service
 {
     public static class Service
     {
