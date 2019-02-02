@@ -1186,14 +1186,14 @@ namespace RemoteLEDServer
 
             FillIPAddresses();
 
-            if (project.timer == null)
+            if (project.Timer == null)
             {
-                project.timer = new System.Windows.Forms.Timer();
+                project.Timer = new System.Windows.Forms.Timer();
             }
 
-            project.timer.Interval = 100;
-            project.timer.Tick += Timer_Tick;
-            project.timer.Enabled = true;
+            project.Timer.Interval = 100;
+            project.Timer.Tick += Timer_Tick;
+            project.Timer.Enabled = true;
 
             project.OnActiveThreadsChange += Project_OnActiveThreadsChange;
             project.OnChangeClientList += LoadDataSourceClient;
@@ -1268,7 +1268,7 @@ namespace RemoteLEDServer
                     {
                         if (project.ClientList[i].OnlineTime < 5000000)
                         {
-                            project.ClientList[i].OnlineTime += (uint)(project.timer.Interval);
+                            project.ClientList[i].OnlineTime += (uint)(project.Timer.Interval);
                         }
                     }
                 }

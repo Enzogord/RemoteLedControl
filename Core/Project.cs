@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Runtime.Serialization;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace Core
 {
@@ -15,101 +11,69 @@ namespace Core
     [DataContract]
     public class Project
     {
-        // Fields
-        public System.Windows.Forms.Timer timer;
-        private ProjectServerMode FMode;
-        [DataMember]
-        public UDPServer Server;
-        [DataMember]
-        private uint FKey;
-        [DataMember]
-        private string FAbsoluteFilePath;
-        private bool FSaved;
-        [DataMember]
-        private List<Client> FClientList;
-        private List<Client> FDeletedClientList;
-        /// <summary>
-        /// Хранит список открытых потоков для конвертирования циклограмм
-        /// </summary>
-        private List<Thread> FRuningThreadsList = new List<Thread>();
-        [DataMember]
-        private FileInfo FBindedAudioFile;
+        public System.Windows.Forms.Timer Timer { get; set; }
 
-        public List<Client> DeletedClientList
-        {
-            get
-            {
-                return FDeletedClientList;
-            }
-            set
-            {
-                FDeletedClientList = value;
-            }
-        }
-        public string Name { get; set; }
-        public uint Key
-        {
-            get { return FKey; }
-        }
-        public string AbsoluteFilePath
-        {
-            get
-            {
-                return FAbsoluteFilePath;
-            }
-            set
-            {
-                FAbsoluteFilePath = value;
-                AbsoluteFolderPath = Path.GetDirectoryName(FAbsoluteFilePath);
+        [DataMember]
+        public UDPServer Server { get; private set; }              
+
+        public List<Client> DeletedClientList { get; set; } = new List<Client>();
+
+        [DataMember]
+        public uint Key { get; private set; }
+
+        [DataMember]
+        private string absoluteFilePath;
+        public string AbsoluteFilePath {
+            get => absoluteFilePath;
+            set {
+                absoluteFilePath = value;
+                AbsoluteFolderPath = Path.GetDirectoryName(absoluteFilePath);
             }
         }
+
         [DataMember]
         public string AbsoluteFolderPath { get; set; }
+
         [DataMember]
         public string TEMPFolderName { get; set; }
+
         [DataMember]
         public string ClientsFolderName { get; set; }
-        public bool Saved
-        {
-            get { return FSaved; }
-            set
-            {
-                if (FSaved != value)
-                {
-                    FSaved = value;
+
+        private bool saved;
+        public bool Saved {
+            get => saved;
+            set {
+                if (saved != value) {
+                    saved = value;
                     OnSave?.Invoke();
                 }
             }
         }
+
         [DataMember]
         public string ClientsConfigFileName { get; set; }
-        public List<Client> ClientList
-        {
-            get { return FClientList; }
-        }
+
+        [DataMember]
+        public List<Client> ClientList { get; private set; }
+
         /// <summary>
         /// Свойство для получения списка открытых потоков для конвертирования циклограмм
         /// </summary>
-        public List<Thread> RuningThreadsList
-        {
-            get { return FRuningThreadsList; }
-            set { FRuningThreadsList = value; }
-        }
+        public List<Thread> RuningThreadsList { get; set; } = new List<Thread>();
 
-        public FileInfo BindedAudioFile
-        {
-            get { return FBindedAudioFile; }
-            set
-            {
-                if (value != FBindedAudioFile)
-                {
+        [DataMember]
+        private FileInfo bindedAudioFile;
+        public FileInfo BindedAudioFile {
+            get => bindedAudioFile;
+            set {
+                if (value != bindedAudioFile) {
                     Saved = false;
-                    FBindedAudioFile = value;
+                    bindedAudioFile = value;
                 }
             }
         }
 
-        // Events
         public delegate void DChangeClientList();
         public event DChangeClientList OnChangeClientList;
         public delegate void DHaveActiveThreads(bool HaveTreads);
@@ -117,15 +81,14 @@ namespace Core
         public delegate void DSave();
         public event DSave OnSave;
 
-        // Methods
         public Project(uint ProjectKey)
         {
-            FClientList = new List<Client>();
+            ClientList = new List<Client>();
             ClientsFolderName = "Clients";
             ClientsConfigFileName = "set.txt";
             TEMPFolderName = "RemoteLEDControl";
-            FKey = ProjectKey;
-            Server = new UDPServer(FKey);
+            Key = ProjectKey;
+            Server = new UDPServer(Key);
         }
 
         public string GetAbsoluteTEMPPath()
@@ -140,8 +103,8 @@ namespace Core
 
         public void AddThread(Thread thread)
         {
-            FRuningThreadsList.Add(thread);
-            if (FRuningThreadsList.Count > 0)
+            RuningThreadsList.Add(thread);
+            if (RuningThreadsList.Count > 0)
             {
                 OnActiveThreadsChange?.Invoke(true);
             }
@@ -154,8 +117,8 @@ namespace Core
         public void RemoveThread(int ThreadID)
         {
             int i = Thread.CurrentThread.ManagedThreadId;
-            FRuningThreadsList.RemoveAll(x => x.ManagedThreadId == ThreadID);
-            if (FRuningThreadsList.Count > 0)
+            RuningThreadsList.RemoveAll(x => x.ManagedThreadId == ThreadID);
+            if (RuningThreadsList.Count > 0)
             {
                 OnActiveThreadsChange?.Invoke(true);
             }
@@ -187,8 +150,8 @@ namespace Core
                     TmpClient.Status = false;
                     TmpClient.OnChange += Client_OnChange;
                     TmpClient.OnChangeStatus += TmpClient_OnChangeStatus;
-                    FClientList.Add(TmpClient);
-                    Result = FClientList.IndexOf(TmpClient);
+                    ClientList.Add(TmpClient);
+                    Result = ClientList.IndexOf(TmpClient);
                     OnChangeClientList?.Invoke();
                 }
             }
@@ -208,11 +171,10 @@ namespace Core
         public void DeleteClient(Client client)
         {
             ClientList.Remove(client);
-            if (FDeletedClientList == null)
-            {
-                FDeletedClientList = new List<Client>();
+            if (DeletedClientList == null) {
+                DeletedClientList = new List<Client>();
             }
-            FDeletedClientList.Add(client);
+            DeletedClientList.Add(client);
             OnChangeClientList?.Invoke();
             Saved = false;
         }
