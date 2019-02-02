@@ -362,7 +362,7 @@ namespace Core
             }
             else
             {
-                PinList.Add(new Pin(_Pin, _LEDCount));
+                PinList.Add(new Pin(byte.Parse(_Pin), ushort.Parse(_LEDCount)));
                 OnChangePinList?.Invoke();
                 Saved = false;
             }
