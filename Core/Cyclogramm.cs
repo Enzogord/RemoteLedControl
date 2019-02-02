@@ -1,98 +1,39 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Runtime.Serialization;
 
 namespace Core
 {
-    /// <summary>
-    /// Информация о циклограмме воспроизводимой клиентом
-    /// </summary>
     [DataContract]
     public class Cyclogramm
     {
-        // Fields
         [DataMember]
-        private string FName;
+        private string Name { get; set; }
+
         [DataMember]
         public Client Parent;
+
         [DataMember]
         public int FileSize { get; set; }
-        //private string FOutputFileName;
-        [DataMember]
-        private bool FConverted;
-        [DataMember]
-        private string FConvertedStr;
-        private bool FSaved;
 
-        // Properties
-        public string Name
-        {
-            get { return FName; }
-            set
-            {
-                FName = value;
-                OnChange?.Invoke();
-            }
-        }
+        [DataMember]
+        public bool Converted { get; set; }
+
+        public string ConvertedStr => Converted ? "Да" : "Нет";
+
+        private bool saved;
 
         public bool Saved
         {
-            get { return FSaved; }
+            get { return saved; }
             set
             {
-                FSaved = value;
-                if (FSaved == false)
+                saved = value;
+                if (saved == false)
                 {
                     Parent.Saved = false;
                 }
             }
         }
-        public bool Converted
-        {
-            get { return FConverted; }
-            set
-            {
-                FConverted = value;
-                if (FConverted == true)
-                {
-                    FConvertedStr = "Да";
-                }
-                else
-                {
-                    FConvertedStr = "Нет";
-                }
-                OnConverted?.Invoke();
-            }
-        }
-        public string ConvertedStr
-        {
-            get { return FConvertedStr; }
-            set
-            {
-                FConvertedStr = value;
-                if (FConverted == true)
-                {
-                    FConvertedStr = "Да";
-                }
-                else
-                {
-                    if (FConvertedStr == "")
-                    {
-                        FConvertedStr = "Нет";
-                    }
-                }
-                OnConverted?.Invoke();
-            }
-        }
 
-        // Events
-        public delegate void ChangeCyclogram();
-        public event ChangeCyclogram OnChange;
-        public delegate void ConvertedCyclogramm();
-        public event ConvertedCyclogramm OnConverted;
     }
 
 }
