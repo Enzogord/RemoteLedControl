@@ -15,7 +15,6 @@ namespace Core
     [DataContract]
     public class Client
     {
-        //Fields
         [DataMember]
         public Project Parent;
         [DataMember]
@@ -48,7 +47,6 @@ namespace Core
         private Cyclogramm FCyclogramm;
         private IPAddress FIPAdress;
 
-        // Properties       
         public IPAddress IPAdress
         {
             get { return FIPAdress; }
@@ -189,7 +187,6 @@ namespace Core
             set
             {
                 Status = value;
-                //OnChangeStatus?.Invoke();
                 if (Status)
                 {
                     FStatusString = "Онлайн";
@@ -198,8 +195,6 @@ namespace Core
                 {
                     FStatusString = "Оффлайн";
                 }
-                //OnChange?.Invoke();
-                //this.FStatusString = "";
                 OnChangeStatus?.Invoke();
             }
         }
@@ -237,12 +232,10 @@ namespace Core
             {
                 FCyclogramm = value;
                 Saved = false;
-                //OnChangeCurrentCyclogramm?.Invoke(this, FCyclogramm);
             }
         }
         public Cyclogramm DeletedCyclogramm { get; set; }
 
-        // EVENTS  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         public delegate void Change();
         public event Change OnChange;
         public delegate void ChangeStatus();
@@ -253,13 +246,7 @@ namespace Core
         public event ChangePinList OnChangePinList;
         public delegate void PinListLocked(bool Value);
         public event PinListLocked OnPinListLocked;
-        //public delegate void ChangeCyclogrammList();
-        //public event ChangeCyclogrammList OnChangeCyclogrammList;
-        //public delegate void RefreshCyclogrammList();
-        //public event RefreshCyclogrammList OnRefreshCyclogrammList;
 
-
-        // METHODS  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         public Client(string CName, string CNumber)
         {
             byte TmpNumber;
@@ -272,7 +259,6 @@ namespace Core
                 return;
             }
             PinList = new List<Pin>();
-            //CyclogrammList = new List<Cyclogramm>();
             Name = CName;
             Number = TmpNumber;
             OnlineStatus = false;
@@ -293,7 +279,6 @@ namespace Core
             }
             catch (Exception)
             {
-                //MessageBox.Show(e.Message, "Ошибка");
                 return;
             }
 

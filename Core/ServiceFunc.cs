@@ -395,38 +395,6 @@ namespace Core
             return result;
         }
 
-        //public static void CopyDirectory(string SourcePath, string DestinationPath, bool Overwrite)
-        //{
-        //    if (Directory.Exists(DestinationPath))
-        //    {
-        //        if (Overwrite)
-        //        {
-        //            Directory.Delete(DestinationPath, true);
-        //            Directory.CreateDirectory(DestinationPath);
-        //        }                             
-        //    }
-        //    else
-        //    {
-        //        Directory.CreateDirectory(DestinationPath);
-        //    }            
-        //    if (Directory.Exists(SourcePath))
-        //    {
-        //        int length = SourcePath.Length;
-        //        string[] files = Directory.GetFiles(SourcePath,"*.*", SearchOption.AllDirectories);
-
-        //        // Copy the files and overwrite destination files if they already exist.
-        //        foreach (string s in files)
-        //        {
-        //            // Use static Path methods to extract only the file name from the path.
-        //            //string fileName = Path.(s);
-        //            string a = s.Substring(length);
-        //            string destFile = DestinationPath + a;
-        //            File.Copy(s, destFile, true);
-        //        }
-        //    }
-        //}
-
-
         public static void CopyDirectory(string SourceDirectory, string DestinationDirectory, out CopiedInfo copiedInfo, out AlreadyCopiedInfo alreadyCopiedInfo)
         {
             DirectoryInfo SourceDir = new DirectoryInfo(SourceDirectory);

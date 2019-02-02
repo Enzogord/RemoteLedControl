@@ -12,7 +12,6 @@ namespace Core
     [DataContract]
     public class UDPServer
     {
-        // Fields
         private UdpClient PackageSender;
         private UdpClient PackageReceiver;
         private IPAddress PServerIPAdress;
@@ -23,8 +22,6 @@ namespace Core
         private ushort PUDPport;
         private bool PIsRun;
         private uint PSetTime = 0;
-
-        // Properties
 
         public IPAddress SubNetBroadcastAddress
         {
@@ -76,7 +73,6 @@ namespace Core
             set { PUDPport = value; }
         }
 
-        // Events
         public delegate void SendCyclogrammName(byte ClientNumber, byte CyclogrammSendType, string CyclogrammName);
         public event SendCyclogrammName OnSendCyclogrammName;
         public delegate void SendFinalCyclogrammName(byte ClientNumber, string CyclogrammName);
@@ -90,7 +86,6 @@ namespace Core
         public delegate void ServerIPChange();
         public event ServerIPChange OnServerIPChange;
 
-        // Methods
         public UDPServer(uint Key)
         {
             ProjectKey = Key;
@@ -145,7 +140,7 @@ namespace Core
                 switch (bytes[4])
                 {
                     case 3:
-                        ClientState state;// = new ClientState();
+                        ClientState state;
                         switch (bytes[8])
                         {
                             case 1:
@@ -246,13 +241,8 @@ namespace Core
                     }
                     UDPSend(ByteArray, IP, Port);
                     break;
-                //case 4:
-                //    for (int i = 5; i < ByteArray.Length - 1; i++)
-                //    {
-                //        ByteArray[i] = 0;
-                //    }
-                //    UDPSend(ByteArray, IP, Port);
-                //    break;
+               case 4:
+                    break;
                 case 5:
                     ContentLength = 4;
                     byte[] IPAdressBytes = PServerIPAdress.GetAddressBytes();
@@ -338,8 +328,6 @@ namespace Core
                     break;
             }
         }
-
-
 
         //Отправляет UDP дейтаграмму содержащую массив байтов
         public void UDPSend(byte[] bytes, IPAddress remoteIPAddress, int remotePort)

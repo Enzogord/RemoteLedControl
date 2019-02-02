@@ -35,8 +35,6 @@ namespace Core
         [DataMember]
         private FileInfo FBindedAudioFile;
 
-        // Properties
-
         public List<Client> DeletedClientList
         {
             get
