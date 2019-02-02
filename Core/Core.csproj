@@ -51,6 +51,7 @@
     <Compile Include="Pin.cs" />
     <Compile Include="Project.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RLCMain.cs" />
     <Compile Include="RLCProjectController.cs" />
     <Compile Include="ServiceFunc.cs" />
     <Compile Include="UDPServer.cs" />
