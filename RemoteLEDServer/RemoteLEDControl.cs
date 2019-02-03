@@ -271,6 +271,7 @@ namespace RemoteLEDServer
                     }
                     project.Server.UDPPort = ushort.Parse(textBox_localPort.Text);
                     project.Server.ServerIPAdress = ServerIP;
+                    project.Server.Initialize(ServerIP, ushort.Parse(textBox_localPort.Text));
                     project.Server.SubNetBroadcastAddress = ServerBroadcastIP;
                     try
                     {

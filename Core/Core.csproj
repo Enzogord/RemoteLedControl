@@ -35,9 +35,13 @@
       <HintPath>..\packages\NLog.4.5.11\lib\net45\NLog.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.IO.Compression" />
     <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.Transactions" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -57,7 +61,9 @@
     <Compile Include="RLCMain.cs" />
     <Compile Include="RLCProjectController.cs" />
     <Compile Include="ServiceFunc.cs" />
-    <Compile Include="UDPServer.cs" />
+    <Compile Include="Transport\ReceivingDataEventArgs.cs" />
+    <Compile Include="Transport\UDPServer.cs" />
+    <Compile Include="Transport\UDPTransmiter.cs" />
     <Compile Include="XMLSaver.cs" />
   </ItemGroup>
   <ItemGroup>

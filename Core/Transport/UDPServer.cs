@@ -12,66 +12,37 @@ namespace Core
     [DataContract]
     public class UDPServer
     {
-        private UdpClient PackageSender;
-        private UdpClient PackageReceiver;
-        private IPAddress PServerIPAdress;
-        private IPAddress subNetBroadcastAddress;
+        private UDPTransmiter udpTransmitter;
+
         private IPEndPoint endPoint;
         private bool stop;
-        [DataMember]
-        private ushort PUDPport;
-        private bool PIsRun;
-        private uint PSetTime = 0;
 
-        public IPAddress SubNetBroadcastAddress
-        {
-            get { return subNetBroadcastAddress; }
-            set
-            {
-                if (subNetBroadcastAddress != value)
-                {
-                    subNetBroadcastAddress = value;
+        public IPAddress SubNetBroadcastAddress { get; set; }
+
+        public uint SetTime { get; set; } = 0;
+
+        [DataMember]
+        public uint ProjectKey { get; set; }
+
+        [DataMember]
+        [Obsolete("Возможно не нужен")]
+        public ushort UDPPort { get; set; }
+
+        private IPAddress serverIPAdress;
+        [Obsolete("Возможно не нужен")]
+        public IPAddress ServerIPAdress {
+            get => serverIPAdress;
+            set {
+                if (serverIPAdress != value) {
+                    serverIPAdress = value;
+                    OnServerIPChange?.Invoke();
                 }
             }
         }
 
-        public IPAddress ServerIPAdress
-        {
-            get { return PServerIPAdress; }
-            set
-            {
-                if (PServerIPAdress != value)
-                {
-                    PServerIPAdress = value;
-                    OnServerIPChange?.Invoke();
-                }                
-            }
-        }
-        public bool IsRun
-        {
-            get { return PIsRun; }
-        }
-        private bool PropIsRun
-        {
-            get { return PIsRun; }
-            set
-            {
-                PIsRun = value;
-                OnStatusChange?.Invoke();
-            }
-        }
-        [DataMember]
-        public uint ProjectKey { get; set; }
-        public uint SetTime
-        {
-            get { return PSetTime; }
-            set { PSetTime = value; }
-        }
-        public ushort UDPPort
-        {
-            get { return PUDPport; }
-            set { PUDPport = value; }
-        }
+        public bool IsRun => udpTransmitter == null ? false : udpTransmitter.IsRun;
+
+        public bool IsInitialized => udpTransmitter != null;
 
         public delegate void SendCyclogrammName(byte ClientNumber, byte CyclogrammSendType, string CyclogrammName);
         public event SendCyclogrammName OnSendCyclogrammName;
@@ -89,43 +60,54 @@ namespace Core
         public UDPServer(uint Key)
         {
             ProjectKey = Key;
-            PropIsRun = false;
         }
+
+        public void Initialize(IPAddress ipAddress, int port)
+        {
+            ResetTransmitter();
+            ServerIPAdress = ipAddress;
+            UDPPort = (ushort)port;
+            udpTransmitter = new UDPTransmiter(ipAddress, port);
+            udpTransmitter.OnReceivePackage += UdpTransmitter_OnReceivePackage;
+            udpTransmitter.OnChangeStatus += UdpTransmitter_OnChangeStatus;
+        }        
+
+        private void ResetTransmitter()
+        {
+            if(udpTransmitter == null) {
+                return;
+            }
+            udpTransmitter.OnReceivePackage -= UdpTransmitter_OnReceivePackage;
+            udpTransmitter.Dispose();
+            udpTransmitter = null;
+        }
+
         public void StartReceiving()
         {
-            if (PUDPport > 0)
-            {
-                stop = false;
-                PackageReceiver = new UdpClient(PUDPport);
-                if (PackageReceiver != null)
-                {
-                    PropIsRun = true;
-                }
-                Receive();
+            if(!IsInitialized) {
+                return;
             }
+            udpTransmitter.StartReceiving();
         }
+
         public void StopReceiving()
         {
-            stop = true;
-            PackageReceiver.Client.Close();
-            PackageReceiver = null;
-            Thread.Sleep(500);
-            PropIsRun = false;
-        }
-        private void Receive()
-        {
-            PackageReceiver.BeginReceive(new AsyncCallback(MyReceiveCallback), null);
-        }
-        private void MyReceiveCallback(IAsyncResult result)
-        {
-            IPEndPoint ip = new IPEndPoint(IPAddress.Any, 0);
-            if (!stop)
-            {
-                Byte[] receiveBytes = PackageReceiver.EndReceive(result, ref ip);
-                ParsePackage(receiveBytes, ip);
-                Receive();
+            if(!IsInitialized) {
+                return;
             }
+            udpTransmitter.StopReceiving();
         }
+
+        private void UdpTransmitter_OnReceivePackage(object sender, ReceivingDataEventArgs e)
+        {
+            ParsePackage(e.Data, e.Ip);
+        }
+
+        private void UdpTransmitter_OnChangeStatus(object sender, EventArgs e)
+        {
+            OnStatusChange?.Invoke();
+        }
+
         public void ParsePackage(byte[] bytes, IPEndPoint SenderIp)
         {
             if (bytes.Length != 200)
@@ -218,6 +200,9 @@ namespace Core
 
         public void SendCommand(IPAddress IP, int Port, byte cmd, byte[] Content)
         {
+            if(!IsInitialized) {
+                return;
+            }
             ushort ContentLength;
             byte[] ByteArray = new byte[200];
             ByteArray[0] = (byte)(ProjectKey >> 24);
@@ -232,20 +217,20 @@ namespace Core
                     {
                         ByteArray[i] = 0;
                     }
-                    UDPSend(ByteArray, IP, Port);
+                    udpTransmitter.UDPSend(ByteArray, IP, Port);
                     break;
                 case 2:
                     for (int i = 5; i < ByteArray.Length - 1; i++)
                     {
                         ByteArray[i] = 0;
                     }
-                    UDPSend(ByteArray, IP, Port);
+                    udpTransmitter.UDPSend(ByteArray, IP, Port);
                     break;
                case 4:
                     break;
                 case 5:
                     ContentLength = 4;
-                    byte[] IPAdressBytes = PServerIPAdress.GetAddressBytes();
+                    byte[] IPAdressBytes = serverIPAdress.GetAddressBytes();
                     ByteArray[5] = (byte)(ContentLength >> 8);
                     ByteArray[6] = (byte)(ContentLength >> 0);
                     ByteArray[7] = IPAdressBytes[0];
@@ -256,14 +241,14 @@ namespace Core
                     {
                         ByteArray[i] = 0;
                     }
-                    UDPSend(ByteArray, IP, Port);
+                    udpTransmitter.UDPSend(ByteArray, IP, Port);
                     break;
                 case 6:
                     for (int i = 5; i < ByteArray.Length - 1; i++)
                     {
                         ByteArray[i] = 0;
                     }
-                    UDPSend(ByteArray, IP, Port);
+                    udpTransmitter.UDPSend(ByteArray, IP, Port);
                     break;
                 case 7:
                     ContentLength = (ushort)Content.Length;
@@ -280,7 +265,7 @@ namespace Core
                         {
                             ByteArray[i] = 0;
                         }
-                        UDPSend(ByteArray, IP, Port);
+                        udpTransmitter.UDPSend(ByteArray, IP, Port);
                     }
                     break;
                 case 9:
@@ -292,7 +277,7 @@ namespace Core
                     {
                         ByteArray[i] = 0;
                     }
-                    UDPSend(ByteArray, IP, Port);
+                    udpTransmitter.UDPSend(ByteArray, IP, Port);
                     break;
                 case 12:
                     ContentLength = (ushort)Content.Length;
@@ -310,7 +295,7 @@ namespace Core
                         {
                             ByteArray[i] = 0;
                         }
-                        UDPSend(ByteArray, IP, Port);
+                        udpTransmitter.UDPSend(ByteArray, IP, Port);
                     }
                     break;
                 case 13:
@@ -322,31 +307,11 @@ namespace Core
                     {
                         ByteArray[i] = 0;
                     }
-                    UDPSend(ByteArray, IP, Port);
+                    udpTransmitter.UDPSend(ByteArray, IP, Port);
                     break;
                 default:
                     break;
             }
-        }
-
-        //Отправляет UDP дейтаграмму содержащую массив байтов
-        public void UDPSend(byte[] bytes, IPAddress remoteIPAddress, int remotePort)
-        {
-            if (remoteIPAddress != null)
-            {
-                PackageSender = new UdpClient();
-                PackageSender.EnableBroadcast = true;
-                endPoint = new IPEndPoint(remoteIPAddress, remotePort);
-                try
-                {
-                    PackageSender.Send(bytes, bytes.Length, endPoint);
-                }
-                finally
-                {
-                    PackageSender.Close();
-                    endPoint = null;
-                }
-            }
-        }
+        }        
     }
 }
