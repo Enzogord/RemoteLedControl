@@ -985,8 +985,8 @@ namespace RemoteLEDServer
             project.Server.OnSendNumberPlate += Server_OnSendNumberPlate;
             project.Server.ServerIPAdress = ServerIP;
             project.Server.SubNetBroadcastAddress = ServerBroadcastIP;
-            project.Server.OnStatusChange += ShowServerStatus;
-            project.Server.OnServerIPChange += ShowServerIP;
+            project.Server.OnStatusChange += OnChangeServerStatus;
+            project.Server.OnServerIPChange += OnChangeServerIP;
             project.Server.StartReceiving();
             SetClientsEvents();
             LoadDataSourceClient();
@@ -1059,14 +1059,14 @@ namespace RemoteLEDServer
             }
         }
 
-        private void Server_OnSendNumberPlate(byte plateNumber, IPEndPoint ip, ClientState state)
+        private void Server_OnSendNumberPlate(object sender, PlateInfoEventArgs e)
         {
             try
             {
                 BeginInvoke(
                     new Action(delegate ()
                         {
-                            Client client = project.ClientList.FirstOrDefault(x => x.Number == plateNumber);
+                            Client client = project.ClientList.FirstOrDefault(x => x.Number == e.ClientNumber);
                             if (client != null)
                             {
                                 if (
@@ -1075,23 +1075,23 @@ namespace RemoteLEDServer
                                 // если не онлайн
                                 && !client.Status 
                                 // состояние клиента - ожидание воспроизведения
-                                && state == ClientState.Wait 
+                                && e.ClientState == ClientState.Wait 
                                 // статус плеера - вопсроизведение
                                 && rlcPlayer1.PlaybackStateStr == PlaybackState.Playing)
                                 {
                                     client.Send_PlayFrom_12(rlcPlayer1.CurrentTime);
                                     client.WaitPlayingStatus = true;
                                 }
-                                if (state == ClientState.Play || state == ClientState.Pause)
+                                if (e.ClientState == ClientState.Play || e.ClientState == ClientState.Pause)
                                 {
                                     client.WaitPlayingStatus = false;
                                 }
 
                                 client.OnlineTime = 0; // Сбрасывание времени ожидания клиента, если время меньше определенного числа то клиент онлайн
 
-                                if (client.IPAdress != ip.Address)
+                                if (client.IPAdress != e.IpEndPoint.Address)
                                 {
-                                    client.IPAdress = ip.Address; // Установка IP адреса клиента, если указанный в клиенте не совпадает с адресом в пакете
+                                    client.IPAdress = e.IpEndPoint.Address; // Установка IP адреса клиента, если указанный в клиенте не совпадает с адресом в пакете
                                 }
                             }
                         }
@@ -1127,6 +1127,11 @@ namespace RemoteLEDServer
             }
         }
 
+        private void OnChangeServerStatus(object sender, EventArgs e)
+        {
+            ShowServerStatus();
+        }
+
         /// <summary>
         /// Отображает статус сервера на форме в строке информации
         /// </summary>
@@ -1147,7 +1152,10 @@ namespace RemoteLEDServer
                 ShowServerIP();
             }
         }
-
+        private void OnChangeServerIP(object sender, EventArgs e)
+        {
+            ShowServerIP();
+        }
         /// <summary>
         /// Отображает текущий IP адрес сервера используемый для передачи данных
         /// </summary>

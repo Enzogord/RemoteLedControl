@@ -61,6 +61,7 @@
     <Compile Include="RLCMain.cs" />
     <Compile Include="RLCProjectController.cs" />
     <Compile Include="ServiceFunc.cs" />
+    <Compile Include="Transport\PlateInfoEventArgs.cs" />
     <Compile Include="Transport\ReceivingDataEventArgs.cs" />
     <Compile Include="Transport\UDPServer.cs" />
     <Compile Include="Transport\UDPTransmiter.cs" />

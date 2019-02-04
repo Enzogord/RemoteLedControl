@@ -35,7 +35,7 @@ namespace Core
             set {
                 if (serverIPAdress != value) {
                     serverIPAdress = value;
-                    OnServerIPChange?.Invoke();
+                    OnServerIPChange?.Invoke(this, EventArgs.Empty);
                 }
             }
         }
@@ -44,18 +44,10 @@ namespace Core
 
         public bool IsInitialized => udpTransmitter != null;
 
-        public delegate void SendCyclogrammName(byte ClientNumber, byte CyclogrammSendType, string CyclogrammName);
-        public event SendCyclogrammName OnSendCyclogrammName;
-        public delegate void SendFinalCyclogrammName(byte ClientNumber, string CyclogrammName);
-        public event SendFinalCyclogrammName OnSendFinalCyclogrammName;
-        public delegate void SendNumberPlate(byte s, IPEndPoint IP, ClientState clientState);
-        public event SendNumberPlate OnSendNumberPlate;
-        public delegate void SendTypePackage(byte Type);
-        public event SendTypePackage OnParsePackage;
-        public delegate void StatusChange();
-        public event StatusChange OnStatusChange;
-        public delegate void ServerIPChange();
-        public event ServerIPChange OnServerIPChange;
+        public event EventHandler<PlateInfoEventArgs> OnSendNumberPlate;
+        public event EventHandler<byte> OnParsePackage;
+        public event EventHandler OnStatusChange;
+        public event EventHandler OnServerIPChange;
 
         public UDPServer(uint Key)
         {
@@ -105,10 +97,10 @@ namespace Core
 
         private void UdpTransmitter_OnChangeStatus(object sender, EventArgs e)
         {
-            OnStatusChange?.Invoke();
+            OnStatusChange?.Invoke(this, EventArgs.Empty);
         }
 
-        public void ParsePackage(byte[] bytes, IPEndPoint SenderIp)
+        public void ParsePackage(byte[] bytes, IPEndPoint senderIp)
         {
             if (bytes.Length != 200)
             {
@@ -139,10 +131,10 @@ namespace Core
                                 break;
                         }
 
-                        OnSendNumberPlate?.Invoke(bytes[7], SenderIp, state);
+                        OnSendNumberPlate?.Invoke(this, new PlateInfoEventArgs(bytes[7], senderIp, state));
                         break;
                     case 8:
-                        SendCommand(SenderIp.Address, UDPPort, 5, new byte[0]);
+                        SendCommand(senderIp.Address, UDPPort, 5, new byte[0]);
                         break;
                     case 10:
                         ushort ContentLength = (ushort)((bytes[5] << 8) + (bytes[6] << 0));
@@ -153,7 +145,7 @@ namespace Core
 
                         string Name = System.Text.Encoding.ASCII.GetString(CycName);
 
-                        OnSendCyclogrammName?.Invoke(ClientNumber, CyclogrammSendType, Name);
+                        //вызов события циклограммы
                         break;
                     case 14:
                         ushort ContentLength2 = (ushort)((bytes[5] << 8) + (bytes[6] << 0));
@@ -163,12 +155,12 @@ namespace Core
 
                         string Name2 = System.Text.Encoding.ASCII.GetString(CycName2);
 
-                        OnSendFinalCyclogrammName?.Invoke(ClientNumber2, Name2);
+                        //вызов события циклограммы
                         break;
                     default:
                         break;
                 }
-                OnParsePackage?.Invoke(bytes[4]);
+                OnParsePackage?.Invoke(this, bytes[4]);
             }
         }
 
