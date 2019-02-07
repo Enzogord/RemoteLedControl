@@ -13,9 +13,6 @@ namespace Core
     {
         public System.Windows.Forms.Timer Timer { get; set; }
 
-        [DataMember]
-        public UDPServer Server { get; private set; }              
-
         public List<Client> DeletedClientList { get; set; } = new List<Client>();
 
         [DataMember]
@@ -88,7 +85,6 @@ namespace Core
             ClientsConfigFileName = "set.txt";
             TEMPFolderName = "RemoteLEDControl";
             Key = ProjectKey;
-            Server = new UDPServer(Key);
         }
 
         public string GetAbsoluteTEMPPath()

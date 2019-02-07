@@ -39,6 +39,12 @@ namespace RemoteLEDServer
             dataGridView_Clients.AutoGenerateColumns = false;
             dataGridView_PinList.AutoGenerateColumns = false;
             labelBroadcastAddress.Text = ServerBroadcastIP.ToString();
+
+            //FIXME тестовые вызовы для дебага
+            tabControl1.Enabled = true;
+            OpenProject(ProjectController.CurrentProject, Environment.CurrentDirectory);
+            rlcPlayer1.InitializePlayer(ProjectController.CurrentProject.BindedAudioFile.FullName);
+            OnProjectStart();
         }
 
         private IPAddress ServerIP
@@ -155,14 +161,14 @@ namespace RemoteLEDServer
                             ProjectController.CurrentProject = xml.Fields;
                             project.RuningThreadsList = new List<Thread>();
                             project.AbsoluteFilePath = FilePath;
-                            if (project.Server != null)
+                            if (ProjectController.Server != null)
                             {
-                                if (project.Server.ProjectKey != project.Key)
+                                if (ProjectController.Server.ProjectKey != project.Key)
                                 {
-                                    project.Server.ProjectKey = project.Key;
+                                    ProjectController.Server.ProjectKey = project.Key;
                                 }
                             }
-                            //project.Server = new UDPServer(project.Key);
+                            //ProjectController.UDPServer = new UDPServer(project.Key);
                             project.Saved = true;
                             ToolStripMenuItem_SaveProject.Enabled = true;
                             ToolStripMenuItem_SaveAsProject.Enabled = true;
@@ -190,35 +196,33 @@ namespace RemoteLEDServer
                     return;
                 }
 
-                ClearProject();
-                ProjectController.CurrentProject = xml.Fields;
-                project.RuningThreadsList = new List<Thread>();
-                project.AbsoluteFilePath = od.FileName;
-                if (project.Server != null)
-                {
-                    if (project.Server.ProjectKey != project.Key)
-                    {
-                        project.Server.ProjectKey = project.Key;
-                    }
-                }
-                //project.Server = new UDPServer(project.Key);
-                project.Saved = true;
-                ToolStripMenuItem_SaveProject.Enabled = true;
-                ToolStripMenuItem_SaveAsProject.Enabled = true;
-                if (project.BindedAudioFile != null)
-                {
-                    if (project.BindedAudioFile.Exists)
-                    {
-                        rlcPlayer1.InitializePlayer(project.BindedAudioFile.FullName);
-                    }
-                    else
-                    {
-                        MessageBox.Show("Сохраненного в проекта файла \"" + project.BindedAudioFile.FullName + "\" не существует на диске. Необходимо вручную добавить аудио файл в плеер.", "Ошибка открытия аудио файла");
-                    }
-                }
-                OnProjectStart();
+                OpenProject(xml.Fields, od.FileName);
             }
+        }
 
+        public void OpenProject(Project project, string filePath)
+        {
+            ClearProject();
+            ProjectController.CurrentProject = project;
+            project.RuningThreadsList = new List<Thread>();
+            project.AbsoluteFilePath = filePath;
+            if(ProjectController.Server != null) {
+                if(ProjectController.Server.ProjectKey != project.Key) {
+                    ProjectController.Server.ProjectKey = project.Key;
+                }
+            }
+            //ProjectController.UDPServer = new UDPServer(project.Key);
+            project.Saved = true;
+            ToolStripMenuItem_SaveProject.Enabled = true;
+            ToolStripMenuItem_SaveAsProject.Enabled = true;
+            if(project.BindedAudioFile != null) {
+                if(project.BindedAudioFile.Exists) {
+                    rlcPlayer1.InitializePlayer(project.BindedAudioFile.FullName);
+                } else {
+                    MessageBox.Show("Сохраненного в проекта файла \"" + project.BindedAudioFile.FullName + "\" не существует на диске. Необходимо вручную добавить аудио файл в плеер.", "Ошибка открытия аудио файла");
+                }
+            }
+            OnProjectStart();
         }
 
         /// <summary>
@@ -261,32 +265,10 @@ namespace RemoteLEDServer
         private void button_SaveServerSetting_Click(object sender, EventArgs e)
         { 
             //Сохранить сервер
-            if (project != null)
+            if (ProjectController != null && ProjectController.Server != null)
             {
-                if (project.Server.UDPPort != ushort.Parse(textBox_localPort.Text))
-                {
-                    if (project.Server.IsRun)
-                    {
-                        project.Server.StopReceiving();
-                    }
-                    project.Server.UDPPort = ushort.Parse(textBox_localPort.Text);
-                    project.Server.ServerIPAdress = ServerIP;
-                    project.Server.Initialize(ServerIP, ushort.Parse(textBox_localPort.Text));
-                    project.Server.SubNetBroadcastAddress = ServerBroadcastIP;
-                    try
-                    {
-                        project.Server.StartReceiving();
-                    }
-                    catch (Exception)
-                    {
-                        MessageBox.Show("Ошибка старта сервера. Возможно порт занят. Попробуйте использовать другой порт");
-                    }
-                }
-                else
-                {
-                    project.Server.ServerIPAdress = ServerIP;
-                    project.Server.SubNetBroadcastAddress = ServerBroadcastIP;
-                }
+                ProjectController.Server.UDPPort = ushort.Parse(textBox_localPort.Text);
+                ProjectController.Server.ServerIPAdress = ServerIP;
             }
         }
 
@@ -982,12 +964,13 @@ namespace RemoteLEDServer
             project.OnActiveThreadsChange += Project_OnActiveThreadsChange;
             project.OnChangeClientList += LoadDataSourceClient;
             project.OnSave += Project_OnSave;
-            project.Server.OnSendNumberPlate += Server_OnSendNumberPlate;
-            project.Server.ServerIPAdress = ServerIP;
-            project.Server.SubNetBroadcastAddress = ServerBroadcastIP;
-            project.Server.OnStatusChange += OnChangeServerStatus;
-            project.Server.OnServerIPChange += OnChangeServerIP;
-            project.Server.StartReceiving();
+            ProjectController.Server.OnSendNumberPlate += Server_OnSendNumberPlate;
+            ProjectController.Server.ServerIPAdress = ServerIP;
+            ProjectController.Server.SubNetBroadcastAddress = ServerBroadcastIP;
+            ProjectController.Server.OnStatusChange += OnChangeServerStatus;
+            ProjectController.Server.OnServerIPChange += OnChangeServerIP;
+            ProjectController.Server.Initialize(ServerIP, ProjectController.Server.UDPPort);
+            ProjectController.Server.StartReceiving();
             SetClientsEvents();
             LoadDataSourceClient();
             LoadControlValues();
@@ -1079,7 +1062,7 @@ namespace RemoteLEDServer
                                 // статус плеера - вопсроизведение
                                 && rlcPlayer1.PlaybackStateStr == PlaybackState.Playing)
                                 {
-                                    client.Send_PlayFrom_12(rlcPlayer1.CurrentTime);
+                                    ProjectController.Server.Send_PlayFrom_12(rlcPlayer1.CurrentTime, client.Number, client.IPAdress);
                                     client.WaitPlayingStatus = true;
                                 }
                                 if (e.ClientState == ClientState.Play || e.ClientState == ClientState.Pause)
@@ -1139,9 +1122,9 @@ namespace RemoteLEDServer
         {
             if (project != null)
             {
-                if (project.Server.IsRun)
+                if (ProjectController.Server.IsRun)
                 {
-                    label_ServerStatus.Text = "Запущен (" + project.Server.UDPPort.ToString() + ")";
+                    label_ServerStatus.Text = "Запущен (" + ProjectController.Server.UDPPort.ToString() + ")";
                     label_ServerStatus.ForeColor = Color.Green;
                 }
                 else
@@ -1164,11 +1147,11 @@ namespace RemoteLEDServer
             bool visible = false;
             if (project != null)
             {
-                if (project.Server != null)
+                if (ProjectController.Server != null)
                 {
-                    if (project.Server.ServerIPAdress != null)
+                    if (ProjectController.Server.ServerIPAdress != null)
                     {
-                        label_ServerIP.Text = project.Server.ServerIPAdress.ToString();
+                        label_ServerIP.Text = ProjectController.Server.ServerIPAdress.ToString();
                         visible = true;
                     }
                 }
@@ -1182,7 +1165,7 @@ namespace RemoteLEDServer
         private void LoadControlValues()
         {
             label_CurrentKey.Text = project.Key.ToString();
-            textBox_localPort.Text = project.Server.UDPPort.ToString();
+            textBox_localPort.Text = ProjectController.Server.UDPPort.ToString();
             LoadClientControlValues();
         }
 
@@ -1275,11 +1258,11 @@ namespace RemoteLEDServer
 
             if (project != null)
             {
-                if (project.Server != null)
+                if (ProjectController.Server != null)
                 {
-                    if (project.Server.IsRun)
+                    if (ProjectController.Server.IsRun)
                     {
-                        project.Server.StopReceiving();
+                        ProjectController.Server.StopReceiving();
                     }
                 }
             }
@@ -1390,13 +1373,13 @@ namespace RemoteLEDServer
                 }
                 else
                 {
-                    if (project.Server != null)
+                    if (ProjectController.Server != null)
                     {
-                        if (project.Server.IsRun)
+                        if (ProjectController.Server.IsRun)
                         {
-                            project.Server.Send_StopAll_2();
-                            project.Server.StopReceiving();
-                            while (project.Server.IsRun) { }
+                            ProjectController.Server.Send_StopAll_2();
+                            ProjectController.Server.StopReceiving();
+                            while (ProjectController.Server.IsRun) { }
                         }
                     }
                 }
@@ -1487,11 +1470,11 @@ namespace RemoteLEDServer
                         ProjectController.CurrentProject = xml.Fields;
                         project.RuningThreadsList = new List<Thread>();
                         project.AbsoluteFilePath = FilePath;
-                        if (project.Server != null)
+                        if (ProjectController.Server != null)
                         {
-                            if (project.Server.ProjectKey != project.Key)
+                            if (ProjectController.Server.ProjectKey != project.Key)
                             {
-                                project.Server.ProjectKey = project.Key;
+                                ProjectController.Server.ProjectKey = project.Key;
                             }
                         }
                         project.Saved = true;
@@ -1525,11 +1508,11 @@ namespace RemoteLEDServer
             ProjectController.CurrentProject = xml.Fields;
             project.RuningThreadsList = new List<Thread>();
             project.AbsoluteFilePath = path;
-            if (project.Server != null)
+            if (ProjectController.Server != null)
             {
-                if (project.Server.ProjectKey != project.Key)
+                if (ProjectController.Server.ProjectKey != project.Key)
                 {
-                    project.Server.ProjectKey = project.Key;
+                    ProjectController.Server.ProjectKey = project.Key;
                 }
             }
             project.Saved = true;
@@ -1637,24 +1620,21 @@ namespace RemoteLEDServer
 
         private void button_TurnOffServer_Click(object sender, EventArgs e)
         {
-            if (project != null)
+            if (ProjectController.Server.IsRun)
             {
-                if (project.Server.IsRun)
+                ProjectController.Server.StopReceiving();
+                ResetPlayer();
+            }
+            else
+            {
+                try
                 {
-                    project.Server.StopReceiving();
+                    ProjectController.Server.StartReceiving();
                     ResetPlayer();
                 }
-                else
+                catch (Exception)
                 {
-                    try
-                    {
-                        project.Server.StartReceiving();
-                        ResetPlayer();
-                    }
-                    catch (Exception)
-                    {
-                        MessageBox.Show("Ошибка старта сервера. Возможно порт занят. Попробуйте использовать другой порт");
-                    }
+                    MessageBox.Show("Ошибка старта сервера. Возможно порт занят. Попробуйте использовать другой порт");
                 }
             }
         }
@@ -1670,12 +1650,12 @@ namespace RemoteLEDServer
             {
                 return;
             }
-            if (project.Server.IsRun)
+            if (ProjectController.Server.IsRun)
             {
                 if (rlcPlayer1.PlaybackStateStr == PlaybackState.Stopped || rlcPlayer1.PlaybackStateStr == PlaybackState.Paused)
                 {
                     rlcPlayer1.Play();
-                    project.Server.Send_PlayAll_1();
+                    ProjectController.Server.Send_PlayAll_1();
                 }
             }
             else
@@ -1690,11 +1670,11 @@ namespace RemoteLEDServer
             {
                 return;
             }
-            if (project.Server.IsRun)
+            if (ProjectController.Server.IsRun)
             {
                 if (rlcPlayer1.PlaybackStateStr == PlaybackState.Playing)
                 {
-                    project.Server.Send_PauseAll_6();
+                    ProjectController.Server.Send_PauseAll_6();
                     Thread.Sleep(2);
                     rlcPlayer1.Pause();
                 }
@@ -1711,13 +1691,13 @@ namespace RemoteLEDServer
             {
                 return;
             }
-            if (project.Server.IsRun)
+            if (ProjectController.Server.IsRun)
             {
                 if (rlcPlayer1.PlaybackStateStr == PlaybackState.Playing || rlcPlayer1.PlaybackStateStr == PlaybackState.Paused)
                 {
                     rlcPlayer1.Stop();
                     rlcPlayer1.CurrentTime = TimeSpan.Zero;
-                    project.Server.Send_StopAll_2();
+                    ProjectController.Server.Send_StopAll_2();
                 }
             }
             else
@@ -1750,11 +1730,11 @@ namespace RemoteLEDServer
                 double min = TimeSpan.FromMinutes((double)minutes).TotalMilliseconds;
                 double sec = TimeSpan.FromSeconds((double)seconds).TotalMilliseconds;
                 rlcPlayer1.CurrentTime = TimeSpan.FromMilliseconds(min + sec);
-                if (project.Server.IsRun)
+                if (ProjectController.Server.IsRun)
                 {
                     if (rlcPlayer1.PlaybackStateStr == PlaybackState.Stopped || rlcPlayer1.PlaybackStateStr == PlaybackState.Paused)
                     {                        
-                        project.Server.Send_PlayFromAll_7(rlcPlayer1.CurrentTime);
+                        ProjectController.Server.Send_PlayFromAll_7(rlcPlayer1.CurrentTime);
                         Thread.Sleep(2);
                         rlcPlayer1.Play();
                     }
@@ -1822,10 +1802,10 @@ namespace RemoteLEDServer
             {
                 return;
             }
-            if (project.Server.IsRun)
+            if (ProjectController.Server.IsRun)
             {
                 maskedTextBox_SetTime.Text = String.Format("{0,2}:{1,2}", rlcPlayer1.CurrentTime.Minutes.ToString("D2"), rlcPlayer1.CurrentTime.Seconds.ToString("D2"));
-                project.Server.Send_PlayFromAll_7(rlcPlayer1.CurrentTime);
+                ProjectController.Server.Send_PlayFromAll_7(rlcPlayer1.CurrentTime);
                 rlcPlayer1.Play();
             }
             else

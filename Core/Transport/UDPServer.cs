@@ -69,6 +69,9 @@ namespace Core
             if(udpTransmitter == null) {
                 return;
             }
+            if(udpTransmitter.IsRun) {
+                udpTransmitter.StopReceiving();
+            }
             udpTransmitter.OnReceivePackage -= UdpTransmitter_OnReceivePackage;
             udpTransmitter.Dispose();
             udpTransmitter = null;
@@ -188,6 +191,18 @@ namespace Core
             Content[2] = (byte)(FrameTime >> 8);
             Content[3] = (byte)(FrameTime >> 0);
             SendCommand(SubNetBroadcastAddress, UDPPort, 7, Content);
+        }
+
+        public void Send_PlayFrom_12(TimeSpan time, byte plateNumber, IPAddress clientIpAdress)
+        {
+            uint FrameTime = (uint)(time.TotalMilliseconds / 50);
+            byte[] Content = new byte[5];
+            Content[0] = plateNumber;
+            Content[1] = (byte)(FrameTime >> 24);
+            Content[2] = (byte)(FrameTime >> 16);
+            Content[3] = (byte)(FrameTime >> 8);
+            Content[4] = (byte)(FrameTime >> 0);
+            SendCommand(clientIpAdress, UDPPort, 12, Content);
         }
 
         public void SendCommand(IPAddress IP, int Port, byte cmd, byte[] Content)

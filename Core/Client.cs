@@ -191,19 +191,19 @@ namespace Core
         public delegate void ChangePinList();
         public event ChangePinList OnChangePinList;
 
-        public Client(string CName, string CNumber)
+        public Client(string name, string number)
         {
             byte TmpNumber;
-            if (!byte.TryParse(CNumber, out TmpNumber))
+            if (!byte.TryParse(number, out TmpNumber))
             {
                 return;
             }
-            if (CName == "")
+            if (name == "")
             {
                 return;
             }
             PinList = new List<Pin>();
-            Name = CName;
+            Name = name;
             Number = TmpNumber;
             Status = false;
             PinListIsLock = false;
@@ -309,19 +309,7 @@ namespace Core
                     Saved = false;
                 }
             }
-        }
-
-        public void Send_PlayFrom_12(TimeSpan time)
-        {
-            uint FrameTime = (uint)(time.TotalMilliseconds / 50);
-            byte[] Content = new byte[5];
-            Content[0] = Number;
-            Content[1] = (byte)(FrameTime >> 24);
-            Content[2] = (byte)(FrameTime >> 16);
-            Content[3] = (byte)(FrameTime >> 8);
-            Content[4] = (byte)(FrameTime >> 0);
-            Parent.Server.SendCommand(IPAdress, UDPPort, 12, Content);
-        }
+        }        
     }
 
 }

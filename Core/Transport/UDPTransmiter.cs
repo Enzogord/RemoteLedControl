@@ -16,7 +16,15 @@ namespace Core
 
         private UdpClient udpClient;
         private bool stop;
-        public bool IsRun { get; private set; }
+        private bool isRun;
+
+        public bool IsRun {
+            get => isRun;
+            private set {
+                isRun = value;
+                OnChangeStatus?.Invoke(this, EventArgs.Empty);
+            }
+        }
 
         public event EventHandler OnChangeStatus;
         public event EventHandler<ReceivingDataEventArgs> OnReceivePackage;
@@ -38,7 +46,7 @@ namespace Core
         {
             stop = true;
             udpClient.Client.Close();
-            udpClient = null;
+            //udpClient = null;
             Thread.Sleep(500);
             IsRun = false;
         }
@@ -51,7 +59,7 @@ namespace Core
         private void MyReceiveCallback(IAsyncResult result)
         {
             IPEndPoint ip = new IPEndPoint(IPAddress.Any, 0);
-            if (!stop) {
+            if(!stop) {
                 Byte[] receiveBytes = udpClient.EndReceive(result, ref ip);
                 OnReceivePackage?.Invoke(this, new ReceivingDataEventArgs(receiveBytes, ip));
                 Receive();
@@ -70,7 +78,7 @@ namespace Core
             try {
                 udpClient.Send(bytes, bytes.Length, ipEndPoint);
             }
-            catch (Exception ex) {
+            catch(Exception ex) {
                 logger.Error(ex, "Ошибка при отправке UDP пакета");
             }
         }

@@ -17,14 +17,22 @@ namespace Core
         public Project CurrentProject {
             get => currentProject;
             set {
-                currentProject = value;
-                SetField(ref currentProject, value, () => CurrentProject);
+                if(SetField(ref currentProject, value, () => CurrentProject) && value != null) {
+                    Server = new UDPServer(currentProject.Key);
+                }
             }
         }
 
+        private UDPServer server;
+        public UDPServer Server {
+            get => server;
+            set => SetField(ref server, value, () => Server);
+        }
+
+
         public RLCProjectController()
         {
-
+            TestDefaultConfig();
         }
 
         public void CreateProject()
@@ -206,5 +214,25 @@ namespace Core
             CurrentProject.Saved = true;
         }
 
+        [Obsolete("Тестовая конфигурация платы, для проверки программы в дебаге")]
+        private void TestDefaultConfig()
+        {
+            CurrentProject = new Project(158018933);
+            var client = new Client("test", "1");
+            client.AddPin("0", "2");
+            client.AddPin("2", "2");
+            client.AddPin("4", "2");
+            client.AddPin("5", "2");
+            client.UDPPort = 11010;
+            client.WifiSSID = "EnzoWiFi";
+            client.WifiPassword = "direihoom1";
+            client.LEDCount = "2";
+            CurrentProject.ClientList.Add(client);
+
+            string music = @"C:\Users\Enzo\Desktop\October\002. Aviators - Monumental.mp3";
+            CurrentProject.BindedAudioFile = new FileInfo(music);
+
+            Server.UDPPort = 11010;
+        }
     }
 }
