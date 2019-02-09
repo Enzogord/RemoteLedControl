@@ -1,9 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Net;
 
 namespace Service
 {
-    public static class Service
+    public static class ServiceFunctions
     {
         /// <summary>
         /// Находит к какой подсети принадлежит адрес с указанной маской подсети
@@ -12,7 +15,7 @@ namespace Service
         /// <param name="subnetMask">Маска подсети указанного в первом параметре адреса</param>
         /// <returns>Адрес подсети</returns>
         /// <exception cref="ArgumentException"></exception>
-        private static IPAddress GetNetworkAddress(IPAddress address, IPAddress subnetMask)
+        public static IPAddress GetNetworkAddress(IPAddress address, IPAddress subnetMask)
         {
             byte[] ipAdressBytes = address.GetAddressBytes();
             byte[] subnetMaskBytes = subnetMask.GetAddressBytes();
@@ -37,7 +40,7 @@ namespace Service
         /// <param name="subnetMask">Маска подсети указанного в первом параметре адреса</param>
         /// <returns>Широковещательынй адрес подсети</returns>
         /// <exception cref="ArgumentException"></exception>
-        private static IPAddress GetBroadcastAddress(IPAddress address, IPAddress subnetMask)
+        public static IPAddress GetBroadcastAddress(IPAddress address, IPAddress subnetMask)
         {
             byte[] ipAdressBytes = address.GetAddressBytes();
             byte[] subnetMaskBytes = subnetMask.GetAddressBytes();
@@ -53,6 +56,11 @@ namespace Service
             }
 
             return new IPAddress(broadcastAddress);
+        }
+
+        public static IEnumerable<DriveInfo> GetRemovableDrives()
+        {
+            return DriveInfo.GetDrives().Where(x => x.DriveType == DriveType.Removable);
         }
     }
 }

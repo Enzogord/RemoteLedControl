@@ -18,6 +18,7 @@ using CSCore.Codecs;
 using CSCore.SoundOut;
 using Microsoft.VisualBasic.FileIO;
 using RLCPlayer;
+using Service;
 
 namespace RemoteLEDServer
 {
@@ -898,7 +899,7 @@ namespace RemoteLEDServer
             else
             {
                 button_LoadToSD.Enabled = false;
-                GetRemovableDrives();
+                UpdateRemovableDrives();
             }
 
         }
@@ -941,7 +942,7 @@ namespace RemoteLEDServer
         /// </summary>
         private void OnProjectStart()
         {
-            GetRemovableDrives();
+            UpdateRemovableDrives();
             try
             {
                 Directory.Delete(project.GetAbsoluteTEMPPath(), true);
@@ -983,17 +984,13 @@ namespace RemoteLEDServer
         /// <summary>
         /// Получает список дисков из системы и добавляет съемные диски в раскрывающийся список
         /// </summary>
-        private void GetRemovableDrives()
+        private void UpdateRemovableDrives()
         {
+            var drives = ServiceFunctions.GetRemovableDrives();
             comboBox_RemovableDrive.Items.Clear();
-            DriveInfo[] allDrives = DriveInfo.GetDrives();
-            foreach (DriveInfo d in allDrives)
-            {
-                if (d.DriveType == DriveType.Removable)
-                {
-                    comboBox_RemovableDrive.Items.Add(d);
-                    comboBox_RemovableDrive.SelectedIndex = 0;
-                }
+            comboBox_RemovableDrive.Items.AddRange(drives.ToArray());
+            if(drives.Any()) {
+                comboBox_RemovableDrive.SelectedIndex = 0;
             }
         }
 
@@ -1530,7 +1527,7 @@ namespace RemoteLEDServer
         {
             if (comboBox_RemovableDrive.Items.Count == 0)
             {
-                GetRemovableDrives();
+                UpdateRemovableDrives();
                 return;
             }
             else
@@ -1612,7 +1609,7 @@ namespace RemoteLEDServer
                 }
                 else
                 {
-                    GetRemovableDrives();
+                    UpdateRemovableDrives();
                     return;
                 }
             }
@@ -1748,7 +1745,7 @@ namespace RemoteLEDServer
 
         private void button1_Click(object sender, EventArgs e)
         {
-            GetRemovableDrives();
+            UpdateRemovableDrives();
             ClientSettingValidation();
         }
 
