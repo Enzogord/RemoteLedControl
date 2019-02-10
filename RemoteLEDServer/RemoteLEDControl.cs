@@ -39,7 +39,7 @@ namespace RemoteLEDServer
             ComboBoxAudioOutputs_Fill();
             dataGridView_Clients.AutoGenerateColumns = false;
             dataGridView_PinList.AutoGenerateColumns = false;
-            labelBroadcastAddress.Text = ServerBroadcastIP.ToString();
+            labelBroadcastAddress.Text = ProjectController.NetworkController.BroadcastIPAddress.ToString();
 
             //FIXME тестовые вызовы для дебага
             tabControl1.Enabled = true;
@@ -47,30 +47,6 @@ namespace RemoteLEDServer
             rlcPlayer1.InitializePlayer(ProjectController.CurrentProject.BindedAudioFile.FullName);
             OnProjectStart();
         }
-
-        private IPAddress ServerIP
-        {
-            get
-            {
-                return (comboBox_IP.SelectedItem as IPAddress);
-            }
-        }
-
-        private IPAddress ServerBroadcastIP
-        {
-            get
-            {
-                try
-                {
-                    return ServiceFunc.GetBroadcastAddress(ServerIP, ServiceFunc.GetSubnetMask(ServerIP));
-                }
-                catch (Exception)
-                {
-                    return IPAddress.Parse("255.255.255.255");
-                }
-            }
-        }
-
 
         #region Forms Control Events
 
@@ -266,11 +242,11 @@ namespace RemoteLEDServer
         private void button_SaveServerSetting_Click(object sender, EventArgs e)
         { 
             //Сохранить сервер
-            if (ProjectController != null && ProjectController.Server != null)
+            /*if (ProjectController != null && ProjectController.Server != null)
             {
                 ProjectController.Server.UDPPort = ushort.Parse(textBox_localPort.Text);
                 ProjectController.Server.ServerIPAdress = ServerIP;
-            }
+            }*/
         }
 
         private void textBox_localPort_TextChanged(object sender, EventArgs e)
@@ -640,8 +616,13 @@ namespace RemoteLEDServer
 
         private void FillIPAddresses()
         {
-            ServiceFunc.GetIPAdressList(comboBox_IP);
-            labelBroadcastAddress.Text = ServerBroadcastIP.ToString();
+            comboBox_IP.Items.Clear();
+
+            comboBox_IP.Items.AddRange(ProjectController.NetworkController.AddressSettings.ToArray());
+            if(ProjectController.NetworkController.CurrentAddressSetting != null) {
+                comboBox_IP.SelectedItem = ProjectController.NetworkController.CurrentAddressSetting;
+            }
+            labelBroadcastAddress.Text = ProjectController.NetworkController.BroadcastIPAddress.ToString();
         }
 
         private void button_RefreshIPList_Click(object sender, EventArgs e)
@@ -966,11 +947,12 @@ namespace RemoteLEDServer
             project.OnChangeClientList += LoadDataSourceClient;
             project.OnSave += Project_OnSave;
             ProjectController.Server.OnSendNumberPlate += Server_OnSendNumberPlate;
-            ProjectController.Server.ServerIPAdress = ServerIP;
-            ProjectController.Server.SubNetBroadcastAddress = ServerBroadcastIP;
             ProjectController.Server.OnStatusChange += OnChangeServerStatus;
             ProjectController.Server.OnServerIPChange += OnChangeServerIP;
-            ProjectController.Server.Initialize(ServerIP, ProjectController.Server.UDPPort);
+            ProjectController.Server.Initialize(
+                ProjectController.NetworkController.CurrentAddressSetting.IPAddress,
+                ProjectController.NetworkController.Port, 
+                ProjectController.NetworkController.BroadcastIPAddress);
             ProjectController.Server.StartReceiving();
             SetClientsEvents();
             LoadDataSourceClient();
@@ -1121,7 +1103,7 @@ namespace RemoteLEDServer
             {
                 if (ProjectController.Server.IsRun)
                 {
-                    label_ServerStatus.Text = "Запущен (" + ProjectController.Server.UDPPort.ToString() + ")";
+                    label_ServerStatus.Text = "Запущен (" + ProjectController.NetworkController.Port.ToString() + ")";
                     label_ServerStatus.ForeColor = Color.Green;
                 }
                 else
@@ -1144,14 +1126,8 @@ namespace RemoteLEDServer
             bool visible = false;
             if (project != null)
             {
-                if (ProjectController.Server != null)
-                {
-                    if (ProjectController.Server.ServerIPAdress != null)
-                    {
-                        label_ServerIP.Text = ProjectController.Server.ServerIPAdress.ToString();
-                        visible = true;
-                    }
-                }
+                label_ServerIP.Text = ProjectController.NetworkController.CurrentAddressSetting.IPAddress.ToString();
+                visible = true;
             }
             label_ServerIP.Visible = visible;
         }
@@ -1162,7 +1138,7 @@ namespace RemoteLEDServer
         private void LoadControlValues()
         {
             label_CurrentKey.Text = project.Key.ToString();
-            textBox_localPort.Text = ProjectController.Server.UDPPort.ToString();
+            textBox_localPort.Text = ProjectController.NetworkController.Port.ToString();
             LoadClientControlValues();
         }
 
@@ -1854,7 +1830,13 @@ namespace RemoteLEDServer
 
         private void comboBox_IP_SelectionChangeCommitted(object sender, EventArgs e)
         {
-            labelBroadcastAddress.Text = ServerBroadcastIP.ToString();
+            if(ProjectController.NetworkController.IsLocked) {
+                comboBox_IP.SelectedItem = ProjectController.NetworkController.CurrentAddressSetting;
+            } else {
+                ProjectController.NetworkController.CurrentAddressSetting = (NetworkAddressSetting)comboBox_IP.SelectedItem;
+
+                labelBroadcastAddress.Text = ProjectController.NetworkController.CurrentAddressSetting.IPAddress.ToString();
+            }
         }
     }
 }

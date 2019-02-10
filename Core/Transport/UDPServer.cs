@@ -17,28 +17,14 @@ namespace Core
         private IPEndPoint endPoint;
         private bool stop;
 
-        public IPAddress SubNetBroadcastAddress { get; set; }
+        private IPAddress broadcastIPAddress;
+        private IPAddress ipAddress;
+        private int port;
 
         public uint SetTime { get; set; } = 0;
 
         [DataMember]
         public uint ProjectKey { get; set; }
-
-        [DataMember]
-        [Obsolete("Возможно не нужен")]
-        public ushort UDPPort { get; set; }
-
-        private IPAddress serverIPAdress;
-        [Obsolete("Возможно не нужен")]
-        public IPAddress ServerIPAdress {
-            get => serverIPAdress;
-            set {
-                if (serverIPAdress != value) {
-                    serverIPAdress = value;
-                    OnServerIPChange?.Invoke(this, EventArgs.Empty);
-                }
-            }
-        }
 
         public bool IsRun => udpTransmitter == null ? false : udpTransmitter.IsRun;
 
@@ -54,11 +40,12 @@ namespace Core
             ProjectKey = Key;
         }
 
-        public void Initialize(IPAddress ipAddress, int port)
+        public void Initialize(IPAddress ipAddress, int port, IPAddress broadcastIPAddress)
         {
             ResetTransmitter();
-            ServerIPAdress = ipAddress;
-            UDPPort = (ushort)port;
+            this.broadcastIPAddress = broadcastIPAddress;
+            this.ipAddress = ipAddress;
+            this.port = port;
             udpTransmitter = new UDPTransmiter(ipAddress, port);
             udpTransmitter.OnReceivePackage += UdpTransmitter_OnReceivePackage;
             udpTransmitter.OnChangeStatus += UdpTransmitter_OnChangeStatus;
@@ -137,7 +124,7 @@ namespace Core
                         OnSendNumberPlate?.Invoke(this, new PlateInfoEventArgs(bytes[7], senderIp, state));
                         break;
                     case 8:
-                        SendCommand(senderIp.Address, UDPPort, 5, new byte[0]);
+                        SendCommand(senderIp.Address, port, 5, new byte[0]);
                         break;
                     case 10:
                         ushort ContentLength = (ushort)((bytes[5] << 8) + (bytes[6] << 0));
@@ -169,17 +156,17 @@ namespace Core
 
         public void Send_PlayAll_1()
         {
-            SendCommand(SubNetBroadcastAddress, UDPPort, 1, new byte[0]);
+            SendCommand(broadcastIPAddress, port, 1, new byte[0]);
         }
 
         public void Send_StopAll_2()
         {
-            SendCommand(SubNetBroadcastAddress, UDPPort, 2, new byte[0]);
+            SendCommand(broadcastIPAddress, port, 2, new byte[0]);
         }
 
         public void Send_PauseAll_6()
         {
-            SendCommand(SubNetBroadcastAddress, UDPPort, 6, new byte[0]);
+            SendCommand(broadcastIPAddress, port, 6, new byte[0]);
         }
 
         public void Send_PlayFromAll_7(TimeSpan Time)
@@ -190,7 +177,7 @@ namespace Core
             Content[1] = (byte)(FrameTime >> 16);
             Content[2] = (byte)(FrameTime >> 8);
             Content[3] = (byte)(FrameTime >> 0);
-            SendCommand(SubNetBroadcastAddress, UDPPort, 7, Content);
+            SendCommand(broadcastIPAddress, port, 7, Content);
         }
 
         public void Send_PlayFrom_12(TimeSpan time, byte plateNumber, IPAddress clientIpAdress)
@@ -202,7 +189,7 @@ namespace Core
             Content[2] = (byte)(FrameTime >> 16);
             Content[3] = (byte)(FrameTime >> 8);
             Content[4] = (byte)(FrameTime >> 0);
-            SendCommand(clientIpAdress, UDPPort, 12, Content);
+            SendCommand(clientIpAdress, port, 12, Content);
         }
 
         public void SendCommand(IPAddress IP, int Port, byte cmd, byte[] Content)
@@ -237,7 +224,7 @@ namespace Core
                     break;
                 case 5:
                     ContentLength = 4;
-                    byte[] IPAdressBytes = serverIPAdress.GetAddressBytes();
+                    byte[] IPAdressBytes = ipAddress.GetAddressBytes();
                     ByteArray[5] = (byte)(ContentLength >> 8);
                     ByteArray[6] = (byte)(ContentLength >> 0);
                     ByteArray[7] = IPAdressBytes[0];

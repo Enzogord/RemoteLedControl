@@ -70,8 +70,7 @@ namespace Core
         {
             UDPSend(bytes, new IPEndPoint(remoteIPAddress, remotePort));
         }
-
-        //Отправляет UDP дейтаграмму содержащую массив байтов
+        
         public void UDPSend(byte[] bytes, IPEndPoint ipEndPoint)
         {
             udpClient.EnableBroadcast = true;

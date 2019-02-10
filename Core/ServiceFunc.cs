@@ -299,25 +299,7 @@ namespace Core
                 textBox.BackColor = RefuseColor;
             }
             return isValid;
-        }
-
-        public static void GetIPAdressList(ComboBox CB)
-        {
-            CB.Items.Clear();
-            string myHost = Dns.GetHostName();
-            string myIP = Dns.GetHostEntry(myHost).AddressList[0].ToString();            
-            for (int i = 0; i < Dns.GetHostEntry(myHost).AddressList.Count<IPAddress>(); i++)
-            {
-                if (Dns.GetHostEntry(myHost).AddressList[i].AddressFamily == AddressFamily.InterNetwork)
-                {
-                    CB.Items.Add(Dns.GetHostEntry(myHost).AddressList[i]);
-                }
-            }
-            if (CB.Items.Count > 0)
-            {
-                CB.SelectedIndex = 0;
-            }
-        }
+        }        
 
         /// <summary>
         /// Находит широковещательный адрес подсети к которой принадлежит адрес с указанной маской подсети

@@ -55,6 +55,8 @@
     <Compile Include="ClientValues.cs" />
     <Compile Include="Cyclogramm.cs" />
     <Compile Include="Enums.cs" />
+    <Compile Include="NetworkAddressSetting.cs" />
+    <Compile Include="NetworkController.cs" />
     <Compile Include="Pin.cs" />
     <Compile Include="Project.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

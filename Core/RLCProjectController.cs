@@ -11,8 +11,12 @@ namespace Core
 {
     public class RLCProjectController : NotifyPropertyBase
     {
-        private string currentProjectPath; 
-
+        private NetworkController networkController;
+        public NetworkController NetworkController {
+            get => networkController;
+            private set => SetField(ref networkController, value, () => NetworkController);
+        }
+        
         private Project currentProject;
         public Project CurrentProject {
             get => currentProject;
@@ -30,8 +34,11 @@ namespace Core
         }
 
 
+
+
         public RLCProjectController()
         {
+            NetworkController = new NetworkController();
             TestDefaultConfig();
         }
 
@@ -232,7 +239,7 @@ namespace Core
             string music = @"C:\Users\Enzo\Desktop\October\002. Aviators - Monumental.mp3";
             CurrentProject.BindedAudioFile = new FileInfo(music);
 
-            Server.UDPPort = 11010;
+            NetworkController.Port = 11010;
         }
     }
 }
