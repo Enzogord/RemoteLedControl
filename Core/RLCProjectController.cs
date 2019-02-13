@@ -239,6 +239,7 @@ namespace Core
             string music = @"C:\Users\Enzo\Desktop\October\002. Aviators - Monumental.mp3";
             CurrentProject.BindedAudioFile = new FileInfo(music);
 
+            NetworkController.CurrentAddressSetting = NetworkController.AddressSettings.First(x => x.IPAddress.ToString() == "192.168.1.217");
             NetworkController.Port = 11010;
         }
     }
