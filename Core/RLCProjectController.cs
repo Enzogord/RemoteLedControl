@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace Core
+namespace RLCCore
 {
     public class RLCProjectController : NotifyPropertyBase
     {
@@ -17,8 +17,8 @@ namespace Core
             private set => SetField(ref networkController, value, () => NetworkController);
         }
         
-        private Project currentProject;
-        public Project CurrentProject {
+        private RemoteControlProject currentProject;
+        public RemoteControlProject CurrentProject {
             get => currentProject;
             set {
                 if(SetField(ref currentProject, value, () => CurrentProject) && value != null) {
@@ -32,9 +32,6 @@ namespace Core
             get => server;
             set => SetField(ref server, value, () => Server);
         }
-
-
-
 
         public RLCProjectController()
         {
@@ -54,17 +51,17 @@ namespace Core
 
         public void SaveProject()
         {
-            if (ServiceFunc.CheckFolderAccess(CurrentProject.AbsoluteFolderPath + "\\" + CurrentProject.ClientsFolderName)) {
+            /*if (ServiceFunc.CheckFolderAccess(CurrentProject.AbsoluteFolderPath + "\\" + CurrentProject.ClientsFolderName)) {
                 Save();
             } else {
                 MessageBox.Show("Нет доступа к папке \"" + CurrentProject.AbsoluteFolderPath + "\\" + CurrentProject.ClientsFolderName + "\". Возможно некоторые файлы в ней открыты в другой программе", "Ошибка сохранения", MessageBoxButtons.OK);
                 return;
-            }
+            }*/
         }
 
         public void SaveProjectAs()
         {
-            SaveFileDialog sd = new SaveFileDialog();
+            /*SaveFileDialog sd = new SaveFileDialog();
             sd.InitialDirectory = Environment.CurrentDirectory;
             sd.Filter = "XML files|*.xml";
 
@@ -104,12 +101,12 @@ namespace Core
                   {
                     SaveProject();
                 }
-            }
+            }*/
         }
 
         private void Save()
         {
-            for (int i = 0; i < CurrentProject.ClientList.Count; i++) {
+            /*for (int i = 0; i < CurrentProject.ClientList.Count; i++) {
                 if (!CurrentProject.ClientList[i].Saved) {
                     if (CurrentProject.ClientList[i].DeletedCyclogramm != null) {
 
@@ -162,9 +159,9 @@ namespace Core
                     CurrentProject.DeletedClientList.RemoveAt(i);
                 }
             }
-            if (CurrentProject.BindedAudioFile != null) {
+            if (CurrentProject.AudioFile != null) {
                 try {
-                    CurrentProject.BindedAudioFile = CurrentProject.BindedAudioFile.CopyTo(Path.Combine(CurrentProject.AbsoluteFolderPath, Path.GetFileName(CurrentProject.BindedAudioFile.FullName)), true);
+                    CurrentProject.AudioFile = CurrentProject.AudioFile.CopyTo(Path.Combine(CurrentProject.AbsoluteFolderPath, Path.GetFileName(CurrentProject.AudioFile.FullName)), true);
                 }
                 catch (Exception) {
 
@@ -174,12 +171,12 @@ namespace Core
             XMLSaver xmlsaver = new XMLSaver();
             xmlsaver.Fields = CurrentProject;
             xmlsaver.WriteXml(CurrentProject.AbsoluteFilePath);
-            CurrentProject.Saved = true;
+            CurrentProject.Saved = true;*/
         }
 
         private void SaveAs(string FolderPath, string FilePath)
         {
-            for (int i = 0; i < CurrentProject.ClientList.Count; i++) {
+            /*for (int i = 0; i < CurrentProject.ClientList.Count; i++) {
                 Directory.CreateDirectory(FolderPath + CurrentProject.ClientList[i].RelativePath);
                 CurrentProject.ClientList[i].SaveClientSettingFile(FolderPath + CurrentProject.ClientList[i].RelativePath + "\\" + CurrentProject.ClientsConfigFileName);
                 if (CurrentProject.ClientList[i].Cyclogramm != null) {
@@ -203,9 +200,9 @@ namespace Core
                 CurrentProject.ClientList[i].Renamed = false;
                 CurrentProject.ClientList[i].Saved = true;
             }
-            if (CurrentProject.BindedAudioFile != null) {
+            if (CurrentProject.AudioFile != null) {
                 try {
-                    CurrentProject.BindedAudioFile = CurrentProject.BindedAudioFile.CopyTo(Path.Combine(FolderPath, Path.GetFileName(CurrentProject.BindedAudioFile.FullName)), true);
+                    CurrentProject.AudioFile = CurrentProject.AudioFile.CopyTo(Path.Combine(FolderPath, Path.GetFileName(CurrentProject.AudioFile.FullName)), true);
                 }
                 catch (Exception) {
 
@@ -218,26 +215,26 @@ namespace Core
                 CurrentProject.DeletedClientList = null;
             }
             CurrentProject.AbsoluteFilePath = FilePath;
-            CurrentProject.Saved = true;
+            CurrentProject.Saved = true;*/
         }
 
         [Obsolete("Тестовая конфигурация платы, для проверки программы в дебаге")]
         private void TestDefaultConfig()
         {
-            CurrentProject = new Project(158018933);
-            var client = new Client("test", "1");
-            client.AddPin("0", "2");
-            client.AddPin("2", "2");
-            client.AddPin("4", "2");
-            client.AddPin("5", "2");
-            client.UDPPort = 11010;
-            client.WifiSSID = "EnzoWiFi";
-            client.WifiPassword = "direihoom1";
-            client.LEDCount = "2";
-            CurrentProject.ClientList.Add(client);
+            CurrentProject = new RemoteControlProject(158018933);
+            CurrentProject.Port = 11010;
+            CurrentProject.WifiSSID = "EnzoWiFi";
+            CurrentProject.WifiPassword = "direihoom1";
+
+            var client = new RemoteClient("test", 1);
+            client.AddPin(0, 2);
+            client.AddPin(2, 2);
+            client.AddPin(4, 2);
+            client.AddPin(5, 2);            
+            CurrentProject.AddClient(client);
 
             string music = @"C:\Users\Enzo\Desktop\October\002. Aviators - Monumental.mp3";
-            CurrentProject.BindedAudioFile = new FileInfo(music);
+            CurrentProject.AudioFilePath = new FileInfo(music);
 
             NetworkController.CurrentAddressSetting = NetworkController.AddressSettings.First(x => x.IPAddress.ToString() == "192.168.1.217");
             NetworkController.Port = 11010;

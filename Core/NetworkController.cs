@@ -1,13 +1,14 @@
 ﻿using Service;
+using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
 
-namespace Core
+namespace RLCCore
 {
-    public class NetworkController : NotifyPropertyBase
+    public class NetworkController : NotifyPropertyBase, IServerAddressProvider
     {
         private bool isLocked;
         public bool IsLocked {
@@ -71,7 +72,14 @@ namespace Core
             } else {
                 CurrentAddressSetting = foundAddress;
             }
-        }       
-        
+        }
+
+        public IPAddress GetServerIPAddress()
+        {
+            if(CurrentAddressSetting == null) {
+                throw new ApplicationException("Нет доступного IP адреса");
+            }
+            return CurrentAddressSetting.IPAddress;
+        }
     }
 }

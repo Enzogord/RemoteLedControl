@@ -7,14 +7,14 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
 
-namespace Core
+namespace RLCCore
 {
     /// <summary>
     /// Класс осуществляющий сохранение данных в XML файл
     /// </summary>
     public class XMLSaver
     {
-        public Project Fields;
+        public RemoteControlProject Fields;
 
         //Запись настроек в файл
         public void WriteXml(string SavePath)
@@ -40,7 +40,7 @@ namespace Core
                     FileStream fs = new FileStream(OpenPath, FileMode.Open);
                     XmlDictionaryReader reader = XmlDictionaryReader.CreateTextReader(fs, new XmlDictionaryReaderQuotas());
                     NetDataContractSerializer ser = new NetDataContractSerializer();
-                    Fields = (ser.ReadObject(reader, true) as Project);
+                    Fields = (ser.ReadObject(reader, true) as RemoteControlProject);
                     fs.Close();
 
                 }

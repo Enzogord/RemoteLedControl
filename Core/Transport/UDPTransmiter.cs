@@ -8,7 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using NLog;
 
-namespace Core
+namespace RLCCore
 {
     public class UDPTransmiter : IDisposable
     {

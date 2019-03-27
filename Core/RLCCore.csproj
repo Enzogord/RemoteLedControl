@@ -35,6 +35,7 @@
       <HintPath>..\packages\NLog.4.5.11\lib\net45\NLog.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
@@ -51,20 +52,49 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Client.cs" />
-    <Compile Include="ClientValues.cs" />
+    <Compile Include="IPerformanceTimeProvider.cs" />
+    <Compile Include="IPin.cs" />
+    <Compile Include="IRemoteClient.cs" />
+    <Compile Include="IStartTimeProvider.cs" />
+    <Compile Include="RemoteClient.cs" />
     <Compile Include="Cyclogramm.cs" />
     <Compile Include="Enums.cs" />
+    <Compile Include="Exceptions\ExceptionsHelper.cs" />
+    <Compile Include="IRemoteControlProject.cs" />
+    <Compile Include="ISettingsProvider.cs" />
     <Compile Include="NetworkAddressSetting.cs" />
     <Compile Include="NetworkController.cs" />
     <Compile Include="Pin.cs" />
-    <Compile Include="Project.cs" />
+    <Compile Include="RemoteControlProject.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RemoteOperations\CommandContextFactory.cs" />
+    <Compile Include="RemoteOperations\IClientsOperatorStateInformer.cs" />
+    <Compile Include="RemoteOperations\IControlUnit.cs" />
+    <Compile Include="StartTimeProvider.cs" />
+    <Compile Include="Transport\GlobalCommandContext.cs" />
+    <Compile Include="Transport\GlobalCommandsContextProvider.cs" />
+    <Compile Include="Transport\IGlobalCommandsContextProvider.cs" />
+    <Compile Include="RemoteOperations\OperatorStateEventArgs.cs" />
+    <Compile Include="RemoteOperations\OperatorStates.cs" />
+    <Compile Include="RemoteOperations\RemoteClientsOperator.cs" />
     <Compile Include="RLCMain.cs" />
     <Compile Include="RLCProjectController.cs" />
     <Compile Include="ServiceFunc.cs" />
+    <Compile Include="SettingWriter.cs" />
+    <Compile Include="Transport\ClientCommands.cs" />
+    <Compile Include="Transport\ClientMessageParser.cs" />
+    <Compile Include="Transport\ClientMessages.cs" />
+    <Compile Include="Transport\GlobalCommands.cs" />
+    <Compile Include="Transport\ICommandContext.cs" />
+    <Compile Include="Transport\ICommunicationService.cs" />
+    <Compile Include="Transport\IRemoteClientMessage.cs" />
+    <Compile Include="IServerAddressProvider.cs" />
+    <Compile Include="Transport\MessageEventArgs.cs" />
+    <Compile Include="Transport\PackageBuilder.cs" />
     <Compile Include="Transport\PlateInfoEventArgs.cs" />
     <Compile Include="Transport\ReceivingDataEventArgs.cs" />
+    <Compile Include="Transport\RemoteClientMessage.cs" />
+    <Compile Include="Transport\RLCMessage.cs" />
     <Compile Include="Transport\UDPServer.cs" />
     <Compile Include="Transport\UDPTransmiter.cs" />
     <Compile Include="XMLSaver.cs" />

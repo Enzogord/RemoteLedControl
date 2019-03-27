@@ -1,17 +1,19 @@
 ﻿using System;
 using System.Net;
-using System.Net.Sockets;
 using System.Runtime.Serialization;
-using System.Threading;
+using RLCCore.Transport;
+using NLog;
 
-namespace Core
+namespace RLCCore
 {
     /// <summary>
     /// Класс осуществляющий передачу и прием информации с клиентов по протоколу UDP
     /// </summary>
     [DataContract]
-    public class UDPServer
+    public class UDPServer : ICommunicationService
     {
+        private static Logger logger = LogManager.GetCurrentClassLogger();
+
         private UDPTransmiter udpTransmitter;
 
         private IPEndPoint endPoint;
@@ -24,7 +26,7 @@ namespace Core
         public uint SetTime { get; set; } = 0;
 
         [DataMember]
-        public uint ProjectKey { get; set; }
+        public int ProjectKey { get; set; }
 
         public bool IsRun => udpTransmitter == null ? false : udpTransmitter.IsRun;
 
@@ -35,7 +37,7 @@ namespace Core
         public event EventHandler OnStatusChange;
         public event EventHandler OnServerIPChange;
 
-        public UDPServer(uint Key)
+        public UDPServer(int Key)
         {
             ProjectKey = Key;
         }
@@ -82,7 +84,8 @@ namespace Core
 
         private void UdpTransmitter_OnReceivePackage(object sender, ReceivingDataEventArgs e)
         {
-            ParsePackage(e.Data, e.Ip);
+            //ParsePackage(e.Data, e.Ip);
+            ParsePackage(e.Data);
         }
 
         private void UdpTransmitter_OnChangeStatus(object sender, EventArgs e)
@@ -90,7 +93,15 @@ namespace Core
             OnStatusChange?.Invoke(this, EventArgs.Empty);
         }
 
-        public void ParsePackage(byte[] bytes, IPEndPoint senderIp)
+        private void ParsePackage(byte[] package)
+        {
+            ClientMessageParser parser = new ClientMessageParser();
+            var message = parser.ParseMessage(package);
+            OnReceiveMessage?.Invoke(this, message);
+        }
+
+        //Удалить после завершения парсинга сообщений
+        /*public void ParsePackage(byte[] bytes, IPEndPoint senderIp)
         {
             if (bytes.Length != 200)
             {
@@ -152,160 +163,43 @@ namespace Core
                 }
                 OnParsePackage?.Invoke(this, bytes[4]);
             }
-        }
+        }*/
+        
+        #region ICommunicationService implementation
 
-        public void Send_PlayAll_1()
-        {
-            SendCommand(broadcastIPAddress, port, 1, new byte[0]);
-        }
+        public event EventHandler<IRemoteClientMessage> OnReceiveMessage;
 
-        public void Send_StopAll_2()
+        public void SendGlobalCommand(GlobalCommands command, ICommandContext commandContext)
         {
-            SendCommand(broadcastIPAddress, port, 2, new byte[0]);
-        }
-
-        public void Send_PauseAll_6()
-        {
-            SendCommand(broadcastIPAddress, port, 6, new byte[0]);
-        }
-
-        public void Send_PlayFromAll_7(TimeSpan Time)
-        {
-            uint FrameTime = (uint)(Time.TotalMilliseconds / 50D);
-            byte[] Content = new byte[4];
-            Content[0] = (byte)(FrameTime >> 24);
-            Content[1] = (byte)(FrameTime >> 16);
-            Content[2] = (byte)(FrameTime >> 8);
-            Content[3] = (byte)(FrameTime >> 0);
-            SendCommand(broadcastIPAddress, port, 7, Content);
-        }
-
-        public void Send_PlayFrom_12(TimeSpan time, byte plateNumber, IPAddress clientIpAdress)
-        {
-            uint FrameTime = (uint)(time.TotalMilliseconds / 50);
-            byte[] Content = new byte[5];
-            Content[0] = plateNumber;
-            Content[1] = (byte)(FrameTime >> 24);
-            Content[2] = (byte)(FrameTime >> 16);
-            Content[3] = (byte)(FrameTime >> 8);
-            Content[4] = (byte)(FrameTime >> 0);
-            SendCommand(clientIpAdress, port, 12, Content);
-        }
-
-        public void SendCommand(IPAddress IP, int Port, byte cmd, byte[] Content)
-        {
-            if(!IsInitialized) {
+            byte[] package;
+            try {
+                package = PackageBuilder.CreatePackage(ProjectKey)
+                .InsertCommand(command, commandContext)
+                .GetPackage();
+            }
+            catch(Exception ex) {
+                logger.Error(ex, "Не удалось сформировать пакет.");
                 return;
             }
-            ushort ContentLength;
-            byte[] ByteArray = new byte[200];
-            ByteArray[0] = (byte)(ProjectKey >> 24);
-            ByteArray[1] = (byte)(ProjectKey >> 16);
-            ByteArray[2] = (byte)(ProjectKey >> 8);
-            ByteArray[3] = (byte)(ProjectKey >> 0);
-            ByteArray[4] = cmd;
-            switch (cmd)
-            {
-                case 1:
-                    for (int i = 5; i < ByteArray.Length - 1; i++)
-                    {
-                        ByteArray[i] = 0;
-                    }
-                    udpTransmitter.UDPSend(ByteArray, IP, Port);
-                    break;
-                case 2:
-                    for (int i = 5; i < ByteArray.Length - 1; i++)
-                    {
-                        ByteArray[i] = 0;
-                    }
-                    udpTransmitter.UDPSend(ByteArray, IP, Port);
-                    break;
-               case 4:
-                    break;
-                case 5:
-                    ContentLength = 4;
-                    byte[] IPAdressBytes = ipAddress.GetAddressBytes();
-                    ByteArray[5] = (byte)(ContentLength >> 8);
-                    ByteArray[6] = (byte)(ContentLength >> 0);
-                    ByteArray[7] = IPAdressBytes[0];
-                    ByteArray[8] = IPAdressBytes[1];
-                    ByteArray[9] = IPAdressBytes[2];
-                    ByteArray[10] = IPAdressBytes[3];
-                    for (int i = 11; i < ByteArray.Length - 1; i++)
-                    {
-                        ByteArray[i] = 0;
-                    }
-                    udpTransmitter.UDPSend(ByteArray, IP, Port);
-                    break;
-                case 6:
-                    for (int i = 5; i < ByteArray.Length - 1; i++)
-                    {
-                        ByteArray[i] = 0;
-                    }
-                    udpTransmitter.UDPSend(ByteArray, IP, Port);
-                    break;
-                case 7:
-                    ContentLength = (ushort)Content.Length;
-                    if (ContentLength == 4)
-                    {
-                        ByteArray[5] = (byte)(ContentLength >> 8);
-                        ByteArray[6] = (byte)(ContentLength >> 0);
-                        ByteArray[7] = Content[0];
-                        ByteArray[8] = Content[1];
-                        ByteArray[9] = Content[2];
-                        ByteArray[10] = Content[3];
 
-                        for (int i = 11; i < ByteArray.Length - 1; i++)
-                        {
-                            ByteArray[i] = 0;
-                        }
-                        udpTransmitter.UDPSend(ByteArray, IP, Port);
-                    }
-                    break;
-                case 9:
-                    ContentLength = (ushort)Content.Length;
-                    ByteArray[5] = (byte)(ContentLength >> 8);
-                    ByteArray[6] = (byte)(ContentLength >> 0);
-                    Array.Copy(Content, 0, ByteArray, 7, Content.Length);
-                    for (int i = 7 + ContentLength; i < ByteArray.Length - 1; i++)
-                    {
-                        ByteArray[i] = 0;
-                    }
-                    udpTransmitter.UDPSend(ByteArray, IP, Port);
-                    break;
-                case 12:
-                    ContentLength = (ushort)Content.Length;
-                    if (ContentLength == 5)
-                    {
-                        ByteArray[5] = (byte)(ContentLength >> 8);
-                        ByteArray[6] = (byte)(ContentLength >> 0);
-                        ByteArray[7] = Content[0];
-                        ByteArray[8] = Content[1];
-                        ByteArray[9] = Content[2];
-                        ByteArray[10] = Content[3];
-                        ByteArray[11] = Content[4];
+            udpTransmitter.UDPSend(package, broadcastIPAddress, port);
+        }
 
-                        for (int i = 12; i < ByteArray.Length - 1; i++)
-                        {
-                            ByteArray[i] = 0;
-                        }
-                        udpTransmitter.UDPSend(ByteArray, IP, Port);
-                    }
-                    break;
-                case 13:
-                    ContentLength = (ushort)Content.Length;
-                    ByteArray[5] = (byte)(ContentLength >> 8);
-                    ByteArray[6] = (byte)(ContentLength >> 0);
-                    Array.Copy(Content, 0, ByteArray, 7, Content.Length);
-                    for (int i = 7 + ContentLength; i < ByteArray.Length - 1; i++)
-                    {
-                        ByteArray[i] = 0;
-                    }
-                    udpTransmitter.UDPSend(ByteArray, IP, Port);
-                    break;
-                default:
-                    break;
+        public void SendClientCommand(ClientCommands command, IRemoteClient client, ICommandContext commandContext)
+        {
+            byte[] package;
+            try {
+                package = PackageBuilder.CreatePackage(ProjectKey)
+                .InsertCommand(command, commandContext)
+                .GetPackage();
             }
-        }        
+            catch(Exception ex) {
+                logger.Error(ex, "Не удалось сформировать пакет.");
+                return;
+            }
+            udpTransmitter.UDPSend(package, client.IPAddress, port);
+        } 
+
+        #endregion
     }
 }

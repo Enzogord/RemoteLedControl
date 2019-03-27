@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using RLCCore.Transport;
 
 namespace RLCCore
 {
-    public static class RLCMain
+    public interface IStartTimeProvider
     {
-        public static string TempFolderPath => Path.Combine(Path.GetTempPath(), "RemoteLEDControl");
+        TimeSpan StartTime { get; set; }
     }
 }

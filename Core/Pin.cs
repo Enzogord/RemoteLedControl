@@ -1,13 +1,15 @@
 ﻿using Service;
+using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
 
-namespace Core
+namespace RLCCore
 {
     [DataContract]
-    public class Pin : NotifyPropertyBase
+    public class Pin : NotifyPropertyBase, IPin
     {
         private byte pinNumber;
         [DataMember]
+        [Display(Name = "Номер пина")]
         public byte PinNumber {
             get => pinNumber;
             set => SetField(ref pinNumber, value, () => PinNumber);
@@ -15,6 +17,7 @@ namespace Core
 
         private int ledCount;
         [DataMember]
+        [Display(Name = "Количество светодиодов")]
         public int LEDCount {
             get => ledCount;
             set => SetField(ref ledCount, value, () => LEDCount);
