@@ -92,17 +92,19 @@
     <Compile Include="Transport\MessageEventArgs.cs" />
     <Compile Include="Transport\PackageBuilder.cs" />
     <Compile Include="Transport\PlateInfoEventArgs.cs" />
-    <Compile Include="Transport\ReceivingDataEventArgs.cs" />
     <Compile Include="Transport\RemoteClientMessage.cs" />
     <Compile Include="Transport\RLCMessage.cs" />
     <Compile Include="Transport\UDPServer.cs" />
-    <Compile Include="Transport\UDPTransmiter.cs" />
     <Compile Include="XMLSaver.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Service\Service.csproj">
       <Project>{e10168f4-2657-4fdf-bf2d-d9dc58ab7e51}</Project>
       <Name>Service</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\UDPTransmiter\UDPTransmission.csproj">
+      <Project>{3F9FA9C5-50C2-4373-9DAB-5DE66BCD3192}</Project>
+      <Name>UDPTransmission</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
