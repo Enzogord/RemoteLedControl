@@ -17,7 +17,7 @@ namespace TCPCommunicationService
         Logger logger = LogManager.GetCurrentClassLogger();
 
         private CancellationTokenSource cts = new CancellationTokenSource();
-        private Dictionary<IPAddress, TcpClientListener> clientListeners;
+        private ConcurrentDictionary<IPAddress, TcpClientListener> clientListeners;
         private BlockingCollection<TcpClientListener> listenersQueue;
         private readonly IPEndPoint localIpEndPoint;
         private readonly IEnumerable<IRemoteClient> expectedClients;
@@ -45,9 +45,26 @@ namespace TCPCommunicationService
             this.localIpEndPoint = localIpEndPoint;
             this.expectedClients = expectedClients;
             this.bufferSize = bufferSize;
-            clientListeners = new Dictionary<IPAddress, TcpClientListener>();
+            clientListeners = new ConcurrentDictionary<IPAddress, TcpClientListener>();
             foreach(var ec in expectedClients) {
-                clientListeners.Add(ec.IPAddress, null);
+                ec.OnBeforeAddressUpdated += Ec_OnBeforeAddressUpdated;
+                if(ec.IPAddress != null) {
+                    clientListeners.TryAdd(ec.IPAddress, null);
+                }
+            }
+        }
+
+        private void Ec_OnBeforeAddressUpdated(IRemoteClient client, IPAddress address)
+        {
+            if(client.IPAddress != null) {
+                if(clientListeners.ContainsKey(client.IPAddress)) {
+                    var listener = clientListeners[client.IPAddress];
+                    if(listener != null) {
+                        listener.Close();
+                    }
+                    clientListeners.TryRemove(client.IPAddress, out TcpClientListener clientListener);
+                }
+                clientListeners.TryAdd(address, null);
             }
         }
 
@@ -184,6 +201,14 @@ namespace TCPCommunicationService
                 return;
             }
             listener.Write(buffer, length);
+        }
+
+        public void SendToAll(byte[] buffer, int length)
+        {
+            var listeners = clientListeners.Values.ToList();
+            foreach(var item in listeners) {
+                Task.Run(() => { item.Write(buffer, length); });                
+            }
         }
 
         public event ReceivePackageEventHandler OnReceivePackage;

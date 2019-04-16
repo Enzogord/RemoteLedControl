@@ -8,7 +8,7 @@ using System.Net.Sockets;
 
 namespace RLCCore
 {
-    public class NetworkController : NotifyPropertyBase, IServerAddressProvider
+    public class NetworkController : NotifyPropertyBase, INetworkSettingProvider
     {
         private bool isLocked;
         public bool IsLocked {

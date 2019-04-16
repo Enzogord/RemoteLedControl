@@ -2,8 +2,10 @@
 
 namespace RLCCore
 {
-    public interface IServerAddressProvider
+    public interface INetworkSettingProvider
     {
+        IPAddress BroadcastIPAddress { get; }
+        int Port { get; }
         IPAddress GetServerIPAddress();
     }
 }

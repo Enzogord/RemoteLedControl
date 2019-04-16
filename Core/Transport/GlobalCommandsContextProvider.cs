@@ -5,7 +5,7 @@ namespace RLCCore.Transport
     public class GlobalCommandsContextProvider : IGlobalCommandsContextProvider
     {
         public IStartTimeProvider StartTimeProvider { get; set; }
-        public IServerAddressProvider ServerAddressProvider { get; set; }
+        public INetworkSettingProvider ServerAddressProvider { get; set; }
 
         public ICommandContext GetCommandContext(GlobalCommands command)
         {

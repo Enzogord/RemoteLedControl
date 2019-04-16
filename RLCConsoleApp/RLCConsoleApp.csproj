@@ -59,6 +59,14 @@
       <Project>{E10168F4-2657-4FDF-BF2D-D9DC58AB7E51}</Project>
       <Name>Service</Name>
     </ProjectReference>
+    <ProjectReference Include="..\SNTPService\SNTPService.csproj">
+      <Project>{8C761FC5-4B6F-4FCD-8D9B-FCCF47E8AEB0}</Project>
+      <Name>SNTPService</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\UDPCommunication\UDPCommunication.csproj">
+      <Project>{6E7B46B5-C335-41C5-B600-D144F165789C}</Project>
+      <Name>UDPCommunication</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

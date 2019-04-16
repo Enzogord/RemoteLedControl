@@ -11,11 +11,4 @@ namespace RLCCore
         Test = 1,
         Release = 2
     }
-
-    public enum ClientState
-    {
-        Wait = 1,
-        Play = 2,
-        Pause = 3
-    }
 }

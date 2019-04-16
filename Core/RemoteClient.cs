@@ -1,10 +1,12 @@
-﻿using Service;
+﻿using Core.Messages;
+using Service;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Net;
 using System.Runtime.Serialization;
+using TCPCommunicationService;
 
 namespace RLCCore
 {
@@ -53,7 +55,11 @@ namespace RLCCore
         private IPAddress ipAddress;
         public IPAddress IPAddress {
             get => ipAddress;
-            set => SetField(ref ipAddress, value, () => IPAddress);
+            set {
+                if(SetField(ref ipAddress, value, () => IPAddress)) {
+                    OnBeforeAddressUpdated?.Invoke(this, value);
+                };
+            }
         }
 
         public bool WaitPlayingStatus { get; set; }    
@@ -63,6 +69,15 @@ namespace RLCCore
         public Cyclogramm Cyclogramm {
             get => cyclogramm;
             set => SetField(ref cyclogramm, value, () => Cyclogramm);
+        }
+
+        private ClientState clientState;
+
+        public event RemoteClientBeforeAddressUpdated OnBeforeAddressUpdated;
+
+        public ClientState ClientState {
+            get => clientState;
+            set => SetField(ref clientState, value, () => ClientState);
         }
 
         #region Calculated properties

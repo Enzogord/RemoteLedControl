@@ -9,8 +9,8 @@ namespace RLCCore.RemoteOperations
 {
     public interface IControlUnit
     {
-        int Key { get; set; }
+        uint Key { get; set; }
         int Port { get; set; }
-        ObservableCollection<IRemoteClient> Clients { get; set; }
+        ObservableCollection<RemoteClient> Clients { get; set; }
     }
 }

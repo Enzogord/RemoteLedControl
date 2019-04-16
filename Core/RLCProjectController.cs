@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -22,16 +23,16 @@ namespace RLCCore
             get => currentProject;
             set {
                 if(SetField(ref currentProject, value, () => CurrentProject) && value != null) {
-                    Server = new UDPServer(currentProject.Key);
+                    //Server = new UDPServer(currentProject.Key);
                 }
             }
         }
-
+        /*
         private UDPServer server;
         public UDPServer Server {
             get => server;
             set => SetField(ref server, value, () => Server);
-        }
+        }*/
 
         public RLCProjectController()
         {
@@ -230,7 +231,7 @@ namespace RLCCore
             client.AddPin(0, 2);
             client.AddPin(2, 2);
             client.AddPin(4, 2);
-            client.AddPin(5, 2);            
+            client.AddPin(5, 2);
             CurrentProject.AddClient(client);
 
             string music = @"C:\Users\Enzo\Desktop\October\002. Aviators - Monumental.mp3";

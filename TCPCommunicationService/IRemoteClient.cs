@@ -10,5 +10,8 @@ namespace TCPCommunicationService
     public interface IRemoteClient
     {
         IPAddress IPAddress { get; }
+        event RemoteClientBeforeAddressUpdated OnBeforeAddressUpdated;
     }
+
+    public delegate void RemoteClientBeforeAddressUpdated(IRemoteClient client, IPAddress address);
 }

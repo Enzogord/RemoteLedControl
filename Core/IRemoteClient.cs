@@ -4,7 +4,7 @@ using System.Net;
 
 namespace RLCCore
 {
-    public interface IRemoteClient
+    /*public interface IRemoteClient
     {
         Cyclogramm Cyclogramm { get; set; }
         IPAddress IPAddress { get; set; }
@@ -20,5 +20,5 @@ namespace RLCCore
         void AddPin(byte pinNumber, ushort ledCount);
         void DeletePin(Pin pin);
         void UpdateStatus(bool isOnline);
-    }
+    }*/
 }

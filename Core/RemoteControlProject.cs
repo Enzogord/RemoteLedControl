@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Net;
 using System.Runtime.Serialization;
 using RLCCore.Exceptions;
 using Service;
@@ -12,10 +13,10 @@ namespace RLCCore
     [DataContract]
     public class RemoteControlProject : NotifyPropertyBase, IRemoteControlProject, ISettingsProvider
     {
-        private int key;
+        private uint key;
         [DataMember]
         [Display(Name = "Ключ")]
-        public int Key {
+        public uint Key {
             get => key;
             set => SetField(ref key, value, () => Key);
         }
@@ -53,10 +54,10 @@ namespace RLCCore
             set => SetField(ref clientsConfigFileName, value, () => ClientsConfigFileName);
         }
 
-        private ObservableCollection<IRemoteClient> clients;
+        private ObservableCollection<RemoteClient> clients;
         [DataMember]
         [Display(Name = "Клиенты")]
-        public ObservableCollection<IRemoteClient> Clients {
+        public ObservableCollection<RemoteClient> Clients {
             get => clients;
             set => SetField(ref clients, value, () => Clients);
         }
@@ -72,9 +73,9 @@ namespace RLCCore
         [Obsolete("Для поддержки на момент перехода к новой версии")]
         public System.IO.FileInfo AudioFilePath { get; set; }
 
-        public RemoteControlProject(int ProjectKey)
+        public RemoteControlProject(uint ProjectKey)
         {
-            Clients = new ObservableCollection<IRemoteClient>();
+            Clients = new ObservableCollection<RemoteClient>();
             ClientsConfigFileName = "set.txt";
             Key = ProjectKey;
         }
@@ -91,6 +92,14 @@ namespace RLCCore
         {
             if(Clients.Contains(client)) {
                 Clients.Remove(client);
+            }
+        }
+
+        public void UpdateClientIPAddress(int clientNumber, IPAddress ipAddress)
+        {
+            var client = Clients.FirstOrDefault(x => x.Number == clientNumber);
+            if(client != null) {
+                client.IPAddress = ipAddress;
             }
         }
 

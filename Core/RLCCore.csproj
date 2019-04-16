@@ -56,6 +56,10 @@
     <Compile Include="IPin.cs" />
     <Compile Include="IRemoteClient.cs" />
     <Compile Include="IStartTimeProvider.cs" />
+    <Compile Include="Messages\ClientState.cs" />
+    <Compile Include="Messages\MessageType.cs" />
+    <Compile Include="Messages\RLCMessageFactory.cs" />
+    <Compile Include="Messages\SourceType.cs" />
     <Compile Include="RemoteClient.cs" />
     <Compile Include="Cyclogramm.cs" />
     <Compile Include="Enums.cs" />
@@ -67,13 +71,9 @@
     <Compile Include="Pin.cs" />
     <Compile Include="RemoteControlProject.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RemoteOperations\CommandContextFactory.cs" />
     <Compile Include="RemoteOperations\IClientsOperatorStateInformer.cs" />
     <Compile Include="RemoteOperations\IControlUnit.cs" />
     <Compile Include="StartTimeProvider.cs" />
-    <Compile Include="Transport\GlobalCommandContext.cs" />
-    <Compile Include="Transport\GlobalCommandsContextProvider.cs" />
-    <Compile Include="Transport\IGlobalCommandsContextProvider.cs" />
     <Compile Include="RemoteOperations\OperatorStateEventArgs.cs" />
     <Compile Include="RemoteOperations\OperatorStates.cs" />
     <Compile Include="RemoteOperations\RemoteClientsOperator.cs" />
@@ -81,26 +81,22 @@
     <Compile Include="RLCProjectController.cs" />
     <Compile Include="ServiceFunc.cs" />
     <Compile Include="SettingWriter.cs" />
-    <Compile Include="Transport\ClientCommands.cs" />
-    <Compile Include="Transport\ClientMessageParser.cs" />
-    <Compile Include="Transport\ClientMessages.cs" />
-    <Compile Include="Transport\GlobalCommands.cs" />
-    <Compile Include="Transport\ICommandContext.cs" />
-    <Compile Include="Transport\ICommunicationService.cs" />
-    <Compile Include="Transport\IRemoteClientMessage.cs" />
     <Compile Include="IServerAddressProvider.cs" />
-    <Compile Include="Transport\MessageEventArgs.cs" />
-    <Compile Include="Transport\PackageBuilder.cs" />
-    <Compile Include="Transport\PlateInfoEventArgs.cs" />
-    <Compile Include="Transport\RemoteClientMessage.cs" />
-    <Compile Include="Transport\RLCMessage.cs" />
-    <Compile Include="Transport\UDPServer.cs" />
+    <Compile Include="Messages\RLCMessage.cs" />
     <Compile Include="XMLSaver.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Service\Service.csproj">
       <Project>{e10168f4-2657-4fdf-bf2d-d9dc58ab7e51}</Project>
       <Name>Service</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TCPCommunicationService\TCPCommunicationService.csproj">
+      <Project>{C6716668-56C7-4EF1-AEE1-BCFD70DFA467}</Project>
+      <Name>TCPCommunicationService</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\UDPCommunication\UDPCommunication.csproj">
+      <Project>{6E7B46B5-C335-41C5-B600-D144F165789C}</Project>
+      <Name>UDPCommunication</Name>
     </ProjectReference>
     <ProjectReference Include="..\UDPTransmiter\UDPTransmission.csproj">
       <Project>{3F9FA9C5-50C2-4373-9DAB-5DE66BCD3192}</Project>

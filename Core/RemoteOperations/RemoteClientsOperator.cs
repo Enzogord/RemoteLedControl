@@ -1,16 +1,21 @@
 ﻿using System;
 using System.Linq;
-using RLCCore.Transport;
+using System.Net;
+using Core.Messages;
+using NLog;
 using Service;
+using TCPCommunicationService;
 
 namespace RLCCore.RemoteOperations
 {
-    public class RemoteClientsOperator : NotifyPropertyBase, IClientsOperatorStateInformer
+    public class RemoteClientsOperator : NotifyPropertyBase
     {
-        private readonly IControlUnit controlUnit;
-        private readonly ICommunicationService communicationService;
-        private readonly IGlobalCommandsContextProvider globalContextProvider;
+        private static Logger logger = LogManager.GetCurrentClassLogger();
 
+        private readonly IControlUnit controlUnit;
+        private readonly INetworkSettingProvider networkSettingProvider;
+
+        TCPService tcpService;
         public event EventHandler<OperatorStateEventArgs> StateChanged;
 
         private OperatorStates state;
@@ -23,17 +28,32 @@ namespace RLCCore.RemoteOperations
             }
         }
         
-        public RemoteClientsOperator(IControlUnit controlUnit, ICommunicationService communicationService, IGlobalCommandsContextProvider networkSettingProvider)
+        public RemoteClientsOperator(IControlUnit controlUnit, INetworkSettingProvider networkSettingProvider)
         {
             this.controlUnit = controlUnit;
-            this.communicationService = communicationService;
-            this.globalContextProvider = networkSettingProvider;
-
-            communicationService.OnReceiveMessage += CommunicationService_OnReceiveMessage;
-
-            State = OperatorStates.Stop;
+            this.networkSettingProvider = networkSettingProvider;
+            State = OperatorStates.Configure;
+        }
+        
+        private void OnReceiveMessage(IPAddress address, RLCMessage message)
+        {
+            if(message.SourceType != SourceType.Client) {
+                logger.Info($"Получено сообщение не типа {nameof(SourceType.Client)}, игнорируется.");
+                return;
+            }
+            switch(message.MessageType) {
+                case MessageType.ClientInfo:
+                    UpdateClientInfo(address, message);
+                    break;
+                case MessageType.RequestServerIp:
+                    //SendServerIP();
+                    break;
+                default:
+                    break;
+            }
         }
 
+        /*
         private void CommunicationService_OnReceiveMessage(object sender, IRemoteClientMessage e)
         {
             switch(e.MessageType) {
@@ -46,54 +66,117 @@ namespace RLCCore.RemoteOperations
                 default:
                     break;
             }
-        }
+        }*/
 
         #region private methods
 
-        private void UpdateClientState(int clientNumber)
+        private void UpdateClientInfo(IPAddress ipAddress, RLCMessage message)
         {
-            var client = controlUnit.Clients.FirstOrDefault(x => x.Number == clientNumber);
+            var client = controlUnit.Clients.FirstOrDefault(x => x.Number == message.ClientNumber);
+            if(client == null) {
+                return;
+            }
+            client.IPAddress = ipAddress;
+            client.ClientState = message.ClientState;
+            //TODO получать состояние клиента из TCP сервиса
             client.UpdateStatus(true);
         }
 
-        private void SendServerIP()
+        private void SendServerIP(IPAddress ipAddress)
         {
-            var sendServerAddressContext = globalContextProvider.GetCommandContext(GlobalCommands.SendServerAddress);
-            communicationService.SendGlobalCommand(GlobalCommands.SendServerAddress, sendServerAddressContext);
+            RLCMessage message =  RLCMessageFactory.SendServerIP(controlUnit.Key, networkSettingProvider.GetServerIPAddress());
+            var messageBytes = message.ToArray();
+            tcpService.Send(ipAddress, messageBytes, messageBytes.Length);
         } 
 
         #endregion
 
         public void Start()
         {
-            var state = GlobalCommands.Play;
-            var playContext = globalContextProvider.GetCommandContext(state);
-            communicationService.SendGlobalCommand(state, playContext);
-            State = OperatorStates.Play;
+            if(State != OperatorStates.Configure) {
+                logger.Warn($"Старт оператора клиентов возможен только из статуса {OperatorStates.Configure}");
+                return;
+            }
+
+            tcpService = new TCPService(new IPEndPoint(networkSettingProvider.GetServerIPAddress(), networkSettingProvider.Port), controlUnit.Clients, 1024);
+            tcpService.OnReceivePackage -= TcpService_OnReceivePackage;
+            tcpService.OnReceivePackage += TcpService_OnReceivePackage;
+            tcpService.Start();
+            State = OperatorStates.Ready;
+        }
+
+        private void TcpService_OnReceivePackage(IPAddress address, byte[] package)
+        {
+            RLCMessage message = new RLCMessage();
+            try {
+                message.FromBytes(package);
+            }
+            catch(Exception ex) {
+                logger.Error(ex, "Не удалось спарсить сообщение.");
+                return;
+            }
+
+            OnReceiveMessage(address, message);
+        }
+
+        public void Play()
+        {
+            var stateBackup = State;
+            try {
+                var messageBytes = RLCMessageFactory.Play(controlUnit.Key).ToArray();
+                tcpService.SendToAll(messageBytes, messageBytes.Length);
+                State = OperatorStates.Play;
+            }
+            catch(Exception ex) {
+                logger.Error(ex, $"Не удалось отправить команду {OperatorStates.Play}");
+                //восстановление состояния
+                State = stateBackup;
+                throw;
+            }
         }
 
         public void Stop()
         {
-            var state = GlobalCommands.Stop;
-            var stopContext = globalContextProvider.GetCommandContext(state);
-            communicationService.SendGlobalCommand(state, stopContext);
-            State = OperatorStates.Stop;
+            var stateBackup = State;
+            try {
+                var messageBytes = RLCMessageFactory.Stop(controlUnit.Key).ToArray();
+                tcpService.SendToAll(messageBytes, messageBytes.Length);
+                State = OperatorStates.Stop;
+            }
+            catch(Exception ex) {
+                logger.Error(ex, $"Не удалось отправить команду {OperatorStates.Stop}");
+                //восстановление состояния
+                State = stateBackup;
+                throw;
+            }
         }
 
         public void Pause()
         {
-            var state = GlobalCommands.Pause;
-            var pauseContext = globalContextProvider.GetCommandContext(state);
-            communicationService.SendGlobalCommand(state, pauseContext);
-            State = OperatorStates.Pause;
+            var stateBackup = State;
+            try {
+                var messageBytes = RLCMessageFactory.Pause(controlUnit.Key).ToArray();
+                tcpService.SendToAll(messageBytes, messageBytes.Length);
+                State = OperatorStates.Pause;
+            }
+            catch(Exception ex) {
+                logger.Error(ex, $"Не удалось отправить команду {OperatorStates.Pause}");
+                //восстановление состояния
+                State = stateBackup;
+                throw;
+            }
         }
 
-        public void StartFrom()
+        public void PlayFrom()
         {
-            var state = GlobalCommands.PlayFrom;
+            /*var state = GlobalCommands.PlayFrom;
             var playFromContext = globalContextProvider.GetCommandContext(state);
-            communicationService.SendGlobalCommand(state, playFromContext);
-            State = OperatorStates.Play;
+            communicationService.SendGlobalCommand(state, playFromContext);*/
+
+
+            /*RLCMessage message =  RLCMessageFactory.PlayFrom(controlUnit.Key, );
+            udpService.Send(message, networkSettingProvider.BroadcastIPAddress, networkSettingProvider.Port);
+            State = OperatorStates.Play;*/
         }
     }
 }
