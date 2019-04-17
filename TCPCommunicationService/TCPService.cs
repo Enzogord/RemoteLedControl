@@ -24,7 +24,7 @@ namespace TCPCommunicationService
         private readonly int bufferSize;
         private bool isActive;        
 
-        public TCPService(IPEndPoint localIpEndPoint, IEnumerable<IRemoteClient> expectedClients, int bufferSize, byte workersCount = 2)
+        public TCPService(IPEndPoint localIpEndPoint, IEnumerable<IRemoteClient> expectedClients, int bufferSize, byte workersCount = 1)
         {
             if(localIpEndPoint == null) {
                 throw new ArgumentNullException(nameof(localIpEndPoint));
@@ -65,6 +65,11 @@ namespace TCPCommunicationService
                     clientListeners.TryRemove(client.IPAddress, out TcpClientListener clientListener);
                 }
                 clientListeners.TryAdd(address, null);
+            } else {
+                if(!clientListeners.ContainsKey(address)) {
+                    TcpClientListener tcpClientListener = listenersQueue.FirstOrDefault(x => x.IPAddress == address);
+                    clientListeners.TryAdd(address, tcpClientListener);
+                }
             }
         }
 
@@ -84,6 +89,9 @@ namespace TCPCommunicationService
                         byte[] buffer = new byte[bufferSize];
                         if(tcpClientListener.Read(buffer, buffer.Length)) {
                             OnReceivePackage?.Invoke(tcpClientListener.IPAddress, buffer);
+                        }
+                        if(clientListeners.ContainsKey(tcpClientListener.IPAddress) && clientListeners[tcpClientListener.IPAddress] == null) {
+                            clientListeners[tcpClientListener.IPAddress] = tcpClientListener;
                         }
                     }
                 }
@@ -113,21 +121,23 @@ namespace TCPCommunicationService
                 socket.Close();
                 return;
             }
+            
+            TcpClientListener clientListener;
 
-            if(!clientListeners.ContainsKey(removeEndPoint.Address)) {
-                socket.Close();
-                return;
-            }
-            TcpClientListener clientListener = clientListeners[removeEndPoint.Address];
-            if(clientListener != null) {
-                clientListener.Close();
+            if(clientListeners.ContainsKey(removeEndPoint.Address)) {
+                clientListener = clientListeners[removeEndPoint.Address];
+                if(clientListener != null) {
+                    clientListener.Close();
+                }
             }
 
             clientListener = new TcpClientListener(socket);
             clientListener.OnDisconnected += (sender, e) => {
-                clientListeners[removeEndPoint.Address] = null;
-            }; 
-            clientListeners[removeEndPoint.Address] = clientListener;
+                if(clientListeners.ContainsKey(removeEndPoint.Address)) {
+                    clientListeners[removeEndPoint.Address] = null;
+                }
+            };
+            
             clientListener.Init();
             Task.Run(() =>
             {
@@ -207,6 +217,9 @@ namespace TCPCommunicationService
         {
             var listeners = clientListeners.Values.ToList();
             foreach(var item in listeners) {
+                if(item == null) {
+                    continue;
+                }
                 Task.Run(() => { item.Write(buffer, length); });                
             }
         }

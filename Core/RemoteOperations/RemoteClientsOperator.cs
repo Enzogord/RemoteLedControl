@@ -43,7 +43,6 @@ namespace RLCCore.RemoteOperations
             }
             switch(message.MessageType) {
                 case MessageType.ClientInfo:
-                    UpdateClientInfo(address, message);
                     break;
                 case MessageType.RequestServerIp:
                     //SendServerIP();
@@ -51,6 +50,8 @@ namespace RLCCore.RemoteOperations
                 default:
                     break;
             }
+
+            UpdateClientInfo(address, message);
         }
 
         /*

@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Core.Messages;
@@ -41,14 +38,14 @@ namespace RLCConsoleApp
 
 
             TestOperator testOperator = new TestOperator();
-
+            /*
             Task.Run(() =>
             {
                 while(true) {
                     testOperator.SendPlay();
                     Thread.Sleep(5000);
                 }
-            });
+            });*/
 
             //controller.Server.StartReceiving();
             //rlcOperator.
@@ -76,7 +73,7 @@ namespace RLCConsoleApp
             sntpService.Start();
             //controller.CurrentProject.AddClient(new RemoteClient("Test1", 1) { IPAddress = IPAddress.Parse("192.168.1.166") });
             rlcOperator = new RemoteClientsOperator(controller.CurrentProject, controller.NetworkController);
-            udpService = new UDPService<RLCMessage>(IPAddress.Any/*controller.NetworkController.GetServerIPAddress()*/, controller.NetworkController.Port, new MessageParser<RLCMessage>());
+            udpService = new UDPService<RLCMessage>(IPAddress.Any, controller.NetworkController.Port, new MessageParser<RLCMessage>());
             udpService.OnReceiveMessage += UdpService_OnReceiveMessage;
             udpService.StartReceiving();
             rlcOperator.Start();
@@ -92,7 +89,7 @@ namespace RLCConsoleApp
             Console.WriteLine($"Receive message: {e.MessageType}");
             if(e.MessageType == MessageType.RequestServerIp) {
                 controller.CurrentProject.UpdateClientIPAddress(e.ClientNumber, endPoint.Address);
-                udpService.Send(RLCMessageFactory.SendServerIP(controller.CurrentProject.Key, controller.NetworkController.GetServerIPAddress()), controller.NetworkController.BroadcastIPAddress, controller.NetworkController.Port);
+                udpService.Send(RLCMessageFactory.SendServerIP(controller.CurrentProject.Key, controller.NetworkController.GetServerIPAddress()), endPoint.Address, controller.NetworkController.Port);
             }
         }
     }
