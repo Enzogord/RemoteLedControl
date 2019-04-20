@@ -50,8 +50,21 @@ namespace RLCConsoleApp
             //controller.Server.StartReceiving();
             //rlcOperator.
 
-
-            Console.ReadKey();
+            while(true) {
+                string cmd = Console.ReadLine();
+                if(cmd == "play") {
+                    testOperator.SendPlay();
+                    continue;
+                }
+                if(cmd == "stop") {
+                    testOperator.SendStop();
+                    continue;
+                }
+                if(cmd == "pause") {
+                    testOperator.SendPause();
+                    continue;
+                }
+            }
         }
 
         
@@ -77,11 +90,22 @@ namespace RLCConsoleApp
             udpService.OnReceiveMessage += UdpService_OnReceiveMessage;
             udpService.StartReceiving();
             rlcOperator.Start();
+            Console.WriteLine($"Server started. IP: {controller.NetworkController.GetServerIPAddress()}");
         }
 
         internal void SendPlay()
         {
             rlcOperator.Play();
+        }
+
+        internal void SendStop()
+        {
+            rlcOperator.Stop();
+        }
+
+        internal void SendPause()
+        {
+            rlcOperator.Pause();
         }
 
         private void UdpService_OnReceiveMessage(object sender, IPEndPoint endPoint, RLCMessage e)
