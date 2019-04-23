@@ -17,11 +17,10 @@ namespace TCPCommunicationService
         private bool wasConnected;
         private bool initialized;
 
-        public IPAddress IPAddress {
+        public IPEndPoint IPEndPoint {
             get {
                 try {
-                    var ipEndPoint = socket.RemoteEndPoint as IPEndPoint;
-                    return ipEndPoint.Address;
+                    return socket.RemoteEndPoint as IPEndPoint;
                 }
                 catch(Exception) {
                     return null;

@@ -63,6 +63,10 @@
       <Project>{8C761FC5-4B6F-4FCD-8D9B-FCCF47E8AEB0}</Project>
       <Name>SNTPService</Name>
     </ProjectReference>
+    <ProjectReference Include="..\TCPCommunicationService\TCPCommunicationService.csproj">
+      <Project>{C6716668-56C7-4EF1-AEE1-BCFD70DFA467}</Project>
+      <Name>TCPCommunicationService</Name>
+    </ProjectReference>
     <ProjectReference Include="..\UDPCommunication\UDPCommunication.csproj">
       <Project>{6E7B46B5-C335-41C5-B600-D144F165789C}</Project>
       <Name>UDPCommunication</Name>

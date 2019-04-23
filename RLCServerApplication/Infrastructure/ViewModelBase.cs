@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Service;
 
-namespace UDPCommunication
+namespace RLCServerApplication.Infrastructure
 {
-    public interface IUdpMessage
+    public class ViewModelBase : NotifyPropertyBase
     {
-        byte[] ToArray();
-        void FromBytes(byte[] bytes);
+
     }
 }

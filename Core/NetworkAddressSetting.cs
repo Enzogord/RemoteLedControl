@@ -49,5 +49,10 @@ namespace RLCCore
 
             return new IPAddress(broadcastAddress);
         }
+
+        public override string ToString()
+        {
+            return IPAddress.ToString();
+        }
     }
 }

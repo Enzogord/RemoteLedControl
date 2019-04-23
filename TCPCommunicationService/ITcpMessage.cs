@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace UDPCommunication
+namespace TCPCommunicationService
 {
-    public interface IUdpMessage
+    public interface ITcpMessage
     {
         byte[] ToArray();
         void FromBytes(byte[] bytes);

@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Net;
 using NLog;
+using TCPCommunicationService;
 using UDPCommunication;
 
 namespace Core.Messages
 {
-    public class RLCMessage : IMessage
+    public class RLCMessage : IUdpMessage, ITcpMessage
     {
         //byte 0
         private byte sourceTypeData;

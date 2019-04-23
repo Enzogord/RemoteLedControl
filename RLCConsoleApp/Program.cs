@@ -2,6 +2,7 @@
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using Core;
 using Core.Messages;
 using RLCCore;
 using RLCCore.RemoteOperations;
@@ -38,16 +39,14 @@ namespace RLCConsoleApp
 
 
             TestOperator testOperator = new TestOperator();
-            /*
-            Task.Run(() =>
+
+            /*Task.Run(() =>
             {
                 while(true) {
                     testOperator.SendPlay();
                     Thread.Sleep(5000);
                 }
             });*/
-
-            //controller.Server.StartReceiving();
             //rlcOperator.
 
             while(true) {
@@ -69,11 +68,12 @@ namespace RLCConsoleApp
 
         
     }
-
+    
     public class TestOperator
     {
         UDPService<RLCMessage> udpService;
         RLCProjectController controller;
+        RemoteClientConnector clientsConnector;
         RemoteClientsOperator rlcOperator;
         SntpService sntpService;
 
@@ -85,11 +85,12 @@ namespace RLCConsoleApp
             sntpService.InterfaceAddress = controller.NetworkController.GetServerIPAddress();
             sntpService.Start();
             //controller.CurrentProject.AddClient(new RemoteClient("Test1", 1) { IPAddress = IPAddress.Parse("192.168.1.166") });
-            rlcOperator = new RemoteClientsOperator(controller.CurrentProject, controller.NetworkController);
-            udpService = new UDPService<RLCMessage>(IPAddress.Any, controller.NetworkController.Port, new MessageParser<RLCMessage>());
+            clientsConnector = new RemoteClientConnector(controller.NetworkController.GetServerIPAddress(), 11010, controller.CurrentProject.Clients, 200);
+            rlcOperator = new RemoteClientsOperator(controller.CurrentProject, controller.NetworkController, clientsConnector);
+            udpService = new UDPService<RLCMessage>(IPAddress.Any, controller.NetworkController.Port);
             udpService.OnReceiveMessage += UdpService_OnReceiveMessage;
             udpService.StartReceiving();
-            rlcOperator.Start();
+            rlcOperator.StartService();
             Console.WriteLine($"Server started. IP: {controller.NetworkController.GetServerIPAddress()}");
         }
 

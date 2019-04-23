@@ -10,17 +10,17 @@ namespace RLCCore
 {
     public class NetworkController : NotifyPropertyBase, INetworkSettingProvider
     {
-        private bool isLocked;
-        public bool IsLocked {
-            get => isLocked;
-            set => SetField(ref isLocked, value, () => IsLocked);
+        private bool editable;
+        public bool Editable {
+            get => editable;
+            set => SetField(ref editable, value, () => Editable);
         }
 
         private NetworkAddressSetting currentAddressSetting;
         public NetworkAddressSetting CurrentAddressSetting {
             get => currentAddressSetting;
             set {
-                if(IsLocked) {
+                if(!Editable) {
                     return;
                 }
                 SetField(ref currentAddressSetting, value, () => CurrentAddressSetting);
@@ -40,13 +40,14 @@ namespace RLCCore
 
         public NetworkController()
         {
+            Editable = true;
             AddressSettings = new ObservableCollection<NetworkAddressSetting>();
             UpdateIPAddresses();
         }
 
         public void UpdateIPAddresses()
         {
-            if(IsLocked) {
+            if(!Editable) {
                 return;
             }
 

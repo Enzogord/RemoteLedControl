@@ -1,4 +1,9 @@
-﻿using Service;
+﻿using Core;
+using Core.Messages;
+using NLog;
+using RLCCore.RemoteOperations;
+using Service;
+using SNTPService;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -7,11 +12,15 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using TCPCommunicationService;
+using UDPCommunication;
 
 namespace RLCCore
 {
     public class RLCProjectController : NotifyPropertyBase
     {
+        Logger logger = LogManager.GetCurrentClassLogger();
+
         private NetworkController networkController;
         public NetworkController NetworkController {
             get => networkController;
@@ -21,23 +30,114 @@ namespace RLCCore
         private RemoteControlProject currentProject;
         public RemoteControlProject CurrentProject {
             get => currentProject;
-            set {
-                if(SetField(ref currentProject, value, () => CurrentProject) && value != null) {
-                    //Server = new UDPServer(currentProject.Key);
-                }
-            }
+            set => SetField(ref currentProject, value, () => CurrentProject);
         }
-        /*
-        private UDPServer server;
-        public UDPServer Server {
-            get => server;
-            set => SetField(ref server, value, () => Server);
-        }*/
+
+        private UDPService<RLCMessage> udpService;
+        public UDPService<RLCMessage> UDPService {
+            get => udpService;
+            set => SetField(ref udpService, value, () => UDPService);
+        }
+
+        private bool servicesIsReady;
+        public bool ServicesIsReady {
+            get => servicesIsReady;
+            set => SetField(ref servicesIsReady, value, () => ServicesIsReady);
+        }
+
+        private RemoteClientConnector remoteClientConnector;
+        public RemoteClientConnector RemoteClientConnector {
+            get => remoteClientConnector;
+            set => SetField(ref remoteClientConnector, value, () => RemoteClientConnector);
+        }
+
+        private RemoteClientsOperator remoteClientsOperator;
+        public RemoteClientsOperator RemoteClientsOperator {
+            get => remoteClientsOperator;
+            set => SetField(ref remoteClientsOperator, value, () => RemoteClientsOperator);
+        }
+
+
+        private SntpService sntpService;
+        public SntpService SNTPService {
+            get => sntpService;
+            set => SetField(ref sntpService, value, () => SNTPService);
+        }
 
         public RLCProjectController()
         {
             NetworkController = new NetworkController();
             TestDefaultConfig();
+        }
+
+        public void StartServices()
+        {
+            var ipAddress = networkController.GetServerIPAddress();
+            int rlcPort = 11010;
+            int sntpPort = 11011;
+
+            if(SNTPService == null) {
+                SNTPService = new SntpService(sntpPort);
+            }
+            SNTPService.InterfaceAddress = ipAddress;
+
+            if(UDPService == null) {
+                UDPService = new UDPService<RLCMessage>(ipAddress, rlcPort);
+                UDPService.OnReceiveMessage += (sender, endPoint, message) => {
+                    Console.WriteLine($"Receive message: {message.MessageType}");
+                    if(message.MessageType == MessageType.RequestServerIp) {
+                        CurrentProject.UpdateClientIPAddress(message.ClientNumber, endPoint.Address);
+                        udpService.Send(RLCMessageFactory.SendServerIP(CurrentProject.Key, ipAddress), endPoint.Address, rlcPort);
+                    }
+                };
+            }
+            if(RemoteClientConnector == null) {
+                RemoteClientConnector = new RemoteClientConnector(NetworkController.GetServerIPAddress(), rlcPort, CurrentProject.Clients, 200);
+            }
+            if(RemoteClientsOperator == null) {
+                RemoteClientsOperator = new RemoteClientsOperator(CurrentProject, NetworkController, RemoteClientConnector);
+            }
+
+            try {
+                RemoteClientsOperator.StartService();
+            }
+            catch(Exception ex) {
+                logger.Error(ex, "Ошибка при запуске службы управления удаленными клиентами");
+                throw;
+            }
+            try {
+                SNTPService.Start();
+            }
+            catch(Exception ex) {
+                RemoteClientsOperator.Stop();
+                logger.Error(ex, "Ошибка при запуске службы синхронизации времени");
+                throw;
+            }
+            try {
+                UDPService.StartReceiving();
+            }
+            catch(Exception ex) {
+                RemoteClientsOperator.Stop();
+                SNTPService.Stop();
+                logger.Error(ex, "Ошибка при запуске службы UDP сообщений");
+                throw;
+            }
+
+            ServicesIsReady = true;
+        }
+
+        public void StopServices()
+        {
+            if(SNTPService != null) {
+                SNTPService.Stop();
+            }
+            if(RemoteClientsOperator != null) {
+                RemoteClientsOperator.StopService();
+            }
+            if(UDPService != null) {
+                UDPService.StopReceiving();
+            }
+            ServicesIsReady = false;
         }
 
         public void CreateProject()
@@ -224,21 +324,21 @@ namespace RLCCore
         {
             CurrentProject = new RemoteControlProject(158018933);
             CurrentProject.Port = 11010;
-            CurrentProject.WifiSSID = "EnzoWiFi";
-            CurrentProject.WifiPassword = "direihoom1";
+            CurrentProject.WifiSSID = "Ufanet_315";
+            CurrentProject.WifiPassword = "158018933";
 
             var client = new RemoteClient("test", 1);
-            client.AddPin(0, 2);
+            client.AddPin(0, 1);
             client.AddPin(2, 2);
-            client.AddPin(4, 2);
-            client.AddPin(5, 2);
+            client.AddPin(4, 1);
+            client.AddPin(5, 1);
             CurrentProject.AddClient(client);
 
             string music = @"C:\Users\Enzo\Desktop\October\002. Aviators - Monumental.mp3";
             CurrentProject.AudioFilePath = new FileInfo(music);
 
-            NetworkController.CurrentAddressSetting = NetworkController.AddressSettings.First(x => x.IPAddress.ToString() == "192.168.1.217");
-            NetworkController.Port = 11010;
+            //NetworkController.CurrentAddressSetting = NetworkController.AddressSettings.First(x => x.IPAddress.ToString() == "192.168.1.217");
+            //NetworkController.Port = 11010;
         }
     }
 }

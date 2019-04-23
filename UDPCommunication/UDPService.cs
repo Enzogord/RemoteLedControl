@@ -5,31 +5,11 @@ using UDPTransmission;
 
 namespace UDPCommunication
 {
-
-    public class MessageParser<TMessage>
-        where TMessage : class, IMessage, new()
-    {
-        private static Logger logger = LogManager.GetCurrentClassLogger();
-
-        public TMessage Parse(byte[] bytes)
-        {
-            TMessage message = new TMessage();
-            try {
-                message.FromBytes(bytes);
-                return message;
-            }
-            catch(Exception ex) {
-                logger.Error(ex, "Ошибка при распознавании сообщения");
-                return null;
-            }
-        }
-    }
-
     /// <summary>
     /// Класс осуществляющий передачу и прием информации с клиентов по протоколу UDP
     /// </summary>
     public class UDPService<TMessage>
-        where TMessage : class, IMessage, new()
+        where TMessage : class, IUdpMessage, new()
     {
         private static Logger logger = LogManager.GetCurrentClassLogger();
 
@@ -41,16 +21,14 @@ namespace UDPCommunication
         private IPAddress broadcastIPAddress;
         private IPAddress ipAddress;
         private int port;*/
-        private readonly MessageParser<TMessage> parser;
 
         public bool IsRun => udpTransmitter == null ? false : udpTransmitter.IsRun;
 
         public event EventHandler OnStatusChange;
         //public event EventHandler OnServerIPChange;
 
-        public UDPService(IPAddress ipAddress, int port, MessageParser<TMessage> parser)
+        public UDPService(IPAddress ipAddress, int port)
         {
-            this.parser = parser;
             udpTransmitter = new UDPTransmiter(ipAddress, port);
             udpTransmitter.OnReceivePackage += UdpTransmitter_OnReceivePackage;
             udpTransmitter.OnChangeStatus += UdpTransmitter_OnChangeStatus;
@@ -97,11 +75,24 @@ namespace UDPCommunication
             udpTransmitter.StopReceiving();
         }
 
+        public TMessage Parse(byte[] bytes)
+        {
+            TMessage message = new TMessage();
+            try {
+                message.FromBytes(bytes);
+                return message;
+            }
+            catch(Exception ex) {
+                logger.Error(ex, "Ошибка при распознавании сообщения");
+                return null;
+            }
+        }
+
         public event ReceiveMessageEventHandler<TMessage> OnReceiveMessage;
 
         private void UdpTransmitter_OnReceivePackage(object sender, ReceivingDataEventArgs e)
         {
-            TMessage message = parser.Parse(e.Data);
+            TMessage message = Parse(e.Data);
             if(message != null) {
                 OnReceiveMessage?.Invoke(this, e.Ip, message);
             }

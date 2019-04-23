@@ -10,6 +10,7 @@ namespace UDPTransmission
     {
         public static Logger logger = LogManager.GetCurrentClassLogger();
 
+        private IPEndPoint ipEndPoint;
         private UdpClient udpClient;
         private bool stop;
         private bool isRun;
@@ -27,12 +28,12 @@ namespace UDPTransmission
 
         public UDPTransmiter(IPAddress ipAddress, int port)
         {
-            var ipEndPoint = new IPEndPoint(ipAddress, port);
-            udpClient = new UdpClient(ipEndPoint);
+            ipEndPoint = new IPEndPoint(ipAddress, port);
         }
 
         public void StartReceiving()
         {
+            udpClient = new UdpClient(ipEndPoint);
             stop = false;
             IsRun = true;
             Receive();
@@ -41,9 +42,10 @@ namespace UDPTransmission
         public void StopReceiving()
         {
             stop = true;
-            udpClient.Client.Close();
+            udpClient.Close();
             Thread.Sleep(500);
             IsRun = false;
+            udpClient = null;
         }
 
         private void Receive()
@@ -79,7 +81,7 @@ namespace UDPTransmission
 
         public void Dispose()
         {
-            udpClient.Dispose();
+            udpClient.Close();
         }
     }
 }

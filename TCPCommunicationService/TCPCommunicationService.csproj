@@ -50,10 +50,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="IRemoteClient.cs" />
+    <Compile Include="ITcpMessage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ReceiveMessageEventHandler.cs" />
     <Compile Include="SocketExtensions.cs" />
     <Compile Include="TcpClientListener.cs" />
     <Compile Include="TCPService.cs" />
+    <Compile Include="TCPServiceGeneric.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

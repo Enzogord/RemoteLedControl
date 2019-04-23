@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Net;
+using Core;
 using Core.Messages;
 using NLog;
 using Service;
@@ -14,8 +15,8 @@ namespace RLCCore.RemoteOperations
 
         private readonly IControlUnit controlUnit;
         private readonly INetworkSettingProvider networkSettingProvider;
+        private readonly IRemoteClientConnector remoteClientConnector;
 
-        TCPService tcpService;
         public event EventHandler<OperatorStateEventArgs> StateChanged;
 
         private OperatorStates state;
@@ -28,14 +29,15 @@ namespace RLCCore.RemoteOperations
             }
         }
         
-        public RemoteClientsOperator(IControlUnit controlUnit, INetworkSettingProvider networkSettingProvider)
+        public RemoteClientsOperator(IControlUnit controlUnit, INetworkSettingProvider networkSettingProvider, IRemoteClientConnector remoteClientConnector)
         {
             this.controlUnit = controlUnit;
             this.networkSettingProvider = networkSettingProvider;
+            this.remoteClientConnector = remoteClientConnector;
             State = OperatorStates.Configure;
         }
         
-        private void OnReceiveMessage(IPAddress address, RLCMessage message)
+        private void ProcessMessage(IPAddress address, RLCMessage message)
         {
             if(message.SourceType != SourceType.Client) {
                 logger.Info($"Получено сообщение не типа {nameof(SourceType.Client)}, игнорируется.");
@@ -44,30 +46,12 @@ namespace RLCCore.RemoteOperations
             switch(message.MessageType) {
                 case MessageType.ClientInfo:
                     break;
-                case MessageType.RequestServerIp:
-                    //SendServerIP();
-                    break;
                 default:
                     break;
             }
 
             UpdateClientInfo(address, message);
         }
-
-        /*
-        private void CommunicationService_OnReceiveMessage(object sender, IRemoteClientMessage e)
-        {
-            switch(e.MessageType) {
-                case ClientMessages.SendPlateNumber:
-                    UpdateClientState(e.ClientNumber);
-                    break;
-                case ClientMessages.RequestServerIP:
-                    SendServerIP();
-                    break;
-                default:
-                    break;
-            }
-        }*/
 
         #region private methods
 
@@ -87,45 +71,50 @@ namespace RLCCore.RemoteOperations
         {
             RLCMessage message =  RLCMessageFactory.SendServerIP(controlUnit.Key, networkSettingProvider.GetServerIPAddress());
             var messageBytes = message.ToArray();
-            tcpService.Send(ipAddress, messageBytes, messageBytes.Length);
+            remoteClientConnector.Send(ipAddress, message);
         } 
 
         #endregion
 
-        public void Start()
+        public void StartService()
         {
             if(State != OperatorStates.Configure) {
                 logger.Warn($"Старт оператора клиентов возможен только из статуса {OperatorStates.Configure}");
                 return;
             }
 
-            tcpService = new TCPService(new IPEndPoint(networkSettingProvider.GetServerIPAddress(), networkSettingProvider.Port), controlUnit.Clients, 1024);
-            tcpService.OnReceivePackage -= TcpService_OnReceivePackage;
-            tcpService.OnReceivePackage += TcpService_OnReceivePackage;
-            tcpService.Start();
+            remoteClientConnector.OnReceiveMessage -= TcpService_OnReceivePackage;
+            remoteClientConnector.OnReceiveMessage += TcpService_OnReceivePackage;
+            remoteClientConnector.Start();
             State = OperatorStates.Ready;
         }
 
-        private void TcpService_OnReceivePackage(IPAddress address, byte[] package)
+        public void StopService()
         {
-            RLCMessage message = new RLCMessage();
-            try {
-                message.FromBytes(package);
-            }
-            catch(Exception ex) {
-                logger.Error(ex, "Не удалось спарсить сообщение.");
+            if(State == OperatorStates.Configure) {
+                logger.Warn($"Оператор клиентов уже остановлен");
                 return;
             }
+            if(remoteClientConnector.IsActive) {
+                logger.Warn($"TCP служба не запущена");
+                return;
+            }
+            remoteClientConnector.Stop();
+            remoteClientConnector.OnReceiveMessage -= TcpService_OnReceivePackage;
+            State = OperatorStates.Configure;
+        }
 
-            OnReceiveMessage(address, message);
+        private void TcpService_OnReceivePackage(object sender, IPEndPoint endPoint, RLCMessage e)
+        {
+            ProcessMessage(endPoint.Address, e);
         }
 
         public void Play()
         {
             var stateBackup = State;
             try {
-                var messageBytes = RLCMessageFactory.Play(controlUnit.Key).ToArray();
-                tcpService.SendToAll(messageBytes, messageBytes.Length);
+                var message = RLCMessageFactory.Play(controlUnit.Key);
+                remoteClientConnector.SendToAll(message);
                 State = OperatorStates.Play;
             }
             catch(Exception ex) {
@@ -140,8 +129,8 @@ namespace RLCCore.RemoteOperations
         {
             var stateBackup = State;
             try {
-                var messageBytes = RLCMessageFactory.Stop(controlUnit.Key).ToArray();
-                tcpService.SendToAll(messageBytes, messageBytes.Length);
+                var message = RLCMessageFactory.Stop(controlUnit.Key);
+                remoteClientConnector.SendToAll(message);
                 State = OperatorStates.Stop;
             }
             catch(Exception ex) {
@@ -156,8 +145,8 @@ namespace RLCCore.RemoteOperations
         {
             var stateBackup = State;
             try {
-                var messageBytes = RLCMessageFactory.Pause(controlUnit.Key).ToArray();
-                tcpService.SendToAll(messageBytes, messageBytes.Length);
+                var message = RLCMessageFactory.Pause(controlUnit.Key);
+                remoteClientConnector.SendToAll(message);
                 State = OperatorStates.Pause;
             }
             catch(Exception ex) {
