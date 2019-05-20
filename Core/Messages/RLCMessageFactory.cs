@@ -40,5 +40,11 @@ namespace Core.Messages
             message.IPAddress = ipAddress;
             return message;
         }
+
+        public static RLCMessage RequestClientInfo(uint key)
+        {
+            var message = new RLCMessage(SourceType.Server, key, MessageType.RequestClientInfo);
+            return message;
+        }
     }
 }

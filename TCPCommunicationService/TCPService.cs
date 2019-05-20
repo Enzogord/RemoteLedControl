@@ -16,143 +16,117 @@ namespace TCPCommunicationService
     {
         Logger logger = LogManager.GetCurrentClassLogger();
 
-        private CancellationTokenSource cts = new CancellationTokenSource();
-        private ConcurrentDictionary<IPAddress, TcpClientListener> clientListeners;
-        private BlockingCollection<TcpClientListener> listenersQueue;
+        private CancellationTokenSource cancelationTokenSource;
+        private ConcurrentDictionary<IPAddress, TcpClientListener> activeConnections;
+
         private readonly IPEndPoint localIpEndPoint;
-        private readonly IEnumerable<IRemoteClient> expectedClients;
         private readonly int bufferSize;
         private readonly byte workersCount;
 
+        public event ReceivePackageEventHandler OnReceivePackage;
+
         public bool IsActive { get; private set; }
 
-        public TCPService(IPEndPoint localIpEndPoint, IEnumerable<IRemoteClient> expectedClients, int bufferSize, byte workersCount = 1)
+        public TCPService(IPEndPoint localIpEndPoint, int bufferSize = 200, byte workersCount = 1)
         {
-            if(localIpEndPoint == null) {
-                throw new ArgumentNullException(nameof(localIpEndPoint));
-            }
-            if(expectedClients == null) {
-                throw new ArgumentNullException(nameof(expectedClients));
-            }
-            if(expectedClients.GroupBy(x => x.IPAddress).Where(g => g.Count() > 1).Any()) {
-                throw new ArgumentException($"В коллекции {nameof(expectedClients)} не должно быть повторяющихся адресов");
-            }
+            this.localIpEndPoint = localIpEndPoint ?? throw new ArgumentNullException(nameof(localIpEndPoint));
 
-            listenersQueue = new BlockingCollection<TcpClientListener>();            
+            cancelationTokenSource = new CancellationTokenSource();
+            activeConnections = new ConcurrentDictionary<IPAddress, TcpClientListener>();
 
-            this.localIpEndPoint = localIpEndPoint;
-            this.expectedClients = expectedClients;
             this.bufferSize = bufferSize;
             this.workersCount = workersCount;
-            clientListeners = new ConcurrentDictionary<IPAddress, TcpClientListener>();
-            foreach(var ec in expectedClients) {
-                ec.OnBeforeAddressUpdated += Ec_OnBeforeAddressUpdated;
-                if(ec.IPAddress != null) {
-                    clientListeners.TryAdd(ec.IPAddress, null);
-                }
-            }
         }
 
-        private void Ec_OnBeforeAddressUpdated(IRemoteClient client, IPAddress address)
+        private void ReadingWorker()
         {
-            if(client.IPAddress != null) {
-                if(clientListeners.ContainsKey(client.IPAddress)) {
-                    var listener = clientListeners[client.IPAddress];
-                    if(listener != null) {
-                        listener.Close();
+            while(!cancelationTokenSource.IsCancellationRequested) {
+                foreach(var clientConnection in activeConnections.Values) {
+                    if(!clientConnection.IsConnected) {
+                        activeConnections.TryRemove(clientConnection.IPEndPoint.Address, out TcpClientListener value);
+                        continue;
                     }
-                    clientListeners.TryRemove(client.IPAddress, out TcpClientListener clientListener);
-                }
-                clientListeners.TryAdd(address, null);
-            } else {
-                if(!clientListeners.ContainsKey(address)) {
-                    TcpClientListener tcpClientListener = listenersQueue.FirstOrDefault(x => x.IPEndPoint.Address == address);
-                    clientListeners.TryAdd(address, tcpClientListener);
-                }
-            }
-        }
 
-        private void ListenerWorker()
-        {
-            while(!cts.IsCancellationRequested) {
-                ProcessClientListener();
-            }
-        }
-
-        private void ProcessClientListener()
-        {
-            TcpClientListener tcpClientListener;
-            if(listenersQueue.TryTake(out tcpClientListener)) {
-                try {
-                    if(tcpClientListener.IsConnected) {
-                        byte[] buffer = new byte[bufferSize];
-                        if(tcpClientListener.Read(buffer, buffer.Length)) {
-                            PackageReceived(tcpClientListener.IPEndPoint, buffer);
-                        }
-                        IPAddress ipAddress = tcpClientListener.IPEndPoint.Address;
-                        if(clientListeners.ContainsKey(ipAddress) && clientListeners[ipAddress] == null) {
-                            clientListeners[ipAddress] = tcpClientListener;
-                        }
+                    if(clientConnection.ReadAvailable && !clientConnection.ReadingInProgress) {
+                        Task.Run(() => {
+                            byte[] buffer = new byte[bufferSize];
+                            if(clientConnection.Read(buffer, buffer.Length)) {
+                                PackageReceived(clientConnection.IPEndPoint, buffer);
+                            }
+                        });
                     }
                 }
-                finally {
-                    if(tcpClientListener.IsConnected) {
-                        listenersQueue.Add(tcpClientListener);
-                    } else {
-                        Console.WriteLine($"Удаляем из очереди {tcpClientListener.IPEndPoint}");
-                    }
-                }                
             }
         }
 
-        private void NewConnection(Socket socket)
+        private void OpenNewConnection(Socket socket)
         {
-            Console.WriteLine("New connected client!");
-            if(socket == null) {
-                return;
-            }
-            if(!socket.Connected) {
-                socket.Close();
-                return;
-            }
+            IPAddress clientAddress;
+            TcpClientListener clientListener = null;
 
-            var removeEndPoint = socket.RemoteEndPoint as IPEndPoint;
-            if(removeEndPoint == null) {
-                socket.Close();
-                return;
-            }
-            
-            TcpClientListener clientListener;
-
-            if(clientListeners.ContainsKey(removeEndPoint.Address)) {
-                clientListener = clientListeners[removeEndPoint.Address];
-                if(clientListener != null) {
-                    clientListener.Close();
+            try {
+                var clientEndPoint = socket.RemoteEndPoint as IPEndPoint;
+                if(clientEndPoint == null) {
+                    socket.Close();
+                    return;
                 }
+                clientAddress = clientEndPoint.Address;
+            }
+            catch(Exception ex) {
+                logger.Error(ex, "Ошибка при создании нового подключения клиента");
+                return;
             }
 
             clientListener = new TcpClientListener(socket);
-            clientListener.OnDisconnected += (sender, e) => {
-                if(clientListeners.ContainsKey(removeEndPoint.Address)) {
-                    clientListeners[removeEndPoint.Address] = null;
-                }
-            };
-            
             clientListener.Init();
-            Task.Run(() =>
-            {
+
+            Task clientConnectionTask = new Task(() => {
                 //1 sec
                 int timeout = 10000000;
                 var startTime = DateTime.Now.Ticks;
                 while(!clientListener.IsConnected) {
                     if((DateTime.Now.Ticks - startTime) > timeout) {
-                        logger.Warn($"Превышен интервал ожидания успешного соединения с клиентом при первичном подключении ({clientListener.IPEndPoint})");
-                        return;
+                        string message = $"Превышен интервал ожидания успешного соединения с клиентом при первичном подключении ({clientListener.IPEndPoint})";
+                        logger.Warn(message);
+                        throw new OperationCanceledException(message);
                     }
                     Thread.Sleep(10);
                 }
-                listenersQueue.Add(clientListener);
             });
+
+            //При успешном подключении
+            clientConnectionTask.ContinueWith((baseTask) => {
+                try {
+                    activeConnections.TryAdd(clientAddress, clientListener);
+                }
+                catch(Exception ex) {
+                    logger.Error(ex, "Ошибка при добавлении клиента в список ожидающих активации");
+                    return;
+                }
+                OnClientConnected(clientListener);
+                clientListener.OnDisconnected += (sender, e) => {
+                    OnClientDisconnected(clientListener);
+                };
+            }, TaskContinuationOptions.OnlyOnRanToCompletion);
+
+            //Если превышен интервал при подключении
+            clientConnectionTask.ContinueWith((baseTask) => {
+                clientListener.Close();
+            }, TaskContinuationOptions.NotOnRanToCompletion);
+
+            clientConnectionTask.Start();
+        }
+
+        protected virtual void OnClientConnected(TcpClientListener clientListener)
+        {            
+        }
+
+        protected virtual void OnClientDisconnected(TcpClientListener clientListener)
+        {
+            if(clientListener == null) {
+                return;
+            }
+            activeConnections.TryRemove(clientListener.IPEndPoint.Address, out TcpClientListener value);
         }
 
         public void Start()
@@ -162,10 +136,8 @@ namespace TCPCommunicationService
                 return;
             }
 
-            cts = new CancellationTokenSource();
-            for(int i = 0; i < workersCount; i++) {
-                Task.Run(() => ListenerWorker(), cts.Token);
-            }
+            cancelationTokenSource = new CancellationTokenSource();
+            Task.Run(() => ReadingWorker(), cancelationTokenSource.Token);
 
             Task.Run(async () =>
             {
@@ -173,9 +145,9 @@ namespace TCPCommunicationService
                 try {
                     tcpListener = new TcpListener(localIpEndPoint);
                     tcpListener.Start();
-                    while(!cts.IsCancellationRequested) {
+                    while(!cancelationTokenSource.IsCancellationRequested) {
                         Socket clientSocket = await tcpListener.AcceptSocketAsync();
-                        NewConnection(clientSocket);
+                        OpenNewConnection(clientSocket);
                     }
                 }
                 catch(SocketException e) {
@@ -184,7 +156,7 @@ namespace TCPCommunicationService
                 finally {
                     tcpListener.Stop();
                 }
-            }, cts.Token);
+            }, cancelationTokenSource.Token);
 
             IsActive = true;
         }
@@ -197,7 +169,7 @@ namespace TCPCommunicationService
                     return;
                 }
                 
-                cts.Cancel();
+                cancelationTokenSource.Cancel();
                 IsActive = false;
                 logger.Info("Сервис остановлен");
 
@@ -208,33 +180,32 @@ namespace TCPCommunicationService
             }
         }
 
-        public void Send(IPAddress address, byte[] buffer)
+        public void Send(IPAddress address, byte[] data)
         {
             if(!IsActive) {
                 return;
             }
-            if(!clientListeners.ContainsKey(address)) {
+            if(!activeConnections.ContainsKey(address)) {
                 return;
             }
-
-            var listener = clientListeners[address];
+            var listener = activeConnections[address];
             if(listener == null) {
                 return;
             }
-            listener.Write(buffer, buffer.Length);
+            listener.Write(data);
         }
 
-        public void SendToAll(byte[] buffer)
+        public void SendToAll(byte[] data)
         {
             if(!IsActive) {
                 return;
             }
-            var listeners = clientListeners.Values.ToList();
-            foreach(var item in listeners) {
-                if(item == null) {
+            var connections = activeConnections.Values.ToList();
+            foreach(var connection in connections) {
+                if(connection == null) {
                     continue;
                 }
-                Task.Run(() => { item.Write(buffer, buffer.Length); });                
+                Task.Run(() => { connection.Write(data); });                
             }
         }
 
@@ -243,12 +214,10 @@ namespace TCPCommunicationService
             OnReceivePackage?.Invoke(ipEndPoint, buffer);
         }
 
-        public event ReceivePackageEventHandler OnReceivePackage;
-
         public void Dispose()
         {
-            cts.Cancel();
-            foreach(var cl in clientListeners) {
+            cancelationTokenSource.Cancel();
+            foreach(var cl in activeConnections) {
                 if(cl.Value != null) {
                     cl.Value.Close();
                 }

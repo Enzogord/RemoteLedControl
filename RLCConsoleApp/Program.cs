@@ -3,6 +3,7 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Core;
+using Core.ClientConnectionService;
 using Core.Messages;
 using RLCCore;
 using RLCCore.RemoteOperations;
@@ -38,7 +39,7 @@ namespace RLCConsoleApp
 
 
 
-            TestOperator testOperator = new TestOperator();
+            //TestOperator testOperator = new TestOperator();
 
             /*Task.Run(() =>
             {
@@ -49,7 +50,7 @@ namespace RLCConsoleApp
             });*/
             //rlcOperator.
 
-            while(true) {
+            /*while(true) {
                 string cmd = Console.ReadLine();
                 if(cmd == "play") {
                     testOperator.SendPlay();
@@ -63,17 +64,17 @@ namespace RLCConsoleApp
                     testOperator.SendPause();
                     continue;
                 }
-            }
+            }*/
         }
 
         
     }
     
-    public class TestOperator
+    /*public class TestOperator
     {
         UDPService<RLCMessage> udpService;
         RLCProjectController controller;
-        RemoteClientConnector clientsConnector;
+        RemoteClientConnectionService clientConnectionService;
         RemoteClientsOperator rlcOperator;
         SntpService sntpService;
 
@@ -84,9 +85,9 @@ namespace RLCConsoleApp
             sntpService = new SntpService(11011);
             sntpService.InterfaceAddress = controller.NetworkController.GetServerIPAddress();
             sntpService.Start();
-            //controller.CurrentProject.AddClient(new RemoteClient("Test1", 1) { IPAddress = IPAddress.Parse("192.168.1.166") });
-            clientsConnector = new RemoteClientConnector(controller.NetworkController.GetServerIPAddress(), 11010, controller.CurrentProject.Clients, 200);
-            rlcOperator = new RemoteClientsOperator(controller.CurrentProject, controller.NetworkController, clientsConnector);
+            ConnectorMessageService connectorMessageService = new ConnectorMessageService()
+            clientConnectionService = new RemoteClientConnectionService(controller.NetworkController.GetServerIPAddress(), 11010, controller.CurrentProject.Clients, 200);
+            rlcOperator = new RemoteClientsOperator(controller.CurrentProject, controller.NetworkController, clientConnectionService);
             udpService = new UDPService<RLCMessage>(IPAddress.Any, controller.NetworkController.Port);
             udpService.OnReceiveMessage += UdpService_OnReceiveMessage;
             udpService.StartReceiving();
@@ -117,5 +118,5 @@ namespace RLCConsoleApp
                 udpService.Send(RLCMessageFactory.SendServerIP(controller.CurrentProject.Key, controller.NetworkController.GetServerIPAddress()), endPoint.Address, controller.NetworkController.Port);
             }
         }
-    }
+    }*/
 }

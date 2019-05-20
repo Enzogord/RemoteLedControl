@@ -1,16 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Windows.Input;
+﻿using System.Linq;
 using Autofac;
 using RLCCore;
 using RLCCore.RemoteOperations;
 using RLCServerApplication.Infrastructure;
-using RLCServerApplication.Services;
-using Service;
 
 namespace RLCServerApplication.ViewModels
 {
@@ -54,7 +46,6 @@ namespace RLCServerApplication.ViewModels
             PlayCommand = new RelayCommand(() =>
             {
                 projectController.RemoteClientsOperator.Play();
-
             },
             () =>
             {

@@ -1,20 +1,18 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Text;
-using System.Threading.Tasks;
+using Core.ClientConnectionService;
 using Core.Messages;
+using Core.RemoteOperations;
 using TCPCommunicationService;
 
 namespace Core
 {
-    public interface IRemoteClientConnector
+    public interface IRemoteClientConnectionService
     {
         bool IsActive { get; }
-        void Send(IPAddress address, RLCMessage message);
+        void Send(INumeredClient client, RLCMessage message);
         void SendToAll(RLCMessage message);
-        event ReceiveMessageEventHandler<RLCMessage> OnReceiveMessage;
+        event EventHandler<ClientMessageEventArgs> OnReceiveMessage;
         void Start();
         void Stop();
     }

@@ -1,18 +1,12 @@
 ﻿using Core;
+using Core.ClientConnectionService;
 using Core.Messages;
 using NLog;
 using RLCCore.RemoteOperations;
 using Service;
 using SNTPService;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Net;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using TCPCommunicationService;
 using UDPCommunication;
 
 namespace RLCCore
@@ -45,8 +39,8 @@ namespace RLCCore
             set => SetField(ref servicesIsReady, value, () => ServicesIsReady);
         }
 
-        private RemoteClientConnector remoteClientConnector;
-        public RemoteClientConnector RemoteClientConnector {
+        private RemoteClientConnectionService remoteClientConnector;
+        public RemoteClientConnectionService RemoteClientConnector {
             get => remoteClientConnector;
             set => SetField(ref remoteClientConnector, value, () => RemoteClientConnector);
         }
@@ -92,7 +86,8 @@ namespace RLCCore
                 };
             }
             if(RemoteClientConnector == null) {
-                RemoteClientConnector = new RemoteClientConnector(NetworkController.GetServerIPAddress(), rlcPort, CurrentProject.Clients, 200);
+                IConnectorMessageService connectorMessageService = new ConnectorMessageService(CurrentProject.Key, CurrentProject.Clients);
+                RemoteClientConnector = new RemoteClientConnectionService(NetworkController.GetServerIPAddress(), rlcPort, connectorMessageService, 200);
             }
             if(RemoteClientsOperator == null) {
                 RemoteClientsOperator = new RemoteClientsOperator(CurrentProject, NetworkController, RemoteClientConnector);

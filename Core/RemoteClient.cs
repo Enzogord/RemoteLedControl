@@ -1,4 +1,5 @@
-﻿using Core.Messages;
+﻿using Core.ClientConnectionService;
+using Core.Messages;
 using Service;
 using System;
 using System.Collections.Generic;
@@ -11,7 +12,7 @@ using TCPCommunicationService;
 namespace RLCCore
 {
     [DataContract]
-    public class RemoteClient : NotifyPropertyBase, ISettingsProvider, IRemoteClient
+    public class RemoteClient : NotifyPropertyBase, ISettingsProvider, INumeredClient, IConnectableClient
     {
         private string name;
         [DataMember]
@@ -27,13 +28,13 @@ namespace RLCCore
             set => SetField(ref number, value, () => Number);
         }
 
-        private bool isOnline;
+        private bool connected;
         [DataMember]
-        public bool IsOnline {
-            get => isOnline;
-            private set {
-                SetField(ref isOnline, value, () => IsOnline);
-                if(isOnline) {
+        public bool Connected {
+            get => connected;
+            set {
+                SetField(ref connected, value, () => Connected);
+                if(connected) {
                     LastUpdateTime = DateTime.Now;
                 }
             }
@@ -55,11 +56,7 @@ namespace RLCCore
         private IPAddress ipAddress;
         public IPAddress IPAddress {
             get => ipAddress;
-            set {
-                if(SetField(ref ipAddress, value, () => IPAddress)) {
-                    OnBeforeAddressUpdated?.Invoke(this, value);
-                };
-            }
+            set => SetField(ref ipAddress, value, () => IPAddress);
         }
 
         public bool WaitPlayingStatus { get; set; }    
@@ -71,20 +68,23 @@ namespace RLCCore
             set => SetField(ref cyclogramm, value, () => Cyclogramm);
         }
 
-        private ClientState clientState;
-
-        public event RemoteClientBeforeAddressUpdated OnBeforeAddressUpdated;
-
+        private ClientState clientState;        
         public ClientState ClientState {
             get => clientState;
             set => SetField(ref clientState, value, () => ClientState);
+        }
+
+        private IClientConnection connection;
+        public IClientConnection Connection {
+            get => connection;
+            set => SetField(ref connection, value, () => Connection);
         }
 
         #region Calculated properties
 
         public int LEDCount => Pins.Sum(x => x.LEDCount);
 
-        public string StatusString => isOnline ? "Онлайн" : "Оффлайн";
+        public string StatusString => connected ? "Онлайн" : "Оффлайн";
 
         #endregion
 
@@ -101,8 +101,9 @@ namespace RLCCore
             Pins = new ObservableCollection<Pin>();
             Name = name;
             Number = number;
-            IsOnline = false;
+            Connected = false;
             LastUpdateTime = DateTime.Now;
+            Connection = new DefaultClientConnection();
         }
 
         #region ISettingsProvider implementation
@@ -152,7 +153,21 @@ namespace RLCCore
         
         public void UpdateStatus(bool isOnline)
         {
-            IsOnline = isOnline;
+            Connected = isOnline;
+        }
+
+        public override int GetHashCode()
+        {
+            return Number.GetHashCode();
+        }
+
+        public override bool Equals(object obj)
+        {
+            RemoteClient comparedClient = obj as RemoteClient;
+            if(comparedClient == null) {
+                return false;
+            }
+            return Number == comparedClient.Number;
         }
     }
 

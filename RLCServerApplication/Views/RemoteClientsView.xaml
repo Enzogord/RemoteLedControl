@@ -61,7 +61,7 @@
                             Grid.Column="2"
                             Margin="0"
                             Padding="4, 0"
-                            Text="{Binding IsOnline}" TextAlignment="Left"
+                            Text="{Binding Connected}" TextAlignment="Left"
                             />
                     </Grid>
                     <!--old template-->

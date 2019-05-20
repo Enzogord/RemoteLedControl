@@ -52,6 +52,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ClientConnectionService\ClientIdentifiedEventArgs.cs" />
+    <Compile Include="ClientConnectionService\ClientMessageEventArgs.cs" />
+    <Compile Include="ClientConnectionService\DefaultClientConnection.cs" />
+    <Compile Include="ClientConnectionService\IClientConnection.cs" />
+    <Compile Include="ClientConnectionService\IConnectableClient.cs" />
+    <Compile Include="ClientConnectionService\IConnectorMessageService.cs" />
+    <Compile Include="ClientConnectionService\INumeredClient.cs" />
+    <Compile Include="ClientConnectionService\IRemoteClientIdentificator.cs" />
+    <Compile Include="ClientConnectionService\RemoteClientConnection.cs" />
+    <Compile Include="ClientConnectionService\RemoteClientConnector.cs" />
+    <Compile Include="ClientConnectionService\RemoteClientIdentificator.cs" />
+    <Compile Include="ClientConnectionService\ConnectorMessageService.cs" />
     <Compile Include="IPerformanceTimeProvider.cs" />
     <Compile Include="IPin.cs" />
     <Compile Include="IRemoteClient.cs" />
@@ -70,9 +82,10 @@
     <Compile Include="NetworkAddressSetting.cs" />
     <Compile Include="NetworkController.cs" />
     <Compile Include="Pin.cs" />
-    <Compile Include="RemoteClientConnector.cs" />
+    <Compile Include="ClientConnectionService\RemoteClientConnectionService.cs" />
     <Compile Include="RemoteControlProject.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RemoteOperations\ClientEventArgs.cs" />
     <Compile Include="RemoteOperations\IClientsOperatorStateInformer.cs" />
     <Compile Include="RemoteOperations\IControlUnit.cs" />
     <Compile Include="StartTimeProvider.cs" />
