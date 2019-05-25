@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
-using System.Linq;
-using System.Threading.Tasks;
 using System.Windows;
+using NLog;
 using RLCServerApplication.ViewModels;
 using RLCServerApplication.Views;
 
@@ -15,6 +11,8 @@ namespace RLCServerApplication
     /// </summary>
     public partial class App : Application
     {
+        private static Logger logger = LogManager.GetCurrentClassLogger();
+
         MainWindowViewModel mainWindowViewModel;
 
         private void InitMainViewModel()

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
@@ -11,6 +12,7 @@ namespace TCPCommunicationService
     {
         Logger logger = LogManager.GetCurrentClassLogger();
 
+        public Guid Id { get; private set; }
         private CancellationTokenSource cts = new CancellationTokenSource();
         private readonly Socket socket;
         private NetworkStream networkStream;
@@ -24,7 +26,12 @@ namespace TCPCommunicationService
                 if(networkStream == null) {
                     return false;
                 }
-                return networkStream.DataAvailable;
+                try {
+                    return networkStream.DataAvailable;
+                }
+                catch(Exception) {
+                    return false;
+                }                
             }
         }
 
@@ -45,11 +52,13 @@ namespace TCPCommunicationService
 
         public TcpClientListener(Socket socket)
         {
-            this.socket = socket;            
+            this.socket = socket;
+            Id = Guid.NewGuid();
         }
 
         private void Connected()
         {
+            logger.Debug("Client connected");
             wasConnected = true;
             OnConnected?.Invoke(this, EventArgs.Empty);
         }
@@ -99,9 +108,18 @@ namespace TCPCommunicationService
             }
         }
 
+        private bool Available()
+        {
+            if(wasConnected && !IsConnected) {
+                OnDisconnected?.Invoke(this, EventArgs.Empty);
+                return false;
+            }
+            return true;
+        }
+
         public bool Read(byte[] buffer, int length)
         {
-            if(networkStream == null) {
+            if(!Available() || networkStream == null) {
                 return false;
             }
             ReadingInProgress = true;
@@ -124,7 +142,7 @@ namespace TCPCommunicationService
 
         public void Write(byte[] data)
         {
-            if(networkStream == null) {
+            if(!Available() || networkStream == null) {
                 return;
             }
             try {
@@ -144,27 +162,24 @@ namespace TCPCommunicationService
         {
             cts.Cancel();
             if(networkStream != null) {
-                networkStream.Dispose();
+                networkStream.Close();
             }
             if(socket != null) {
-                socket.Dispose();
+                socket.Close();
             }
             OnDisconnected?.Invoke(this, EventArgs.Empty);
         }
 
         public override bool Equals(object obj)
         {
-            TcpClientListener compareObj = obj as TcpClientListener;
-            if(compareObj == null) {
-                return false;
-            }
-            return socket.Equals(compareObj.socket);
-
+            var listener = obj as TcpClientListener;
+            return listener != null &&
+                   Id.Equals(listener.Id);
         }
 
         public override int GetHashCode()
         {
-            return socket.GetHashCode();
+            return 2108858624 + EqualityComparer<Guid>.Default.GetHashCode(Id);
         }
     }
 }

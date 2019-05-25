@@ -31,6 +31,7 @@ namespace Core.ClientConnectionService
             clientConnectors = new Dictionary<INumeredClient, RemoteClientConnector>();
             clientsIdentificator = new RemoteClientIdentificator(this.connectorMessageService);
             clientsIdentificator.OnClientIdentify += ClientsIdentificator_OnClientIdentify;
+            logger.Debug("RemoteClientConnectionService started");
         }
 
         public void Send(INumeredClient client, RLCMessage message)
@@ -77,9 +78,12 @@ namespace Core.ClientConnectionService
                 return;
             }
             RemoteClientConnector connector = new RemoteClientConnector(listener);
-            clientConnectors.Add(client, connector);
+            if(!clientConnectors.ContainsKey(client)) {
+                clientConnectors.Add(client, connector);
+            }
             connector.OnDisconnected += (sender, e) => {
                 if(clientConnectors.ContainsKey(client)) {
+                    logger.Debug("Disconnect RemoteClientConnector");
                     clientConnectors.Remove(client);
                 }
             };

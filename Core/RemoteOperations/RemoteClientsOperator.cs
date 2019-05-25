@@ -94,7 +94,7 @@ namespace RLCCore.RemoteOperations
                 logger.Warn($"Оператор клиентов уже остановлен");
                 return;
             }
-            if(clientConnectionService.IsActive) {
+            if(!clientConnectionService.IsActive) {
                 logger.Warn($"TCP служба не запущена");
                 return;
             }
