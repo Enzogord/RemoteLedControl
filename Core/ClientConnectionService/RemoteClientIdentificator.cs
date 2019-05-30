@@ -73,5 +73,10 @@ namespace Core.ClientConnectionService
         public event EventHandler<ClientIdentifiedEventArgs> OnClientIdentify;
 
         #endregion IRemoteClientIdentificator
+
+        public void Clear()
+        {
+            unidentifiedClients.Clear();
+        }
     }
 }

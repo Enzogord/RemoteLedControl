@@ -9,7 +9,7 @@ using TCPCommunicationService;
 
 namespace Core.ClientConnectionService
 {
-    public class RemoteClientConnectionService : TCPService, IRemoteClientConnectionService
+    public class RemoteClientConnectionService : TCPService, IRemoteClientConnectionService, IRemoteClientCommunication
     {
         Logger logger = LogManager.GetCurrentClassLogger();
 
@@ -77,6 +77,15 @@ namespace Core.ClientConnectionService
             if(client == null || listener == null) {
                 return;
             }
+
+            EventHandler<DataEventArgs> OnReceiveData = (sender, e) => {
+                RLCMessage message = ParseMessage(e.Data);
+                if(message == null) {
+                    return;
+                }
+                OnReceiveMessage?.Invoke(this, new ClientMessageEventArgs(client, message));
+            };
+
             RemoteClientConnector connector = new RemoteClientConnector(listener);
             if(!clientConnectors.ContainsKey(client)) {
                 clientConnectors.Add(client, connector);
@@ -91,13 +100,13 @@ namespace Core.ClientConnectionService
             if(connectableClient != null) {
                 connectableClient.Connection = new RemoteClientConnection(connector);
             }
-            listener.OnReceiveData += (sender, e) => {
-                RLCMessage message = ParseMessage(e.Data);
-                if(message == null) {
-                    return;
-                }
-                OnReceiveMessage?.Invoke(this, new ClientMessageEventArgs(client, message));
-            };
+        }
+
+        public override void Dispose()
+        {
+            clientsIdentificator.Clear();
+            clientConnectors.Clear();
+            base.Dispose();
         }
     }
 }

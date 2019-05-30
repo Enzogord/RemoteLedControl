@@ -96,8 +96,8 @@ namespace RLCServerApplication.ViewModels
             StopServicesCommand = new RelayCommand(
             () =>
             {
-                projectController.StopServices();
                 projectController.RemoteClientsOperator.StateChanged -= RemoteClientsOperator_StateChanged;
+                projectController.StopServices();
                 UpdatePlayerCommands();
             },
             () => projectController.ServicesIsReady

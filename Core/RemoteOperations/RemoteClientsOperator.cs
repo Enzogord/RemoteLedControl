@@ -16,7 +16,7 @@ namespace RLCCore.RemoteOperations
 
         private readonly IControlUnit controlUnit;
         private readonly INetworkSettingProvider networkSettingProvider;
-        private readonly IRemoteClientConnectionService clientConnectionService;
+        private readonly IRemoteClientCommunication remoteClientCommunication;
 
         public event EventHandler<OperatorStateEventArgs> StateChanged;
 
@@ -30,14 +30,21 @@ namespace RLCCore.RemoteOperations
             }
         }
         
-        public RemoteClientsOperator(IControlUnit controlUnit, INetworkSettingProvider networkSettingProvider, IRemoteClientConnectionService remoteClientConnector)
+        public RemoteClientsOperator(IControlUnit controlUnit, INetworkSettingProvider networkSettingProvider, IRemoteClientCommunication remoteClientCommunication)
         {
             this.controlUnit = controlUnit;
             this.networkSettingProvider = networkSettingProvider;
-            this.clientConnectionService = remoteClientConnector;
-            State = OperatorStates.Configure;
+            this.remoteClientCommunication = remoteClientCommunication;
+            remoteClientCommunication.OnReceiveMessage -= RemoteClientCommunication_OnReceiveMessage;
+            remoteClientCommunication.OnReceiveMessage += RemoteClientCommunication_OnReceiveMessage;
+            State = OperatorStates.Ready;
         }
-        
+
+        private void RemoteClientCommunication_OnReceiveMessage(object sender, ClientMessageEventArgs e)
+        {
+            ProcessMessage(e.Client, e.Message);
+        }
+
         private void ProcessMessage(INumeredClient client, RLCMessage message)
         {
             if(message.SourceType != SourceType.Client) {
@@ -75,45 +82,47 @@ namespace RLCCore.RemoteOperations
 
         #endregion
 
-        public void StartService()
-        {
-            if(State != OperatorStates.Configure) {
-                logger.Warn($"Старт оператора клиентов возможен только из статуса {OperatorStates.Configure}");
-                return;
-            }
+        //public void StartService()
+        //{
+        //    if(State != OperatorStates.Configure) {
+        //        logger.Warn($"Старт оператора клиентов возможен только из статуса {OperatorStates.Configure}");
+        //        return;
+        //    }
 
-            clientConnectionService.OnReceiveMessage -= TcpService_OnReceivePackage;
-            clientConnectionService.OnReceiveMessage += TcpService_OnReceivePackage;
-            clientConnectionService.Start();
-            State = OperatorStates.Ready;
-        }
+        //    remoteClientCommunication.OnReceiveMessage -= TcpService_OnReceivePackage;
+        //    remoteClientCommunication.OnReceiveMessage += TcpService_OnReceivePackage;
+        //    clientConnectionService.Start();
+        //    State = OperatorStates.Ready;
+        //}
 
-        public void StopService()
-        {
-            if(State == OperatorStates.Configure) {
-                logger.Warn($"Оператор клиентов уже остановлен");
-                return;
-            }
-            if(!clientConnectionService.IsActive) {
-                logger.Warn($"TCP служба не запущена");
-                return;
-            }
-            clientConnectionService.Stop();
-            clientConnectionService.OnReceiveMessage -= TcpService_OnReceivePackage;
-            State = OperatorStates.Configure;
-        }
-
-        private void TcpService_OnReceivePackage(object sender, ClientMessageEventArgs e)
-        {
-            ProcessMessage(e.Client, e.Message);
-        }
+        //public void StopService()
+        //{
+        //    /*if(State == OperatorStates.Configure) {
+        //        logger.Warn($"Оператор клиентов уже остановлен");
+        //        return;
+        //    }
+        //    if(!clientConnectionService.IsActive) {
+        //        logger.Warn($"TCP служба не запущена");
+        //        return;
+        //    }*/
+        //    try {
+        //        clientConnectionService.Stop();
+        //    }
+        //    catch(Exception ex) {
+        //        logger.Error(ex, "Ошибка при попытке остановить сервис соединений с клиентами");
+        //    }
+        //    finally {
+        //        clientConnectionService.OnReceiveMessage -= TcpService_OnReceivePackage;
+        //        State = OperatorStates.Configure;
+        //    }
+        //}
 
         public void Play()
         {
             var stateBackup = State;
             try {
                 var message = RLCMessageFactory.Play(controlUnit.Key);
-                clientConnectionService.SendToAll(message);
+                remoteClientCommunication.SendToAll(message);
                 State = OperatorStates.Play;
             }
             catch(Exception ex) {
@@ -129,7 +138,7 @@ namespace RLCCore.RemoteOperations
             var stateBackup = State;
             try {
                 var message = RLCMessageFactory.Stop(controlUnit.Key);
-                clientConnectionService.SendToAll(message);
+                remoteClientCommunication.SendToAll(message);
                 State = OperatorStates.Stop;
             }
             catch(Exception ex) {
@@ -145,7 +154,7 @@ namespace RLCCore.RemoteOperations
             var stateBackup = State;
             try {
                 var message = RLCMessageFactory.Pause(controlUnit.Key);
-                clientConnectionService.SendToAll(message);
+                remoteClientCommunication.SendToAll(message);
                 State = OperatorStates.Pause;
             }
             catch(Exception ex) {

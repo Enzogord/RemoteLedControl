@@ -18,7 +18,6 @@ namespace TCPCommunicationService
 
         private CancellationTokenSource cancelationTokenSource;
         private ConcurrentDictionary<TcpClientListener, int> activeConnections;
-        //private ConcurrentDictionary<IPAddress, TcpClientListener> activeConnections;
 
         private readonly IPEndPoint localIpEndPoint;
         private readonly int bufferSize;
@@ -33,7 +32,6 @@ namespace TCPCommunicationService
             this.localIpEndPoint = localIpEndPoint ?? throw new ArgumentNullException(nameof(localIpEndPoint));
 
             cancelationTokenSource = new CancellationTokenSource();
-            //activeConnections = new ConcurrentDictionary<IPAddress, TcpClientListener>();
             activeConnections = new ConcurrentDictionary<TcpClientListener, int>();
 
             this.bufferSize = bufferSize;
@@ -45,16 +43,13 @@ namespace TCPCommunicationService
             while(!cancelationTokenSource.IsCancellationRequested) {
                 foreach(var clientConnection in activeConnections.Keys) {
                     if(!clientConnection.IsConnected) {
-                        /*IPAddress address = clientConnection?.IPEndPoint?.Address;
-                        if(address == null) {
-                            continue;
-                        }*/
                         activeConnections.TryRemove(clientConnection, out int value);
                         continue;
                     }
 
                     if(clientConnection.ReadAvailable && !clientConnection.ReadingInProgress) {
-                        Task.Run(() => {
+                        Task.Run(() =>
+                        {
                             byte[] buffer = new byte[bufferSize];
                             if(clientConnection.Read(buffer, buffer.Length)) {
                                 PackageReceived(clientConnection.IPEndPoint, buffer);
@@ -68,7 +63,6 @@ namespace TCPCommunicationService
         private void OpenNewConnection(Socket socket)
         {
             logger.Debug("Open new client connection");
-            //IPAddress clientAddress;
             TcpClientListener clientListener = null;
 
             try {
@@ -77,7 +71,6 @@ namespace TCPCommunicationService
                     socket.Close();
                     return;
                 }
-                //clientAddress = clientEndPoint.Address;
             }
             catch(Exception ex) {
                 logger.Error(ex, "Ошибка при создании нового подключения клиента");
@@ -88,7 +81,8 @@ namespace TCPCommunicationService
             logger.Debug("Init client connection");
             clientListener.Init();
 
-            Task clientConnectionTask = new Task(() => {
+            Task clientConnectionTask = new Task(() =>
+            {
                 //1 sec
                 logger.Debug("Start client connection Task");
                 int timeout = 10000000;
@@ -105,7 +99,8 @@ namespace TCPCommunicationService
             });
 
             //При успешном подключении
-            clientConnectionTask.ContinueWith((baseTask) => {
+            clientConnectionTask.ContinueWith((baseTask) =>
+            {
                 logger.Debug("On Succesfully client connection");
                 try {
                     activeConnections.TryAdd(clientListener, 0);
@@ -118,14 +113,19 @@ namespace TCPCommunicationService
                 OnClientConnected(clientListener);
 
                 logger.Debug("Added to activeConnections dictionary");
-                clientListener.OnDisconnected += (sender, e) => {
-                    logger.Debug("On client disconnected");
-                    OnClientDisconnected(clientListener);
-                };
+                clientListener.OnDisconnected += ClientListener_OnDisconnected;
             }, TaskContinuationOptions.OnlyOnRanToCompletion);
 
+            void ClientListener_OnDisconnected(object sender, EventArgs e)
+            {
+                logger.Debug("On client disconnected");
+                OnClientDisconnected(clientListener);
+                clientListener.OnDisconnected -= ClientListener_OnDisconnected;
+            }
+
             //Если превышен интервал при подключении
-            clientConnectionTask.ContinueWith((baseTask) => {
+            clientConnectionTask.ContinueWith((baseTask) =>
+            {
                 clientListener.Close();
             }, TaskContinuationOptions.NotOnRanToCompletion);
 
@@ -133,16 +133,11 @@ namespace TCPCommunicationService
         }
 
         protected virtual void OnClientConnected(TcpClientListener clientListener)
-        {            
+        {
         }
 
         protected virtual void OnClientDisconnected(TcpClientListener clientListener)
         {
-            /*IPAddress address = clientListener?.IPEndPoint?.Address;
-            if(address == null) {
-                activeConnections.
-                return;
-            }*/
             activeConnections.TryRemove(clientListener, out int value);
             logger.Debug("Disconnected client removed from activeConnections dictionary");
         }
@@ -160,15 +155,35 @@ namespace TCPCommunicationService
             cancelationTokenSource = new CancellationTokenSource();
             Task.Run(() => ReadingWorker());
 
-            ClientAddingEnabled = true;
+            Exception serviceStartException = null;
 
-            Task.Run(async () =>
+            var starterTask = Task.Run(async () =>
             {
+                int attemptsCounter = 1;
                 TcpListener tcpListener = null;
-                try {
-                    tcpListener = new TcpListener(localIpEndPoint);
-                    tcpListener.Start();
-                    while(ClientAddingEnabled && !cancelationTokenSource.IsCancellationRequested) {
+                ClientAddingEnabled = true;
+                try{
+                    CancellationTokenSource timingCancelationTokenSource = new CancellationTokenSource(5000);
+                    await Task.Run(() => {
+                        while (!IsActive && ClientAddingEnabled && !cancelationTokenSource.IsCancellationRequested && !timingCancelationTokenSource.IsCancellationRequested) {
+                            try {
+                                tcpListener = new TcpListener(localIpEndPoint);
+                                tcpListener.Start();
+                                IsActive = true;
+                            }
+                            catch(SocketException e) {
+                                logger.Error(e, $"SocketException on start tcp service. Attempt number: {attemptsCounter}.");
+                                attemptsCounter++;
+                                if(attemptsCounter > 5) {
+                                    serviceStartException = e;
+                                    break;
+                                }
+                                Thread.Sleep(500);
+                            }
+                        }
+                    }, timingCancelationTokenSource.Token);
+                    
+                    while(IsActive && ClientAddingEnabled && !cancelationTokenSource.IsCancellationRequested) {
                         Socket clientSocket = await tcpListener.AcceptSocketAsync();
                         if(ClientAddingEnabled) {
                             OpenNewConnection(clientSocket);
@@ -177,15 +192,21 @@ namespace TCPCommunicationService
                         }
                     }
                 }
-                catch(SocketException e) {
-                    logger.Warn(e, "SocketException: {0}");
-                }
-                finally {
-                    tcpListener.Stop();
-                }
+                finally{
+                    try{
+                        tcpListener.Stop();
+                    }
+                    catch(Exception ex){
+                        logger.Error(ex, "Исключение при остановке TCP сервиса");
+                    }
+                }                
             });
 
-            IsActive = true;
+            while(!IsActive) {
+                if(serviceStartException != null) {
+                    throw serviceStartException;
+                }
+            }
         }
 
         public void Stop()
@@ -218,7 +239,7 @@ namespace TCPCommunicationService
                 if(connection == null) {
                     continue;
                 }
-                Task.Run(() => { connection.Write(data); });                
+                Task.Run(() => { connection.Write(data); });
             }
         }
 
@@ -227,13 +248,14 @@ namespace TCPCommunicationService
             OnReceivePackage?.Invoke(ipEndPoint, buffer);
         }
 
-        public void Dispose()
+        public virtual void Dispose()
         {
             ClientAddingEnabled = false;
             cancelationTokenSource.Cancel();
             foreach(var cl in activeConnections.Keys) {
                 cl.Close();
             }
+            activeConnections.Clear();
         }
     }
 }

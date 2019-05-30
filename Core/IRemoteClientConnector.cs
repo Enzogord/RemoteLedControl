@@ -16,4 +16,11 @@ namespace Core
         void Start();
         void Stop();
     }
+
+    public interface IRemoteClientCommunication
+    {
+        void Send(INumeredClient client, RLCMessage message);
+        void SendToAll(RLCMessage message);
+        event EventHandler<ClientMessageEventArgs> OnReceiveMessage;
+    }
 }

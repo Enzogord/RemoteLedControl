@@ -25,6 +25,9 @@ namespace Core.ClientConnectionService
 
         private void Connector_OnDisconnected(object sender, EventArgs e)
         {
+            if(connector == null) {
+                return;
+            }
             connector.OnDisconnected -= Connector_OnDisconnected;
             connector = null;
             OnChanged?.Invoke(this, EventArgs.Empty);

@@ -1,5 +1,4 @@
-﻿using Core;
-using Core.ClientConnectionService;
+﻿using Core.ClientConnectionService;
 using Core.Messages;
 using NLog;
 using RLCCore.RemoteOperations;
@@ -27,36 +26,18 @@ namespace RLCCore
             set => SetField(ref currentProject, value, () => CurrentProject);
         }
 
-        private UDPService<RLCMessage> udpService;
-        public UDPService<RLCMessage> UDPService {
-            get => udpService;
-            set => SetField(ref udpService, value, () => UDPService);
-        }
-
         private bool servicesIsReady;
         public bool ServicesIsReady {
             get => servicesIsReady;
             set => SetField(ref servicesIsReady, value, () => ServicesIsReady);
         }
 
-        private RemoteClientConnectionService remoteClientConnector;
-        public RemoteClientConnectionService RemoteClientConnector {
-            get => remoteClientConnector;
-            set => SetField(ref remoteClientConnector, value, () => RemoteClientConnector);
-        }
-
-        private RemoteClientsOperator remoteClientsOperator;
-        public RemoteClientsOperator RemoteClientsOperator {
-            get => remoteClientsOperator;
-            set => SetField(ref remoteClientsOperator, value, () => RemoteClientsOperator);
-        }
-
+        public RemoteClientsOperator RemoteClientsOperator => remoteClientsOperator;
 
         private SntpService sntpService;
-        public SntpService SNTPService {
-            get => sntpService;
-            set => SetField(ref sntpService, value, () => SNTPService);
-        }
+        private UDPService<RLCMessage> udpService;
+        private RemoteClientConnectionService remoteClientConnector;
+        private RemoteClientsOperator remoteClientsOperator;
 
         public RLCProjectController()
         {
@@ -70,51 +51,72 @@ namespace RLCCore
             int rlcPort = 11010;
             int sntpPort = 11011;
 
-            if(SNTPService == null) {
-                SNTPService = new SntpService(sntpPort);
+            //SNTP service
+            if(sntpService != null) {
+                sntpService.Stop();
             }
-            SNTPService.InterfaceAddress = ipAddress;
-
-            if(UDPService == null) {
-                UDPService = new UDPService<RLCMessage>(ipAddress, rlcPort);
-                UDPService.OnReceiveMessage += (sender, endPoint, message) => {
-                    Console.WriteLine($"Receive message: {message.MessageType}");
-                    if(message.MessageType == MessageType.RequestServerIp) {
-                        CurrentProject.UpdateClientIPAddress(message.ClientNumber, endPoint.Address);
-                        udpService.Send(RLCMessageFactory.SendServerIP(CurrentProject.Key, ipAddress), endPoint.Address, rlcPort);
-                    }
-                };
-            }
-            if(RemoteClientConnector == null) {
-                IConnectorMessageService connectorMessageService = new ConnectorMessageService(CurrentProject.Key, CurrentProject.Clients);
-                RemoteClientConnector = new RemoteClientConnectionService(NetworkController.GetServerIPAddress(), rlcPort, connectorMessageService, 200);
-            }
-            if(RemoteClientsOperator == null) {
-                RemoteClientsOperator = new RemoteClientsOperator(CurrentProject, NetworkController, RemoteClientConnector);
-            }
+            sntpService = new SntpService(sntpPort);
+            sntpService.InterfaceAddress = ipAddress;
 
             try {
-                RemoteClientsOperator.StartService();
+                sntpService.Start();
             }
             catch(Exception ex) {
-                logger.Error(ex, "Ошибка при запуске службы управления удаленными клиентами");
-                throw;
-            }
-            try {
-                SNTPService.Start();
-            }
-            catch(Exception ex) {
-                RemoteClientsOperator.Stop();
                 logger.Error(ex, "Ошибка при запуске службы синхронизации времени");
+                sntpService = null;
+                ServicesIsReady = false;
                 throw;
             }
+
+            //UDP service
+            if(udpService != null) {
+                udpService.StopReceiving();                
+            }
+            udpService = new UDPService<RLCMessage>(ipAddress, rlcPort);
+            udpService.OnReceiveMessage += (sender, endPoint, message) => {
+                logger.Debug($"Receive message: {message.MessageType}");
+                if(message.MessageType == MessageType.RequestServerIp) {
+                    CurrentProject.UpdateClientIPAddress(message.ClientNumber, endPoint.Address);
+                    udpService.Send(RLCMessageFactory.SendServerIP(CurrentProject.Key, ipAddress), endPoint.Address, rlcPort);
+                }
+            };
+
             try {
-                UDPService.StartReceiving();
+                udpService.StartReceiving();
             }
             catch(Exception ex) {
-                RemoteClientsOperator.Stop();
-                SNTPService.Stop();
+                sntpService.Stop();
+                sntpService = null;
+                udpService = null;
+                ServicesIsReady = false;
                 logger.Error(ex, "Ошибка при запуске службы UDP сообщений");
+                throw;
+            }
+
+
+            //TCP service
+            if(remoteClientConnector != null) {
+                remoteClientConnector.Stop();
+            }
+            IConnectorMessageService connectorMessageService = new ConnectorMessageService(CurrentProject.Key, CurrentProject.Clients);
+            remoteClientConnector = new RemoteClientConnectionService(NetworkController.GetServerIPAddress(), rlcPort, connectorMessageService, 200);
+
+            //Clients operator
+            remoteClientsOperator = new RemoteClientsOperator(CurrentProject, NetworkController, remoteClientConnector);
+
+            try {
+                remoteClientConnector.Start();
+            }
+            catch(Exception ex) {
+                sntpService.Stop();
+                udpService.StopReceiving();
+                sntpService = null;
+                udpService = null;
+                remoteClientConnector = null;
+                remoteClientsOperator = null;
+                ServicesIsReady = false;
+                logger.Error(ex, "Ошибка при запуске сервиса соединения с удаленными клиентами");
+                //FIXME Вывод сообщения пользователю что слуюбы не смогли запуститься по причине...
                 throw;
             }
 
@@ -123,15 +125,23 @@ namespace RLCCore
 
         public void StopServices()
         {
-            if(SNTPService != null) {
-                SNTPService.Stop();
+            if(sntpService != null) {
+                sntpService.Stop();
             }
-            if(RemoteClientsOperator != null) {
-                RemoteClientsOperator.StopService();
+            
+            if(udpService != null) {
+                udpService.StopReceiving();
             }
-            if(UDPService != null) {
-                UDPService.StopReceiving();
+
+            if(remoteClientConnector != null) {
+                remoteClientConnector.Stop();
             }
+
+            sntpService = null;
+            udpService = null;
+            remoteClientConnector = null;
+            remoteClientsOperator = null;
+
             ServicesIsReady = false;
         }
 
