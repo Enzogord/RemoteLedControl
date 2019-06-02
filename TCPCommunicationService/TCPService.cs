@@ -42,11 +42,6 @@ namespace TCPCommunicationService
         {
             while(!cancelationTokenSource.IsCancellationRequested) {
                 foreach(var clientConnection in activeConnections.Keys) {
-                    if(!clientConnection.IsConnected) {
-                        activeConnections.TryRemove(clientConnection, out int value);
-                        continue;
-                    }
-
                     if(clientConnection.ReadAvailable && !clientConnection.ReadingInProgress) {
                         Task.Run(() =>
                         {
