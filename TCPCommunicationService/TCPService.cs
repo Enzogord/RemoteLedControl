@@ -16,8 +16,10 @@ namespace TCPCommunicationService
     {
         Logger logger = LogManager.GetCurrentClassLogger();
 
+        TcpListener tcpListener = null;
+
         private CancellationTokenSource cancelationTokenSource;
-        private ConcurrentDictionary<TcpClientListener, int> activeConnections;
+        private ConcurrentDictionary<TcpClientListener, bool> activeConnections;
 
         private readonly IPEndPoint localIpEndPoint;
         private readonly int bufferSize;
@@ -32,7 +34,9 @@ namespace TCPCommunicationService
             this.localIpEndPoint = localIpEndPoint ?? throw new ArgumentNullException(nameof(localIpEndPoint));
 
             cancelationTokenSource = new CancellationTokenSource();
-            activeConnections = new ConcurrentDictionary<TcpClientListener, int>();
+
+            //если value true значит в данный момент с этого клиента считываются данные
+            activeConnections = new ConcurrentDictionary<TcpClientListener, bool>();
 
             this.bufferSize = bufferSize;
             this.workersCount = workersCount;
@@ -41,14 +45,17 @@ namespace TCPCommunicationService
         private void ReadingWorker()
         {
             while(!cancelationTokenSource.IsCancellationRequested) {
-                foreach(var clientConnection in activeConnections.Keys) {
-                    if(clientConnection.ReadAvailable && !clientConnection.ReadingInProgress) {
+                foreach(var clientConnectionRecord in activeConnections) {
+                    if(!clientConnectionRecord.Key.ReadingInProgress && !clientConnectionRecord.Value) {
+                        TcpClientListener listener = clientConnectionRecord.Key;
+                        activeConnections[listener] = true;
                         Task.Run(() =>
                         {
                             byte[] buffer = new byte[bufferSize];
-                            if(clientConnection.Read(buffer, buffer.Length)) {
-                                PackageReceived(clientConnection.IPEndPoint, buffer);
+                            if(listener.Read(buffer, buffer.Length)) {
+                                PackageReceived(listener.IPEndPoint, buffer);
                             }
+                            activeConnections[listener] = false;
                         });
                     }
                 }
@@ -58,73 +65,35 @@ namespace TCPCommunicationService
         private void OpenNewConnection(Socket socket)
         {
             logger.Debug("Open new client connection");
-            TcpClientListener clientListener = null;
+            TcpClientListener clientListener = new TcpClientListener(socket);
 
-            try {
-                var clientEndPoint = socket.RemoteEndPoint as IPEndPoint;
-                if(clientEndPoint == null) {
-                    socket.Close();
-                    return;
-                }
-            }
-            catch(Exception ex) {
-                logger.Error(ex, "Ошибка при создании нового подключения клиента");
-                return;
-            }
-
-            clientListener = new TcpClientListener(socket);
             logger.Debug("Init client connection");
-            clientListener.Init();
+            clientListener.OnConnected += ClientListener_OnConnected;
+            clientListener.OnDisconnected += ClientListener_OnDisconnected;
+            clientListener.Open();
 
-            Task clientConnectionTask = new Task(() =>
+            void ClientListener_OnConnected(object sender, EventArgs e)
             {
-                //1 sec
-                logger.Debug("Start client connection Task");
-                int timeout = 10000000;
-                var startTime = DateTime.Now.Ticks;
-                while(!clientListener.IsConnected) {
-                    if((DateTime.Now.Ticks - startTime) > timeout) {
-                        string message = $"Превышен интервал ожидания успешного соединения с клиентом при первичном подключении ({clientListener.IPEndPoint})";
-                        logger.Warn(message);
-                        throw new OperationCanceledException(message);
-                    }
-                    Thread.Sleep(10);
-                }
-                logger.Debug("Succesfully end client connection task");
-            });
-
-            //При успешном подключении
-            clientConnectionTask.ContinueWith((baseTask) =>
-            {
-                logger.Debug("On Succesfully client connection");
                 try {
-                    activeConnections.TryAdd(clientListener, 0);
+                    if(activeConnections.TryAdd(clientListener, false)) {
+                        OnClientConnected(clientListener);
+                        clientListener.OnConnected -= ClientListener_OnConnected;
+                    }
                 }
                 catch(Exception ex) {
                     logger.Error(ex, "Ошибка при добавлении клиента в список ожидающих активации");
                     return;
                 }
-
-                OnClientConnected(clientListener);
-
-                logger.Debug("Added to activeConnections dictionary");
-                clientListener.OnDisconnected += ClientListener_OnDisconnected;
-            }, TaskContinuationOptions.OnlyOnRanToCompletion);
+            }
 
             void ClientListener_OnDisconnected(object sender, EventArgs e)
             {
-                logger.Debug("On client disconnected");
-                OnClientDisconnected(clientListener);
-                clientListener.OnDisconnected -= ClientListener_OnDisconnected;
+                if(activeConnections.TryRemove(clientListener, out bool value)) {
+                    logger.Debug("Disconnected client removed from activeConnections dictionary");
+                    OnClientDisconnected(clientListener);
+                    clientListener.OnDisconnected -= ClientListener_OnDisconnected;
+                }
             }
-
-            //Если превышен интервал при подключении
-            clientConnectionTask.ContinueWith((baseTask) =>
-            {
-                clientListener.Close();
-            }, TaskContinuationOptions.NotOnRanToCompletion);
-
-            clientConnectionTask.Start();
         }
 
         protected virtual void OnClientConnected(TcpClientListener clientListener)
@@ -133,8 +102,6 @@ namespace TCPCommunicationService
 
         protected virtual void OnClientDisconnected(TcpClientListener clientListener)
         {
-            activeConnections.TryRemove(clientListener, out int value);
-            logger.Debug("Disconnected client removed from activeConnections dictionary");
         }
 
         private bool ClientAddingEnabled = true;
@@ -148,20 +115,21 @@ namespace TCPCommunicationService
             }
 
             cancelationTokenSource = new CancellationTokenSource();
-            Task.Run(() => ReadingWorker());
 
             Exception serviceStartException = null;
 
-            var starterTask = Task.Run(async () =>
+            Task.Run(async () =>
             {
                 int attemptsCounter = 1;
-                TcpListener tcpListener = null;
                 ClientAddingEnabled = true;
                 try{
                     CancellationTokenSource timingCancelationTokenSource = new CancellationTokenSource(5000);
                     await Task.Run(() => {
                         while (!IsActive && ClientAddingEnabled && !cancelationTokenSource.IsCancellationRequested && !timingCancelationTokenSource.IsCancellationRequested) {
                             try {
+                                if(tcpListener != null) {
+                                    tcpListener.Stop();
+                                }
                                 tcpListener = new TcpListener(localIpEndPoint);
                                 tcpListener.Start();
                                 IsActive = true;
@@ -202,6 +170,8 @@ namespace TCPCommunicationService
                     throw serviceStartException;
                 }
             }
+
+            Task.Run(() => ReadingWorker());
         }
 
         public void Stop()
@@ -214,7 +184,6 @@ namespace TCPCommunicationService
                 }
 
                 Dispose();
-                IsActive = false;
                 logger.Info("Сервис остановлен");
 
                 return;
@@ -247,10 +216,12 @@ namespace TCPCommunicationService
         {
             ClientAddingEnabled = false;
             cancelationTokenSource.Cancel();
+            tcpListener.Stop();
             foreach(var cl in activeConnections.Keys) {
                 cl.Close();
             }
             activeConnections.Clear();
+            IsActive = false;
         }
     }
 }

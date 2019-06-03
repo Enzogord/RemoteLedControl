@@ -28,35 +28,11 @@ namespace RLCCore
             set => SetField(ref number, value, () => Number);
         }
 
-        private bool connected;
-        [DataMember]
-        public bool Connected {
-            get => connected;
-            set {
-                SetField(ref connected, value, () => Connected);
-                if(connected) {
-                    LastUpdateTime = DateTime.Now;
-                }
-            }
-        }
-
-        private DateTime lastUpdateTime;
-        public DateTime LastUpdateTime {
-            get => lastUpdateTime;
-            private set => SetField(ref lastUpdateTime, value, () => LastUpdateTime);
-        }
-
         private ObservableCollection<Pin> pins;
         [DataMember]
         public ObservableCollection<Pin> Pins {
             get => pins;
             set => SetField(ref pins, value, () => Pins);
-        }
-
-        private IPAddress ipAddress;
-        public IPAddress IPAddress {
-            get => ipAddress;
-            set => SetField(ref ipAddress, value, () => IPAddress);
         }
 
         public bool WaitPlayingStatus { get; set; }    
@@ -77,14 +53,38 @@ namespace RLCCore
         private IClientConnection connection;
         public IClientConnection Connection {
             get => connection;
-            set => SetField(ref connection, value, () => Connection);
+            set {
+                var oldConnection = connection;
+                if(SetField(ref connection, value, () => Connection)) {
+                    if(oldConnection != null) {
+                        oldConnection.OnChanged -= OldConnection_OnChanged;
+                    }
+                    if(connection != null) {
+                        connection.OnChanged += OldConnection_OnChanged;
+                    }
+                    UpdateConnectionsInfo();
+                }
+            }
+        }
+
+        public bool Connected => Connection.Connected;
+
+        public IPAddress IPAddress => Connection.IPAddress;
+
+        private void OldConnection_OnChanged(object sender, EventArgs e)
+        {
+            UpdateConnectionsInfo();
+        }
+
+        private void UpdateConnectionsInfo()
+        {
+            OnPropertyChanged(() => Connected);
+            OnPropertyChanged(() => IPAddress);
         }
 
         #region Calculated properties
 
         public int LEDCount => Pins.Sum(x => x.LEDCount);
-
-        public string StatusString => connected ? "Онлайн" : "Оффлайн";
 
         #endregion
 
@@ -101,8 +101,6 @@ namespace RLCCore
             Pins = new ObservableCollection<Pin>();
             Name = name;
             Number = number;
-            Connected = false;
-            LastUpdateTime = DateTime.Now;
             Connection = new DefaultClientConnection();
         }
 
@@ -149,11 +147,6 @@ namespace RLCCore
             if(Pins.Contains(pin)) {
                 Pins.Remove(pin);
             }
-        }   
-        
-        public void UpdateStatus(bool isOnline)
-        {
-            Connected = isOnline;
         }
 
         public override int GetHashCode()

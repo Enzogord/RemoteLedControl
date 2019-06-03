@@ -95,14 +95,6 @@ namespace RLCCore
             }
         }
 
-        public void UpdateClientIPAddress(int clientNumber, IPAddress ipAddress)
-        {
-            var client = Clients.FirstOrDefault(x => x.Number == clientNumber);
-            if(client != null) {
-                client.IPAddress = ipAddress;
-            }
-        }
-
         #region ISettingsProvider implementation
 
         public IDictionary<string, string> GetSettings()

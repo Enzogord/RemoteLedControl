@@ -17,10 +17,13 @@ namespace Core.ClientConnectionService
         public RemoteClientConnector(TcpClientListener clientListener)
         {
             this.ClientListener = clientListener ?? throw new ArgumentNullException(nameof(clientListener));
-            clientListener.OnDisconnected += (sender, e) =>
-            {
-                OnDisconnected?.Invoke(clientListener, EventArgs.Empty);
-            };
+            clientListener.OnDisconnected += ClientListener_OnDisconnected;
+        }
+
+        private void ClientListener_OnDisconnected(object sender, EventArgs e)
+        {
+            ClientListener = null;
+            OnDisconnected?.Invoke(this, EventArgs.Empty);
         }
     }
 }

@@ -16,24 +16,6 @@ namespace TCPCommunicationService
         private CancellationTokenSource cts = new CancellationTokenSource();
         private readonly Socket socket;
         private NetworkStream networkStream;
-        private bool wasConnected;
-        private bool initialized;
-
-        public bool ReadingInProgress { get; private set; }
-
-        public bool ReadAvailable {
-            get {
-                if(networkStream == null) {
-                    return false;
-                }
-                try {
-                    return networkStream.DataAvailable;
-                }
-                catch(Exception) {
-                    return false;
-                }                
-            }
-        }
 
         public IPEndPoint IPEndPoint {
             get {
@@ -56,80 +38,90 @@ namespace TCPCommunicationService
             Id = Guid.NewGuid();
         }
 
-        private void Connected()
+        private bool connected = false;
+        public bool IsConnected => CheckConnection();
+
+        bool inClosing = false;
+        private bool CheckConnection()
         {
-            logger.Debug("Client connected");
-            wasConnected = true;
-            OnConnected?.Invoke(this, EventArgs.Empty);
-        }
-
-        public void Init()
-        {
-            Task.Run(() => {
-                for(int i = 0; i < 1000; i++) {
-                    try {
-                        if(socket.Connected) {
-                            try {
-                                networkStream = new NetworkStream(socket);
-                            }
-                            catch(Exception ex) {
-                                logger.Error(ex, $"Невозможно создать NetworkStream");
-                            }
-                            Connected();
-                            return;
-                        }
-                    }
-                    catch(SocketException) {
-                    }
-                    catch(ObjectDisposedException) {
-                        return;
-                    }
-
-                    Thread.Sleep(10);
-                }
-            }, 
-            cts.Token);
-            initialized = true;
-        }
-
-        public bool IsConnected {
-            get {
-                if(!initialized) {
-                    Init();
-                }
-                if(!wasConnected) {
-                    return false;
-                }
-                if(!socket.IsConnected()) {
-                    Close();
-                    return false;
-                }
-                return true;
+            if(inClosing) {
+                return false;
             }
-        }
-
-        private bool Available()
-        {
-            if(wasConnected && !IsConnected) {
-                OnDisconnected?.Invoke(this, EventArgs.Empty);
+            if(!socket.IsConnected() && connected) {
+                inClosing = true;
+                logger.Debug("Соединение было прервано. Закрываем клиент");
+                Task.Run(() => Close());
+                return false;
+            } else if(!socket.IsConnected() && !connected) {
                 return false;
             }
             return true;
         }
 
+        public void Open()
+        {
+            CancellationTokenSource timeoutCancelationToken = new CancellationTokenSource(10000);
+            Task.Run(() => {
+                while(!timeoutCancelationToken.IsCancellationRequested && !cts.IsCancellationRequested) {
+                    try {
+                        if(socket.IsConnected()) {
+                            try {
+                                networkStream = new NetworkStream(socket);
+                            }
+                            catch(Exception ex) {
+                                logger.Error(ex, $"Невозможно создать NetworkStream");
+                                continue;
+                            }
+                            logger.Debug("Client connected");
+                            socket.SetKeepAlive(12000, 2000);
+                            connected = true;
+                            OnConnected?.Invoke(this, EventArgs.Empty);
+                            return;
+                        }
+                    }
+                    catch(SocketException ex) {
+                        logger.Error(ex, "Ошибка при создании подключения для нового клиента");
+                    }
+                    catch(ObjectDisposedException ex) {
+                        logger.Error(ex, "Ошибка при создании подключения для нового клиента, подключение уже было закрыто. Процесс подключения будет прерван.");
+                        Close();
+                        return;
+                    }
+                    Thread.Sleep(10);
+                }
+            });
+        }
+
+        public bool ReadingInProgress { get; private set; }
+
+        public bool ReadAvailable {
+            get {
+                if(!IsConnected) {
+                    return false;
+                }
+                if(networkStream == null) {
+                    return false;
+                }
+                try {
+                    return networkStream.DataAvailable;
+                }
+                catch(Exception) {
+                    return false;
+                }
+            }
+        }
+
         public bool Read(byte[] buffer, int length)
         {
-            if(!Available() || networkStream == null) {
+            if(!ReadAvailable) {
                 return false;
             }
             ReadingInProgress = true;
             try {
-                if(networkStream.DataAvailable) {
-                    Array.Clear(buffer, 0, buffer.Length);
-                    networkStream.Read(buffer, 0, length);
-                    OnReceiveData?.Invoke(this, new DataEventArgs(buffer));
-                    return true;
-                }
+                Array.Clear(buffer, 0, buffer.Length);
+                networkStream.Read(buffer, 0, length);
+                OnReceiveData?.Invoke(this, new DataEventArgs(buffer));
+                return true;
             }
             catch(Exception ex) {
                 logger.Error(ex, "Невозможно прочитать данные из NetworkStream");
@@ -142,7 +134,7 @@ namespace TCPCommunicationService
 
         public void Write(byte[] data)
         {
-            if(!Available() || networkStream == null) {
+            if(IsConnected && networkStream == null) {
                 return;
             }
             try {

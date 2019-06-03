@@ -76,7 +76,6 @@ namespace RLCCore
             udpService.OnReceiveMessage += (sender, endPoint, message) => {
                 logger.Debug($"Receive message: {message.MessageType}");
                 if(message.MessageType == MessageType.RequestServerIp) {
-                    CurrentProject.UpdateClientIPAddress(message.ClientNumber, endPoint.Address);
                     udpService.Send(RLCMessageFactory.SendServerIP(CurrentProject.Key, ipAddress), endPoint.Address, rlcPort);
                 }
             };

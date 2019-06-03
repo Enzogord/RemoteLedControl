@@ -17,12 +17,8 @@ namespace Core.ClientConnectionService
 
         public RemoteClientIdentificator(IConnectorMessageService messageService)
         {
-            if(messageService == null) {
-                throw new ArgumentNullException(nameof(messageService));
-            }
-
+            this.messageService = messageService ?? throw new ArgumentNullException(nameof(messageService));
             unidentifiedClients = new Dictionary<TcpClientListener, int>();
-            this.messageService = messageService;
         }
 
         public void AddNewClient(TcpClientListener clientListener)
@@ -45,7 +41,6 @@ namespace Core.ClientConnectionService
         {
             INumeredClient client = null;
             RLCMessage requestMessage = messageService.CreateRequestClientInfoMessage();
-
             clientListener.OnReceiveData += OnReceiveClientData;
             void OnReceiveClientData(object sender, DataEventArgs e)
             {
@@ -56,6 +51,7 @@ namespace Core.ClientConnectionService
 
             //отправка запроса с ожиданием номера клиента, в течении identificationTimeout времени
             CancellationTokenSource timeoutCancelation = new CancellationTokenSource(identificationTimeout);
+            clientListener.OnDisconnected += OnDisconnected;
             Task.Run(() => {
                 clientListener.Write(requestMessage.ToArray());
                 while(!timeoutCancelation.IsCancellationRequested) {
@@ -66,6 +62,12 @@ namespace Core.ClientConnectionService
                 }
                 RemoveClient(clientListener);
             });
+
+            void OnDisconnected(object sender, EventArgs e)
+            {
+                timeoutCancelation.Cancel();
+                clientListener.OnDisconnected -= OnDisconnected;
+            }
         }
 
         #region IRemoteClientIdentificator
