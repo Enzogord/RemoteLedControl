@@ -30,8 +30,8 @@ namespace TCPCommunicationService
         /// Sets the keep-alive interval for the socket.
         /// </summary>
         /// <param name="socket">The socket.</param>
-        /// <param name="time">Time between two keep alive "pings".</param>
-        /// <param name="interval">Time between two keep alive "pings" when first one fails.</param>
+        /// <param name="time">Time between two keep alive "pings". (Milliseconds)</param>
+        /// <param name="interval">Time between two keep alive "pings" when first one fails. (Milliseconds)</param>
         /// <returns>If the keep alive infos were succefully modified.</returns>
         public static bool SetKeepAlive(this Socket socket, ulong time, ulong interval)
         {
