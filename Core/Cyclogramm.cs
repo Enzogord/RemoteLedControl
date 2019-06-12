@@ -1,21 +1,30 @@
 ﻿using System.Runtime.Serialization;
+using Service;
 
 namespace RLCCore
 {
     [DataContract]
-    public class Cyclogramm
+    public class Cyclogramm : NotifyPropertyBase
     {
         [DataMember]
-        private string Name { get; set; }
+        private string name;
+        public string Name {
+            get => name;
+            set => SetField(ref name, value, () => Name);
+        }
 
         [DataMember]
-        public RemoteClient Parent;
+        private int fileSize;
+        public int FileSize {
+            get => fileSize;
+            set => SetField(ref fileSize, value, () => FileSize);
+        }
 
-        [DataMember]
-        public int FileSize { get; set; }
-
-        [DataMember]
-        public bool Converted { get; set; }
+        private string filePath;
+        public string FilePath {
+            get => filePath;
+            set => SetField(ref filePath, value, () => FilePath);
+        }
     }
 
 }

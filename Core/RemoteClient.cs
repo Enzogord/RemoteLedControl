@@ -88,7 +88,7 @@ namespace RLCCore
 
         #endregion
 
-        public RemoteClient(string name, byte number)
+        public RemoteClient(string name, int number)
         {
             if(string.IsNullOrWhiteSpace(name)){
                 throw new ArgumentException($"Аргумент {nameof(name)} не должен быть равен null или быть пустым");

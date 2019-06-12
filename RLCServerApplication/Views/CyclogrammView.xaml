@@ -1,0 +1,37 @@
+﻿<UserControl x:Class="RLCServerApplication.Views.CyclogrammView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:vm="clr-namespace:RLCServerApplication.ViewModels"
+             xmlns:local="clr-namespace:RLCServerApplication.Views"
+             mc:Ignorable="d" 
+             d:DataContext="{d:DesignInstance vm:CyclogrammViewModel}"
+             d:DesignHeight="100" d:DesignWidth="200">
+    <Grid>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+            </Grid.RowDefinitions>
+            <TextBox IsEnabled="{Binding Editable}"
+                     Text="{Binding Cyclogramm.Name}"
+                     />
+            <Grid Grid.Row="1" Margin="0, 5, 0, 0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" HorizontalAlignment="Stretch"
+                           Text="{Binding Cyclogramm.FilePath}"></TextBlock>
+                <Button 
+                    Grid.Column="1" 
+                    Margin="5, 0, 0, 0" 
+                    Padding="10, 0, 10, 0"
+                    Content="Выбрать"
+                    Command="{Binding SelectCyclogrammFile}"
+                    />
+            </Grid>
+        </Grid>
+    </Grid>    
+</UserControl>

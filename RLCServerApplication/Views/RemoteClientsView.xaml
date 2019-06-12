@@ -5,86 +5,116 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:RLCServerApplication.Views"
              xmlns:vm="clr-namespace:RLCServerApplication.ViewModels"
+             xmlns:conv="clr-namespace:RLCServerApplication.Converters"
+             xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800"
              d:DataContext="{d:DesignInstance vm:RemoteClientsViewModel}"
              >
+    <UserControl.Resources>
+        <conv:NullVisibilityCollapsedConverter x:Key="NullToCollapsedConverter"/>
+        <conv:OnlineStatusToColorConverter x:Key="OnlineStatusToColorConverter"/>
+        <DataTemplate x:Key="RemoteClientView" DataType="{x:Type vm:RemoteClientViewModel}">
+            <local:RemoteClientView VerticalAlignment="Top"/>
+        </DataTemplate>
+    </UserControl.Resources>
     <Grid>
-        <ListView Grid.Row="1" 
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button Margin="5, 5, 0, 5" Padding="10, 0" HorizontalAlignment="Right"
+                    Content="Добавить клиента"
+                    Command="{Binding AddNewClientCommand}"/>
+            <Button Margin="5, 5, 5, 5" Padding="10, 0" HorizontalAlignment="Right"
+                    Content="Удалить"
+                    Command="{Binding DeleteClientCommand}"/>
+        </StackPanel>
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition Width="auto"/>
+            </Grid.ColumnDefinitions>
+            <ListView Grid.Column="0" x:Name="ListViewClients" 
                   Margin="0" 
-                  VerticalContentAlignment="Top" 
+                  VerticalContentAlignment="Top"
+                  HorizontalAlignment="Stretch"
                   ItemsSource="{Binding Clients}"  
                   ScrollViewer.HorizontalScrollBarVisibility="Disabled" 
                   ScrollViewer.VerticalScrollBarVisibility="Disabled" 
                   ScrollViewer.CanContentScroll="False" 
                   Background="{x:Null}" 
-                  BorderBrush="{x:Null}">
+                  BorderBrush="{x:Null}"
+                  SelectedItem="{Binding SelectedClient}"
+                  MouseDown="ListViewClients_MouseDown"                  
+                  >
 
-            <ListView.ItemsPanel>
-                <ItemsPanelTemplate>
-                    <WrapPanel Margin="0"/>
-                </ItemsPanelTemplate>
-            </ListView.ItemsPanel>
-            <ListView.ItemContainerStyle>
-                <Style TargetType="{x:Type ListViewItem}">
-                    <Setter Property="Background" Value="{x:Null}"/>
-                    <Setter Property="Padding" Value="0"/>
-                    <Setter Property="Margin" Value="2"/>
-                    <Setter Property="BorderThickness" Value="1"/>
-                    <Setter Property="BorderBrush" Value="Black"/>
-                </Style>
-            </ListView.ItemContainerStyle>
-            <ListView.ItemTemplate>
-                <DataTemplate>
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="1*"/>
-                            <ColumnDefinition Width="2*"/>
-                            <ColumnDefinition Width="2*"/>
-                        </Grid.ColumnDefinitions>
-                        <TextBlock                            
-                                Grid.Column="0"
-                                VerticalAlignment="Center" 
-                                HorizontalAlignment="Center"
-                                Margin="0"
-                                Background="AliceBlue"
-                                Text="{Binding Number}" TextAlignment="Center" MinWidth="20" 
-                                />
-                        <TextBlock 
-                            Grid.Column="1"
-                            Margin="0"
+                <ListView.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Margin="0"/>
+                    </ItemsPanelTemplate>
+                </ListView.ItemsPanel>
+                <ListView.ItemContainerStyle>
+                    <Style TargetType="{x:Type ListViewItem}">
+                        <Setter Property="HorizontalAlignment" Value="Stretch"/>
+                        <Setter Property="Background" Value="{x:Null}"/>
+                        <Setter Property="Padding" Value="0"/>
+                        <Setter Property="Margin" Value="2"/>
+                        <Setter Property="BorderThickness" Value="1"/>
+                        <Setter Property="BorderBrush" Value="#FFB6B6B6"/>
+                        <EventSetter Event="MouseDoubleClick" Handler="ListViewItem_MouseDoubleClick"/>
+                    </Style>
+                </ListView.ItemContainerStyle>
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="22"/>
+                                <ColumnDefinition Width="auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Ellipse Grid.Column="0"
+                            Fill="{Binding Connected, Converter={StaticResource OnlineStatusToColorConverter}}"
+                            Margin="5, 0, 0, 0"
+                            Height="12"
+                            Width="12"
+                            VerticalAlignment="Center"
+                            HorizontalAlignment="Center"
+                            StrokeThickness="1"
+                            Stroke="Black">
+
+                            </Ellipse>
+                            <TextBlock Grid.Column="1"                           
+                            VerticalAlignment="Center" 
+                            HorizontalAlignment="Center"
+                            Margin="3, 0"
+                            Background="{x:Null}"
+                            FontSize="14"
+                            Text="{Binding Number}" TextAlignment="Center" MinWidth="20" 
+                            />
+                            <TextBlock Grid.Column="2"
+                            VerticalAlignment="Center" 
+                            HorizontalAlignment="Left"
+                            Margin="3, 0"
                             Background="Azure"
                             Padding="4, 0"
+                            FontSize="18"
                             Text="{Binding Name}" TextAlignment="Left"
                             />
-                        <TextBlock 
-                            Grid.Column="2"
-                            Margin="0"
-                            Padding="4, 0"
-                            Text="{Binding Connected}" TextAlignment="Left"
-                            />
-                    </Grid>
-                    <!--old template-->
-                    <!--<DockPanel Background="#FF465872">
-                        <DockPanel DockPanel.Dock="Top">
-                            <TextBlock 
-                                DockPanel.Dock="Left" 
-                                VerticalAlignment="Center" 
-                                Margin="5, 0"
-                                Background="AliceBlue"
-                                Text="{Binding Number}" 
-                                MinWidth="25"
-                                />
-                            <Canvas Width="20" Height="20" Background="#FF045316"/>
-                        </DockPanel>
-                        <TextBlock 
-                            DockPanel.Dock="Left" 
-                            Background="Azure"
-                            Text="{Binding Name}"
-                            />
-                    </DockPanel>-->
-                </DataTemplate>
-            </ListView.ItemTemplate>
-        </ListView>
+                        </Grid>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+            <Border BorderThickness="1" BorderBrush="Black" Grid.Column="1">
+                <ContentControl
+                Width="auto"
+                Content="{Binding RemoteClientViewModel}" 
+                ContentTemplate="{StaticResource RemoteClientView}"
+                Visibility="{Binding RemoteClientViewModel, Converter={StaticResource NullToCollapsedConverter}}"
+            />
+            </Border>
+        </Grid>
     </Grid>
+    
 </UserControl>

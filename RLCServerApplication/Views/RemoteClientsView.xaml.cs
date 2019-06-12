@@ -28,5 +28,18 @@ namespace RLCServerApplication.Views
             InitializeComponent();
             DataContext = Bootstrapper.RootScope.Resolve<RemoteClientsViewModel>(new TypedParameter(typeof(RLCProjectController), Bootstrapper.RootScope.Resolve<RLCProjectController>()));
         }
+
+        private void ListViewClients_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            HitTestResult r = VisualTreeHelper.HitTest(this, e.GetPosition(this));
+            if(r.VisualHit.GetType() != typeof(ListBoxItem))
+                ListViewClients.UnselectAll();
+        }
+
+        private void ListViewItem_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            RemoteClientsViewModel viewModel = DataContext as RemoteClientsViewModel;
+            viewModel.OpenClientEditorCommand.Execute(null);
+        }
     }
 }
