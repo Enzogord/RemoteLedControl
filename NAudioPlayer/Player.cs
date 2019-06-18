@@ -265,6 +265,7 @@ namespace NAudioPlayer
                 waveOutDevice.Dispose();
                 waveOutDevice = null;
             }
+            IsInitialized = false;
         }
         #endregion
 
@@ -273,6 +274,9 @@ namespace NAudioPlayer
         {
             if (waveOutDevice != null) {
                 waveOutDevice.Stop();
+            }
+            if(ActiveStream != null) {
+                ChannelPosition = 0;
             }
             IsPlaying = false;
             CanStop = false;
@@ -326,16 +330,25 @@ namespace NAudioPlayer
                     ChannelLength = inputStream.TotalTime.TotalSeconds;
                     GenerateWaveformData(path);
                     CanPlay = true;
+                    IsInitialized = true;
                 }
                 catch {
                     ActiveStream = null;
                     CanPlay = false;
+                    IsInitialized = false;
                 }
             }
         }
         #endregion
 
         #region Public Properties
+
+        private bool isInitialized;
+        public bool IsInitialized {
+            get => isInitialized;
+            set => SetField(ref isInitialized, value, () => IsInitialized);
+        }
+
 
         public WaveStream ActiveStream {
             get { return activeStream; }
@@ -394,6 +407,7 @@ namespace NAudioPlayer
                 positionTimer.IsEnabled = value;                
             }
         }
+
         #endregion
 
         #region Event Handlers

@@ -141,9 +141,17 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\AudioPlayerControl\AudioPlayerControl.csproj">
+      <Project>{8d6d59ca-baae-4d1f-be74-8793fb07dfa8}</Project>
+      <Name>AudioPlayerControl</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Core\RLCCore.csproj">
       <Project>{202F2159-593B-4E89-AFDF-FB3DAF2D9EA6}</Project>
       <Name>RLCCore</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\NAudioPlayer\NAudioPlayer.csproj">
+      <Project>{293bbd8e-7ec8-49ed-a0c7-7124405c2242}</Project>
+      <Name>NAudioPlayer</Name>
     </ProjectReference>
     <ProjectReference Include="..\Service\Service.csproj">
       <Project>{E10168F4-2657-4FDF-BF2D-D9DC58AB7E51}</Project>
@@ -151,6 +159,10 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Page Include="Resources\ExpressionDark.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Views\CyclogrammView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

@@ -10,7 +10,7 @@
                     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
                     mc:Ignorable="d"
                     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-                    xmlns:player="clr-namespace:AudioPlayer.TimeLine">
+                    xmlns:player="clr-namespace:AudioPlayer.TimeLine;assembly=AudioPlayerControl">
 
     <!-- Main Colors -->
     

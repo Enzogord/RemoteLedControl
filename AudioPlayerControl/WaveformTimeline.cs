@@ -330,7 +330,7 @@ namespace AudioPlayer.TimeLine
         {
             bool isWaveformEnter = VisualTreeHelper.HitTest(waveformCanvas, mousePosition) != null;           
 
-            if (isWaveformEnter) {
+            if (isWaveformEnter && IsEnabled) {
                 positionSelectorLine.Visibility = Visibility.Visible;
                 positionSelectorIndicator.Visibility = Visibility.Visible;
                 positionSelectorLine.Margin = new Thickness(mousePosition.X, 0, 0, 0);
@@ -719,6 +719,11 @@ namespace AudioPlayer.TimeLine
         {
             DefaultStyleKeyProperty.OverrideMetadata(typeof(WaveformTimeline), new FrameworkPropertyMetadata(typeof(WaveformTimeline)));
         }
+
+        public WaveformTimeline()
+        {
+            IsEnabled = false;
+        }
         #endregion
 
         #region Public Methods
@@ -746,6 +751,9 @@ namespace AudioPlayer.TimeLine
                     break;
                 case "ChannelLength":
                     UpdateAllRegions();
+                    break;
+                case "IsInitialized":
+                    IsEnabled = soundPlayer.IsInitialized;
                     break;
             }
         }

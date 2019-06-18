@@ -29,7 +29,9 @@ namespace RLCServerApplication
 
             Bootstrapper.Start();
             InitMainViewModel();
-            new MainWindowView() { DataContext = mainWindowViewModel }.Show();
+            MainWindowView mainWindowView = new MainWindowView() { DataContext = mainWindowViewModel };
+            mainWindowView.InitPlayer();
+            mainWindowView.Show();
         }
 
         protected override void OnExit(ExitEventArgs e)

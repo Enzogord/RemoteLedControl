@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:RLCServerApplication.Views"
         xmlns:vm="clr-namespace:RLCServerApplication.ViewModels"
+        xmlns:player="clr-namespace:AudioPlayer.TimeLine;assembly=AudioPlayerControl"
         mc:Ignorable="d"
         Title="MainWindowView" Height="450" Width="800"
         d:DataContext="{d:DesignInstance vm:MainWindowViewModel}"
@@ -25,26 +26,47 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"/>
             <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
             <RowDefinition Height="1*"/>
         </Grid.RowDefinitions>        
         <Menu Grid.Row="0" Height="auto">
             <MenuItem Header="Файл">
                 <MenuItem Header="Создать"></MenuItem>
             </MenuItem>
+            <MenuItem Header="Проект">
+                <MenuItem Header="Добавить аудиотрек" Command="{Binding AddAudioTrackCommand}"></MenuItem>
+            </MenuItem>
         </Menu>
 
         <Grid Grid.Row="1">
             <StackPanel Orientation="Horizontal">
-                <Button Margin="5" Command="{Binding PlayCommand}">Play</Button>
-                <Button Margin="5" Command="{Binding StopCommand}">Stop</Button>
-                <Button Margin="5" Command="{Binding PauseCommand}">Pause</Button>
                 <Button Margin="5" Command="{Binding StartServicesCommand}">Start server</Button>
                 <Button Margin="5" Command="{Binding StopServicesCommand}">Stop server</Button>
-                <!--<TextBlock Margin="5" Text="{Binding }">Stop server</TextBlock>-->
             </StackPanel>
         </Grid>
-        
-        <TabControl Grid.Row="2" TabStripPlacement="Left">
+
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <StackPanel Grid.Row="0" Orientation="Horizontal">
+                    <Button Margin="5" Command="{Binding PlayCommand}">Play</Button>
+                    <Button Margin="5" Command="{Binding StopCommand}">Stop</Button>
+                    <Button Margin="5" Command="{Binding PauseCommand}">Pause</Button>
+                </StackPanel>
+                <Label Grid.Row="1" x:Name="LabelTime" HorizontalAlignment="Right"/>
+            </Grid>            
+            <player:WaveformTimeline Grid.Column="2" x:Name="Player" HorizontalAlignment="Stretch"></player:WaveformTimeline>
+        </Grid>
+
+        <TabControl Grid.Row="3" TabStripPlacement="Left">
             <TabItem Header="Настройки" Padding="10">
                 <ContentPresenter Content="{Binding SettingsViewModel}" ContentTemplate="{StaticResource SettingsTemplate}" />
             </TabItem>

@@ -9,6 +9,8 @@ namespace AudioPlayer.TimeLine
 {
     public interface ISoundPlayer : INotifyPropertyChanged
     {
+        bool IsInitialized { get; }
+
         /// <summary>
         /// Gets whether the sound player is currently playing audio.
         /// </summary>

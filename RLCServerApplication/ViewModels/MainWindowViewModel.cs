@@ -1,5 +1,7 @@
 ﻿using System.Linq;
+using AudioPlayer.TimeLine;
 using Autofac;
+using NAudioPlayer;
 using RLCCore;
 using RLCCore.RemoteOperations;
 using RLCServerApplication.Infrastructure;
@@ -9,6 +11,8 @@ namespace RLCServerApplication.ViewModels
     public class MainWindowViewModel : ViewModelBase
     {
         private RLCProjectController projectController;
+
+        public Player Player { get; }
 
         private SettingsViewModel settingsViewModel;
         public SettingsViewModel SettingsViewModel {
@@ -27,6 +31,7 @@ namespace RLCServerApplication.ViewModels
         public RelayCommand PauseCommand { get; private set; }
         public RelayCommand StartServicesCommand { get; private set; }
         public RelayCommand StopServicesCommand { get; private set; }
+        public RelayCommand AddAudioTrackCommand { get; private set; }
 
         public MainWindowViewModel()
         {
@@ -43,9 +48,15 @@ namespace RLCServerApplication.ViewModels
                 }
             };
 
+            Player = Player.Instance;
+            Player.PropertyChanged += Player_PropertyChanged;
+
             PlayCommand = new RelayCommand(() =>
             {
-                projectController.RemoteClientsOperator.Play();
+                if(Player.CanPlay) {
+                    projectController.RemoteClientsOperator.Play();
+                    Player.Play();
+                }                
             },
             () =>
             {
@@ -53,13 +64,15 @@ namespace RLCServerApplication.ViewModels
                     return false;
                 }
                 var playStates = new[]{ OperatorStates.Ready, OperatorStates.Stop, OperatorStates.Pause };
-                return playStates.Contains(projectController.RemoteClientsOperator.State);
+                return playStates.Contains(projectController.RemoteClientsOperator.State) && Player.CanPlay;
             });
 
             StopCommand = new RelayCommand(() =>
             {
-                projectController.RemoteClientsOperator.Stop();
-
+                if(Player.CanStop) {
+                    projectController.RemoteClientsOperator.Stop();
+                    Player.Stop();
+                }
             },
             () =>
             {
@@ -67,20 +80,22 @@ namespace RLCServerApplication.ViewModels
                     return false;
                 }
                 var stopStates = new[]{ OperatorStates.Play, OperatorStates.Pause };
-                return stopStates.Contains(projectController.RemoteClientsOperator.State);
+                return stopStates.Contains(projectController.RemoteClientsOperator.State) && Player.CanStop;
             });
 
             PauseCommand = new RelayCommand(() =>
             {
-                projectController.RemoteClientsOperator.Pause();
-
+                if(Player.CanPause) {
+                    projectController.RemoteClientsOperator.Pause();
+                    Player.Pause();
+                }
             },
             () =>
             {
                 if(!projectController.ServicesIsReady) {
                     return false;
                 }
-                return projectController.RemoteClientsOperator.State == OperatorStates.Play;
+                return projectController.RemoteClientsOperator.State == OperatorStates.Play && Player.CanPause;
             });
 
             StartServicesCommand = new RelayCommand(
@@ -102,6 +117,34 @@ namespace RLCServerApplication.ViewModels
             },
             () => projectController.ServicesIsReady
             );
+
+            AddAudioTrackCommand = new RelayCommand(
+            () =>
+            {
+                //FIXME убрать зависимоть от диалога
+                Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog();
+                dlg.DefaultExt = ".mp3";
+                dlg.Filter = "Mp3 files|*.mp3";
+                if(dlg.ShowDialog() == true) {
+                    Player.OpenFile(dlg.FileName);
+                    Player.Volume = 0.1f;
+                }
+            },
+            () => true
+            );
+        }
+
+        private void Player_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            switch(e.PropertyName) {
+                case nameof(Player.CanPlay):
+                case nameof(Player.CanPause):
+                case nameof(Player.CanStop):
+                    UpdatePlayerCommands();
+                    break;
+                default:
+                    break;
+            }
         }
 
         private void RemoteClientsOperator_StateChanged(object sender, OperatorStateEventArgs e)

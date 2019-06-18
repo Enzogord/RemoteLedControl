@@ -33,6 +33,7 @@ namespace RLCServerApplication.ViewModels
         {
             SelectCyclogrammFile = new RelayCommand(
                 () => {
+                    //FIXME убрать зависимоть от диалога
                     Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog();
                     dlg.FileName = "Cyclogramm";
                     dlg.DefaultExt = ".cyc";
