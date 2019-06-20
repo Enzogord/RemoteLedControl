@@ -26,7 +26,6 @@ namespace RLCServerApplication.Views
         public RemoteClientsView()
         {
             InitializeComponent();
-            DataContext = Bootstrapper.RootScope.Resolve<RemoteClientsViewModel>(new TypedParameter(typeof(RLCProjectController), Bootstrapper.RootScope.Resolve<RLCProjectController>()));
         }
 
         private void ListViewClients_MouseDown(object sender, MouseButtonEventArgs e)

@@ -25,7 +25,6 @@ namespace RLCServerApplication.Views
         public SettingsView()
         {
             InitializeComponent();
-            DataContext = Bootstrapper.RootScope.Resolve<SettingsViewModel>();
         }
     }
 }

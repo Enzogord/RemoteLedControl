@@ -1,12 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Reflection;
 using Autofac;
-using RLCCore;
 using RLCServerApplication.ViewModels;
 
 namespace RLCServerApplication
@@ -14,7 +7,6 @@ namespace RLCServerApplication
     public static class Bootstrapper
     {
         private static ILifetimeScope rootScope;
-        public static ILifetimeScope RootScope => rootScope;
 
         public static MainWindowViewModel RootViewModel {
             get {
@@ -36,11 +28,6 @@ namespace RLCServerApplication
             var builder = new ContainerBuilder();
 
             builder.RegisterType<MainWindowViewModel>();
-            builder.RegisterType<RLCProjectController>().SingleInstance();
-            builder.RegisterType<SettingsViewModel>();
-            builder.RegisterType<RemoteClientsViewModel>();
-            builder.RegisterAssemblyTypes(assembly)
-                .Where(t => t.Name.EndsWith("Service"));
 
             rootScope = builder.Build();
         }

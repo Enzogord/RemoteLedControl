@@ -1,9 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Autofac;
 using RLCCore;
 using RLCServerApplication.Infrastructure;
 
@@ -13,9 +8,9 @@ namespace RLCServerApplication.ViewModels
     {
         public RLCProjectController RLCProjectController { get; private set; }
 
-        public SettingsViewModel()
+        public SettingsViewModel(RLCProjectController rlcProjectController)
         {
-            RLCProjectController = Bootstrapper.RootScope.Resolve<RLCProjectController>();
+            RLCProjectController = rlcProjectController ?? throw new ArgumentNullException(nameof(rlcProjectController));
         }
     }
 }

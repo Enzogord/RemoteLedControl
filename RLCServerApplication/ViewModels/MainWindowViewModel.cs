@@ -1,6 +1,4 @@
 ﻿using System.Linq;
-using AudioPlayer.TimeLine;
-using Autofac;
 using NAudioPlayer;
 using RLCCore;
 using RLCCore.RemoteOperations;
@@ -25,7 +23,7 @@ namespace RLCServerApplication.ViewModels
             get => remoteClientsViewModel;
             set => SetField(ref remoteClientsViewModel, value, () => RemoteClientsViewModel);
         }
-               
+
         public RelayCommand PlayCommand { get; private set; }
         public RelayCommand StopCommand { get; private set; }
         public RelayCommand PauseCommand { get; private set; }
@@ -35,9 +33,8 @@ namespace RLCServerApplication.ViewModels
 
         public MainWindowViewModel()
         {
-            projectController = Bootstrapper.RootScope.Resolve<RLCProjectController>();
-            projectController.PropertyChanged += (sender, e) =>
-            {
+            projectController = new RLCProjectController();
+            projectController.PropertyChanged += (sender, e) => {
                 if(e.PropertyName == nameof(projectController.ServicesIsReady)) {
                     if(StartServicesCommand != null) {
                         StartServicesCommand.RaiseCanExecuteChanged();
@@ -48,91 +45,125 @@ namespace RLCServerApplication.ViewModels
                 }
             };
 
+            SettingsViewModel = new SettingsViewModel(projectController);
+            RemoteClientsViewModel = new RemoteClientsViewModel(projectController);
+
             Player = Player.Instance;
             Player.PropertyChanged += Player_PropertyChanged;
 
-            PlayCommand = new RelayCommand(() =>
-            {
-                if(Player.CanPlay) {
-                    projectController.RemoteClientsOperator.Play();
-                    Player.Play();
-                }                
-            },
-            () =>
-            {
-                if(!projectController.ServicesIsReady) {
-                    return false;
-                }
-                var playStates = new[]{ OperatorStates.Ready, OperatorStates.Stop, OperatorStates.Pause };
-                return playStates.Contains(projectController.RemoteClientsOperator.State) && Player.CanPlay;
-            });
+            CreateCommands();
+        }
 
-            StopCommand = new RelayCommand(() =>
-            {
-                if(Player.CanStop) {
-                    projectController.RemoteClientsOperator.Stop();
-                    Player.Stop();
-                }
-            },
-            () =>
-            {
-                if(!projectController.ServicesIsReady) {
-                    return false;
-                }
-                var stopStates = new[]{ OperatorStates.Play, OperatorStates.Pause };
-                return stopStates.Contains(projectController.RemoteClientsOperator.State) && Player.CanStop;
-            });
+        #region Commands
 
-            PauseCommand = new RelayCommand(() =>
-            {
-                if(Player.CanPause) {
-                    projectController.RemoteClientsOperator.Pause();
-                    Player.Pause();
-                }
-            },
-            () =>
-            {
-                if(!projectController.ServicesIsReady) {
-                    return false;
-                }
-                return projectController.RemoteClientsOperator.State == OperatorStates.Play && Player.CanPause;
-            });
+        private void CreateCommands()
+        {
+            CreatePlayCommand();
+            CreateStopCommand();
+            CreatePauseCommand();
+            CreateStartServicesCommand();
+            CreateStopServicesCommand();
+            CreateAddAudioTrackCommand();
+        }
 
-            StartServicesCommand = new RelayCommand(
-            () =>
-            {
-                projectController.StartServices();
-                projectController.RemoteClientsOperator.StateChanged += RemoteClientsOperator_StateChanged;
-                UpdatePlayerCommands();
-            },
-            () => !projectController.ServicesIsReady
-            );
-
-            StopServicesCommand = new RelayCommand(
-            () =>
-            {
-                projectController.RemoteClientsOperator.StateChanged -= RemoteClientsOperator_StateChanged;
-                projectController.StopServices();
-                UpdatePlayerCommands();
-            },
-            () => projectController.ServicesIsReady
-            );
-
-            AddAudioTrackCommand = new RelayCommand(
-            () =>
-            {
-                //FIXME убрать зависимоть от диалога
-                Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog();
-                dlg.DefaultExt = ".mp3";
-                dlg.Filter = "Mp3 files|*.mp3";
-                if(dlg.ShowDialog() == true) {
-                    Player.OpenFile(dlg.FileName);
-                    Player.Volume = 0.1f;
+        private void CreatePlayCommand()
+        {
+            PlayCommand = new RelayCommand(
+                () => {
+                    if(Player.CanPlay) {
+                        projectController.RemoteClientsOperator.Play();
+                        Player.Play();
+                    }
+                },
+                () => {
+                    if(!projectController.ServicesIsReady) {
+                        return false;
+                    }
+                    var playStates = new[]{ OperatorStates.Ready, OperatorStates.Stop, OperatorStates.Pause };
+                    return playStates.Contains(projectController.RemoteClientsOperator.State) && Player.CanPlay;
                 }
-            },
-            () => true
             );
         }
+
+        private void CreateStopCommand()
+        {
+            StopCommand = new RelayCommand(
+                () => {
+                    if(Player.CanStop) {
+                        projectController.RemoteClientsOperator.Stop();
+                        Player.Stop();
+                    }
+                },
+                () => {
+                    if(!projectController.ServicesIsReady) {
+                        return false;
+                    }
+                    var stopStates = new[]{ OperatorStates.Play, OperatorStates.Pause };
+                    return stopStates.Contains(projectController.RemoteClientsOperator.State) && Player.CanStop;
+                }
+            );
+        }
+
+        private void CreatePauseCommand()
+        {
+            PauseCommand = new RelayCommand(
+                () => {
+                    if(Player.CanPause) {
+                        projectController.RemoteClientsOperator.Pause();
+                        Player.Pause();
+                    }
+                },
+                () => {
+                    if(!projectController.ServicesIsReady) {
+                        return false;
+                    }
+                    return projectController.RemoteClientsOperator.State == OperatorStates.Play && Player.CanPause;
+                }
+            );
+        }
+
+        private void CreateStartServicesCommand()
+        {
+            StartServicesCommand = new RelayCommand(
+                () => {
+                    projectController.StartServices();
+                    projectController.RemoteClientsOperator.StateChanged += RemoteClientsOperator_StateChanged;
+                    UpdatePlayerCommands();
+                },
+                () => !projectController.ServicesIsReady
+            );
+        }
+
+        private void CreateStopServicesCommand()
+        {
+            StopServicesCommand = new RelayCommand(
+                () => {
+                    projectController.RemoteClientsOperator.StateChanged -= RemoteClientsOperator_StateChanged;
+                    projectController.StopServices();
+                    UpdatePlayerCommands();
+                },
+                () => projectController.ServicesIsReady
+            );
+        }
+
+        private void CreateAddAudioTrackCommand()
+        {
+            AddAudioTrackCommand = new RelayCommand(
+                () => {
+                    //FIXME убрать зависимоть от диалога
+                    Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog();
+                    dlg.DefaultExt = ".mp3";
+                    dlg.Filter = "Mp3 files|*.mp3";
+                    if(dlg.ShowDialog() == true) {
+                        Player.OpenFile(dlg.FileName);
+                        Player.Volume = 0.1f;
+                    }
+                },
+                () => true
+            );
+        }
+
+        #endregion Commands
 
         private void Player_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
