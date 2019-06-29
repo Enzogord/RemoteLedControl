@@ -32,12 +32,11 @@ namespace RLCCore
             set => SetField(ref servicesIsReady, value, () => ServicesIsReady);
         }
 
-        public RemoteClientsOperator RemoteClientsOperator => remoteClientsOperator;
+        public RemoteClientsOperator RemoteClientsOperator { get; private set; }
 
         private SntpService sntpService;
         private UDPService<RLCMessage> udpService;
         private RemoteClientConnectionService remoteClientConnector;
-        private RemoteClientsOperator remoteClientsOperator;
 
         public RLCProjectController()
         {
@@ -92,7 +91,6 @@ namespace RLCCore
                 throw;
             }
 
-
             //TCP service
             if(remoteClientConnector != null) {
                 remoteClientConnector.Stop();
@@ -101,7 +99,7 @@ namespace RLCCore
             remoteClientConnector = new RemoteClientConnectionService(NetworkController.GetServerIPAddress(), rlcPort, connectorMessageService, 200);
 
             //Clients operator
-            remoteClientsOperator = new RemoteClientsOperator(CurrentProject, NetworkController, remoteClientConnector);
+            RemoteClientsOperator = new RemoteClientsOperator(CurrentProject, NetworkController, remoteClientConnector);
 
             try {
                 remoteClientConnector.Start();
@@ -112,7 +110,7 @@ namespace RLCCore
                 sntpService = null;
                 udpService = null;
                 remoteClientConnector = null;
-                remoteClientsOperator = null;
+                RemoteClientsOperator = null;
                 ServicesIsReady = false;
                 logger.Error(ex, "Ошибка при запуске сервиса соединения с удаленными клиентами");
                 //FIXME Вывод сообщения пользователю что слуюбы не смогли запуститься по причине...
@@ -139,7 +137,7 @@ namespace RLCCore
             sntpService = null;
             udpService = null;
             remoteClientConnector = null;
-            remoteClientsOperator = null;
+            RemoteClientsOperator = null;
 
             ServicesIsReady = false;
         }
