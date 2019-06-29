@@ -60,7 +60,7 @@
                     <Button Margin="5" Command="{Binding StopCommand}">Stop</Button>
                     <Button Margin="5" Command="{Binding PauseCommand}">Pause</Button>
                 </StackPanel>
-                <Label Grid.Row="1" x:Name="LabelTime" HorizontalAlignment="Right"/>
+                <Label Grid.Row="1" x:Name="LabelTime" HorizontalAlignment="Right" Content="{Binding Player.CurrentTime}" ContentStringFormat="{}{0:hh}:{0:mm}:{0:ss}"/>
             </Grid>            
             <player:WaveformTimeline Grid.Column="2" x:Name="Player" HorizontalAlignment="Stretch"></player:WaveformTimeline>
         </Grid>

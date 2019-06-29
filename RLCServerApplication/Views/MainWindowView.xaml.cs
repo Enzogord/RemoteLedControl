@@ -30,26 +30,11 @@ namespace RLCServerApplication.Views
 
         public void InitPlayer()
         {
-            Player player = ViewModel.Player;
-            player.Init(App.Current.Dispatcher);
-            player.PropertyChanged += Player_PropertyChanged;
-            Player.RegisterSoundPlayer(player);
+            ViewModel.Player.Init(Application.Current.Dispatcher);
+            Player.RegisterSoundPlayer(ViewModel.Player);
             Resources.MergedDictionaries.Clear();
             ResourceDictionary themeResources = Application.LoadComponent(new Uri("Resources/ExpressionDark.xaml", UriKind.Relative)) as ResourceDictionary;            
             Resources.MergedDictionaries.Add(themeResources);
-        }
-
-        private void Player_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
-        {
-            Player player = ViewModel.Player;
-            switch(e.PropertyName) {
-                case "ChannelPosition":
-                    LabelTime.Content = TimeSpan.FromSeconds(player.ChannelPosition).ToString(@"hh\:mm\:ss");
-                    break;
-                default:
-                    // Do Nothing
-                    break;
-            }
         }
     }
 }

@@ -90,7 +90,7 @@ namespace NAudioPlayer
 
         private bool inChannelSet;
         private double channelPosition;
-        public double ChannelPosition {
+        public virtual double ChannelPosition {
             get { return channelPosition; }
             set {
                 if (!inChannelSet) {

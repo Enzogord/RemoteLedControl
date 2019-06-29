@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using Core;
 using NAudioPlayer;
 using RLCCore;
 using RLCCore.RemoteOperations;
@@ -10,7 +11,7 @@ namespace RLCServerApplication.ViewModels
     {
         private RLCProjectController projectController;
 
-        public Player Player { get; }
+        public SequencePlayer Player { get; }
 
         private SettingsViewModel settingsViewModel;
         public SettingsViewModel SettingsViewModel {
@@ -48,7 +49,7 @@ namespace RLCServerApplication.ViewModels
             SettingsViewModel = new SettingsViewModel(projectController);
             RemoteClientsViewModel = new RemoteClientsViewModel(projectController);
 
-            Player = new Player();
+            Player = new SequencePlayer();
             Player.PropertyChanged += Player_PropertyChanged;
 
             CreateCommands();
