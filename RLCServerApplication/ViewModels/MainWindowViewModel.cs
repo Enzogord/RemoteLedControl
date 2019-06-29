@@ -48,7 +48,7 @@ namespace RLCServerApplication.ViewModels
             SettingsViewModel = new SettingsViewModel(projectController);
             RemoteClientsViewModel = new RemoteClientsViewModel(projectController);
 
-            Player = Player.Instance;
+            Player = new Player();
             Player.PropertyChanged += Player_PropertyChanged;
 
             CreateCommands();

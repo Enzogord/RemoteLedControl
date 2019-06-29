@@ -11,7 +11,6 @@ namespace NAudioPlayer
     public class Player : IWaveformPlayer, IDisposable
     {
         #region Fields
-        private static Player instance;
         private readonly DispatcherTimer positionTimer = new DispatcherTimer(DispatcherPriority.ApplicationIdle);
         private readonly BackgroundWorker waveformGenerateWorker = new BackgroundWorker();
         private readonly int fftDataSize = 256;
@@ -33,18 +32,8 @@ namespace NAudioPlayer
         private const int waveformCompressedPointCount = 5000;
         #endregion
 
-        #region Singleton Pattern
-        public static Player Instance {
-            get {
-                if (instance == null)
-                    instance = new Player();
-                return instance;
-            }
-        }
-        #endregion
-
         #region Constructor
-        private Player()
+        public Player()
         {
             positionTimer.Interval = TimeSpan.FromMilliseconds(50);
             positionTimer.Tick += positionTimer_Tick;
@@ -53,7 +42,6 @@ namespace NAudioPlayer
             waveformGenerateWorker.WorkerSupportsCancellation = true;
         }
 
-        //ВРЕМЕННО
         Dispatcher dispatcher;
 
         public void Init(Dispatcher mainThreadDispatcher)
@@ -270,7 +258,7 @@ namespace NAudioPlayer
         #endregion
 
         #region Public Methods
-        public void Stop()
+        public virtual void Stop()
         {
             if (waveOutDevice != null) {
                 waveOutDevice.Stop();
@@ -284,7 +272,7 @@ namespace NAudioPlayer
             CanPause = false;
         }
 
-        public void Pause()
+        public virtual void Pause()
         {
             if (IsPlaying && CanPause) {
                 waveOutDevice.Pause();
@@ -294,7 +282,7 @@ namespace NAudioPlayer
             }
         }
 
-        public void Play()
+        public virtual void Play()
         {
             if (CanPlay) {
                 waveOutDevice.Play();

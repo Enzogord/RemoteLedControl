@@ -68,6 +68,7 @@
     <Compile Include="IPin.cs" />
     <Compile Include="IRemoteClient.cs" />
     <Compile Include="IRemoteClientConnector.cs" />
+    <Compile Include="ISequenceController.cs" />
     <Compile Include="IStartTimeProvider.cs" />
     <Compile Include="Messages\ClientState.cs" />
     <Compile Include="Messages\MessageType.cs" />
@@ -88,6 +89,7 @@
     <Compile Include="RemoteOperations\ClientEventArgs.cs" />
     <Compile Include="RemoteOperations\IClientsOperatorStateInformer.cs" />
     <Compile Include="RemoteOperations\IControlUnit.cs" />
+    <Compile Include="SequencePlayer.cs" />
     <Compile Include="StartTimeProvider.cs" />
     <Compile Include="RemoteOperations\OperatorStateEventArgs.cs" />
     <Compile Include="RemoteOperations\OperatorStates.cs" />
@@ -101,6 +103,10 @@
     <Compile Include="XMLSaver.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\NAudioPlayer\NAudioPlayer.csproj">
+      <Project>{293BBD8E-7EC8-49ED-A0C7-7124405C2242}</Project>
+      <Name>NAudioPlayer</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Service\Service.csproj">
       <Project>{e10168f4-2657-4fdf-bf2d-d9dc58ab7e51}</Project>
       <Name>Service</Name>
