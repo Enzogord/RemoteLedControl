@@ -25,12 +25,7 @@ namespace RLCServerApplication.ViewModels
             set => SetField(ref remoteClientsViewModel, value, () => RemoteClientsViewModel);
         }
 
-        public RelayCommand PlayCommand { get; private set; }
-        public RelayCommand StopCommand { get; private set; }
-        public RelayCommand PauseCommand { get; private set; }
-        public RelayCommand StartServicesCommand { get; private set; }
-        public RelayCommand StopServicesCommand { get; private set; }
-        public RelayCommand AddAudioTrackCommand { get; private set; }
+        
 
         public MainWindowViewModel()
         {
@@ -57,6 +52,16 @@ namespace RLCServerApplication.ViewModels
 
         #region Commands
 
+        public RelayCommand PlayCommand { get; private set; }
+        public RelayCommand StopCommand { get; private set; }
+        public RelayCommand PauseCommand { get; private set; }
+        public RelayCommand StartServicesCommand { get; private set; }
+        public RelayCommand StopServicesCommand { get; private set; }
+        public RelayCommand AddAudioTrackCommand { get; private set; }
+        public RelayCommand SwitchToSetupCommand { get; private set; }
+        public RelayCommand SwitchToTestCommand { get; private set; }
+        public RelayCommand SwitchToWorkCommand { get; private set; }
+
         private void CreateCommands()
         {
             CreatePlayCommand();
@@ -65,6 +70,9 @@ namespace RLCServerApplication.ViewModels
             CreateStartServicesCommand();
             CreateStopServicesCommand();
             CreateAddAudioTrackCommand();
+            CreateSwitchToSetupCommand();
+            CreateSwitchToTestCommand();
+            CreateSwitchToWorkCommand();
         }
 
         private void CreatePlayCommand()
@@ -159,6 +167,36 @@ namespace RLCServerApplication.ViewModels
                         Player.OpenFile(dlg.FileName);
                         Player.Volume = 0.1f;
                     }
+                },
+                () => true
+            );
+        }
+
+        private void CreateSwitchToSetupCommand()
+        {
+            SwitchToSetupCommand = new RelayCommand(
+                () => {
+                    projectController.WorkMode = ProjectWorkModes.Setup;
+                },
+                () => true
+            );
+        }
+
+        private void CreateSwitchToTestCommand()
+        {
+            SwitchToTestCommand = new RelayCommand(
+                () => {
+                    projectController.WorkMode = ProjectWorkModes.Test;
+                },
+                () => true
+            );
+        }
+
+        private void CreateSwitchToWorkCommand()
+        {
+            SwitchToWorkCommand = new RelayCommand(
+                () => {
+                    projectController.WorkMode = ProjectWorkModes.Work;
                 },
                 () => true
             );
