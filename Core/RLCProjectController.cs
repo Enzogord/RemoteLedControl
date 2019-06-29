@@ -1,4 +1,5 @@
-﻿using Core.ClientConnectionService;
+﻿using Core;
+using Core.ClientConnectionService;
 using Core.Messages;
 using NLog;
 using RLCCore.RemoteOperations;
@@ -13,6 +14,12 @@ namespace RLCCore
     public class RLCProjectController : NotifyPropertyBase
     {
         Logger logger = LogManager.GetCurrentClassLogger();
+
+        private ProjectWorkModes workMode;
+        public ProjectWorkModes WorkMode {
+            get => workMode;
+            set => SetField(ref workMode, value, () => WorkMode);
+        }
 
         private NetworkController networkController;
         public NetworkController NetworkController {
@@ -40,6 +47,7 @@ namespace RLCCore
 
         public RLCProjectController()
         {
+            WorkMode = ProjectWorkModes.Setup;
             NetworkController = new NetworkController();
             TestDefaultConfig();
         }

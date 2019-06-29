@@ -74,6 +74,7 @@
     <Compile Include="Messages\MessageType.cs" />
     <Compile Include="Messages\RLCMessageFactory.cs" />
     <Compile Include="Messages\SourceType.cs" />
+    <Compile Include="ProjectStates.cs" />
     <Compile Include="RemoteClient.cs" />
     <Compile Include="Cyclogramm.cs" />
     <Compile Include="Enums.cs" />
