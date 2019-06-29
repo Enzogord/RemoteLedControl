@@ -36,5 +36,11 @@ namespace RLCServerApplication.Views
             ResourceDictionary themeResources = Application.LoadComponent(new Uri("Resources/ExpressionDark.xaml", UriKind.Relative)) as ResourceDictionary;            
             Resources.MergedDictionaries.Add(themeResources);
         }
+
+        protected override void OnClosed(EventArgs e)
+        {
+            Environment.Exit(0);
+            base.OnClosed(e);
+        }
     }
 }
