@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using System.Linq.Expressions;
 
 namespace Service
@@ -45,5 +46,31 @@ namespace Service
             OnPropertyChanged(selectorExpression);
             return true;
         }
+
+        #region Подписки на изменения свойств
+
+        public void Bind<T, TBindObject>(Expression<Func<T>> subjectPropertyExpr, TBindObject bindObject, params Expression<Func<TBindObject, object>>[] bindObjectPropertyExprs)
+            where TBindObject : class, INotifyPropertyChanged
+        {
+            List<string> bindPropertyList = bindObjectPropertyExprs.Select(x => ReflectionUtils.GetName(x)).ToList();
+            bindObject.PropertyChanged += (sender, e) => {
+                if(bindPropertyList.Contains(e.PropertyName)) {
+                    OnPropertyChanged(subjectPropertyExpr);
+                }
+            };
+        }
+
+        public void BindAction<TBindObject>(Action trigeredAction, TBindObject bindObject, params Expression<Func<TBindObject, object>>[] bindObjectPropertyExprs)
+            where TBindObject : class, INotifyPropertyChanged
+        {
+            List<string> bindPropertyList = bindObjectPropertyExprs.Select(x => ReflectionUtils.GetName(x)).ToList();
+            bindObject.PropertyChanged += (sender, e) => {
+                if(bindPropertyList.Contains(e.PropertyName)) {
+                    trigeredAction.Invoke();
+                }
+            };
+        }
+
+        #endregion
     }
 }

@@ -1,6 +1,5 @@
 ﻿using System.Linq;
 using Core;
-using NAudioPlayer;
 using RLCCore;
 using RLCCore.RemoteOperations;
 using RLCServerApplication.Infrastructure;
@@ -9,7 +8,7 @@ namespace RLCServerApplication.ViewModels
 {
     public class MainWindowViewModel : ViewModelBase
     {
-        private RLCProjectController projectController;
+        public RLCProjectController ProjectController { get; private set; }
 
         public SequencePlayer Player { get; }
 
@@ -25,13 +24,13 @@ namespace RLCServerApplication.ViewModels
             set => SetField(ref remoteClientsViewModel, value, () => RemoteClientsViewModel);
         }
 
-        
+        public bool CanEdit => ProjectController.WorkMode == ProjectWorkModes.Setup;
 
         public MainWindowViewModel()
         {
-            projectController = new RLCProjectController();
-            projectController.PropertyChanged += (sender, e) => {
-                if(e.PropertyName == nameof(projectController.ServicesIsReady)) {
+            ProjectController = new RLCProjectController();
+            ProjectController.PropertyChanged += (sender, e) => {
+                if(e.PropertyName == nameof(ProjectController.ServicesIsReady)) {
                     if(StartServicesCommand != null) {
                         StartServicesCommand.RaiseCanExecuteChanged();
                     }
@@ -41,13 +40,26 @@ namespace RLCServerApplication.ViewModels
                 }
             };
 
-            SettingsViewModel = new SettingsViewModel(projectController);
-            RemoteClientsViewModel = new RemoteClientsViewModel(projectController);
+            SettingsViewModel = new SettingsViewModel(ProjectController);
+            RemoteClientsViewModel = new RemoteClientsViewModel(ProjectController);
 
             Player = new SequencePlayer();
-            Player.PropertyChanged += Player_PropertyChanged;
 
+            ConfigureBindings();
             CreateCommands();
+        }
+
+        private void ConfigureBindings()
+        {
+            BindAction(UpdatePlayerCommands, ProjectController,
+                   x => x.ServicesIsReady
+               );
+
+            BindAction(UpdatePlayerCommands, Player,
+                x => x.CanPlay,
+                x => x.CanPause,
+                x => x.CanStop
+            );
         }
 
         #region Commands
@@ -67,8 +79,6 @@ namespace RLCServerApplication.ViewModels
             CreatePlayCommand();
             CreateStopCommand();
             CreatePauseCommand();
-            CreateStartServicesCommand();
-            CreateStopServicesCommand();
             CreateAddAudioTrackCommand();
             CreateSwitchToSetupCommand();
             CreateSwitchToTestCommand();
@@ -80,16 +90,16 @@ namespace RLCServerApplication.ViewModels
             PlayCommand = new RelayCommand(
                 () => {
                     if(Player.CanPlay) {
-                        projectController.RemoteClientsOperator.Play();
+                        ProjectController.RemoteClientsOperator.Play();
                         Player.Play();
                     }
                 },
                 () => {
-                    if(!projectController.ServicesIsReady) {
+                    if(!ProjectController.ServicesIsReady) {
                         return false;
                     }
                     var playStates = new[]{ OperatorStates.Ready, OperatorStates.Stop, OperatorStates.Pause };
-                    return playStates.Contains(projectController.RemoteClientsOperator.State) && Player.CanPlay;
+                    return playStates.Contains(ProjectController.RemoteClientsOperator.State) && Player.CanPlay;
                 }
             );
         }
@@ -99,16 +109,16 @@ namespace RLCServerApplication.ViewModels
             StopCommand = new RelayCommand(
                 () => {
                     if(Player.CanStop) {
-                        projectController.RemoteClientsOperator.Stop();
+                        ProjectController.RemoteClientsOperator.Stop();
                         Player.Stop();
                     }
                 },
                 () => {
-                    if(!projectController.ServicesIsReady) {
+                    if(!ProjectController.ServicesIsReady) {
                         return false;
                     }
                     var stopStates = new[]{ OperatorStates.Play, OperatorStates.Pause };
-                    return stopStates.Contains(projectController.RemoteClientsOperator.State) && Player.CanStop;
+                    return stopStates.Contains(ProjectController.RemoteClientsOperator.State) && Player.CanStop;
                 }
             );
         }
@@ -118,43 +128,19 @@ namespace RLCServerApplication.ViewModels
             PauseCommand = new RelayCommand(
                 () => {
                     if(Player.CanPause) {
-                        projectController.RemoteClientsOperator.Pause();
+                        ProjectController.RemoteClientsOperator.Pause();
                         Player.Pause();
                     }
                 },
                 () => {
-                    if(!projectController.ServicesIsReady) {
+                    if(!ProjectController.ServicesIsReady) {
                         return false;
                     }
-                    return projectController.RemoteClientsOperator.State == OperatorStates.Play && Player.CanPause;
+                    return ProjectController.RemoteClientsOperator.State == OperatorStates.Play && Player.CanPause;
                 }
             );
         }
-
-        private void CreateStartServicesCommand()
-        {
-            StartServicesCommand = new RelayCommand(
-                () => {
-                    projectController.StartServices();
-                    projectController.RemoteClientsOperator.StateChanged += RemoteClientsOperator_StateChanged;
-                    UpdatePlayerCommands();
-                },
-                () => !projectController.ServicesIsReady
-            );
-        }
-
-        private void CreateStopServicesCommand()
-        {
-            StopServicesCommand = new RelayCommand(
-                () => {
-                    projectController.RemoteClientsOperator.StateChanged -= RemoteClientsOperator_StateChanged;
-                    projectController.StopServices();
-                    UpdatePlayerCommands();
-                },
-                () => projectController.ServicesIsReady
-            );
-        }
-
+        
         private void CreateAddAudioTrackCommand()
         {
             AddAudioTrackCommand = new RelayCommand(
@@ -176,7 +162,7 @@ namespace RLCServerApplication.ViewModels
         {
             SwitchToSetupCommand = new RelayCommand(
                 () => {
-                    projectController.WorkMode = ProjectWorkModes.Setup;
+                    ProjectController.SwitchToSetupMode();
                 },
                 () => true
             );
@@ -186,7 +172,7 @@ namespace RLCServerApplication.ViewModels
         {
             SwitchToTestCommand = new RelayCommand(
                 () => {
-                    projectController.WorkMode = ProjectWorkModes.Test;
+                    ProjectController.SwitchToTestMode();
                 },
                 () => true
             );
@@ -196,7 +182,7 @@ namespace RLCServerApplication.ViewModels
         {
             SwitchToWorkCommand = new RelayCommand(
                 () => {
-                    projectController.WorkMode = ProjectWorkModes.Work;
+                    ProjectController.SwitchToWorkMode();
                 },
                 () => true
             );
@@ -204,35 +190,11 @@ namespace RLCServerApplication.ViewModels
 
         #endregion Commands
 
-        private void Player_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
-        {
-            switch(e.PropertyName) {
-                case nameof(Player.CanPlay):
-                case nameof(Player.CanPause):
-                case nameof(Player.CanStop):
-                    UpdatePlayerCommands();
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        private void RemoteClientsOperator_StateChanged(object sender, OperatorStateEventArgs e)
-        {
-            UpdatePlayerCommands();
-        }
-
         private void UpdatePlayerCommands()
         {
-            if(PlayCommand != null) {
-                PlayCommand.RaiseCanExecuteChanged();
-            }
-            if(StopCommand != null) {
-                StopCommand.RaiseCanExecuteChanged();
-            }
-            if(PauseCommand != null) {
-                PauseCommand.RaiseCanExecuteChanged();
-            }
+            PlayCommand?.RaiseCanExecuteChanged();
+            StopCommand?.RaiseCanExecuteChanged();
+            PauseCommand?.RaiseCanExecuteChanged();
         }
     }
 }

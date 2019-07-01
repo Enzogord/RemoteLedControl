@@ -52,8 +52,30 @@ namespace RLCCore
             TestDefaultConfig();
         }
 
+        public void SwitchToSetupMode()
+        {
+            StopServices();
+            WorkMode = ProjectWorkModes.Setup;
+        }
+
+        public void SwitchToTestMode()
+        {
+            StartServices();
+            WorkMode = ProjectWorkModes.Test;
+        }
+
+        public void SwitchToWorkMode()
+        {
+            StartServices();
+            WorkMode = ProjectWorkModes.Work;
+        }
+
         public void StartServices()
         {
+            if(ServicesIsReady) {
+                return;
+            }
+
             var ipAddress = networkController.GetServerIPAddress();
             int rlcPort = 11010;
             int sntpPort = 11011;
@@ -121,7 +143,6 @@ namespace RLCCore
                 RemoteClientsOperator = null;
                 ServicesIsReady = false;
                 logger.Error(ex, "Ошибка при запуске сервиса соединения с удаленными клиентами");
-                //FIXME Вывод сообщения пользователю что слуюбы не смогли запуститься по причине...
                 throw;
             }
 

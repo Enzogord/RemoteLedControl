@@ -100,23 +100,19 @@
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="auto"/>
             </Grid.ColumnDefinitions>
-            <StackPanel Orientation="Horizontal" Grid.Column="0">
-                <Button Margin="5" Command="{Binding StartServicesCommand}">Start server</Button>
-                <Button Margin="5" Command="{Binding StopServicesCommand}">Stop server</Button>
-            </StackPanel>
-            <StackPanel Orientation="Horizontal" Grid.Column="1" >
-                <RadioButton Margin="5" Padding="5,0" 
+            <StackPanel Orientation="Horizontal" Grid.Column="1" HorizontalAlignment="Right">
+                <RadioButton Margin="1, 2" Padding="5,0" 
                              Content="Настройка" 
                              GroupName="ToggleGroup" 
                              Style="{StaticResource {x:Type ToggleButton}}" 
                              IsChecked="True" 
                              Command="{Binding SwitchToSetupCommand}"/>
-                <RadioButton Margin="5" Padding="5,0" 
+                <RadioButton Margin="1, 2" Padding="5,0" 
                              Content="Тест" 
                              GroupName="ToggleGroup" 
                              Style="{StaticResource {x:Type ToggleButton}}"
                              Command="{Binding SwitchToTestCommand}"/>
-                <RadioButton Margin="5" Padding="5,0" 
+                <RadioButton Margin="1, 2" Padding="5,0" 
                              Content="Работа" 
                              GroupName="ToggleGroup" 
                              Style="{StaticResource {x:Type ToggleButton}}"
@@ -147,7 +143,10 @@
 
         <TabControl Grid.Row="3" TabStripPlacement="Left">
             <TabItem Header="Настройки" Padding="10">
-                <ContentPresenter Content="{Binding SettingsViewModel}" ContentTemplate="{StaticResource SettingsTemplate}" />
+                <ContentPresenter 
+                    Content="{Binding SettingsViewModel}" 
+                    ContentTemplate="{StaticResource SettingsTemplate}" 
+                    IsEnabled="{Binding ProjectController.WorkMode}"/>
             </TabItem>
 
             <TabItem Header="Клиенты" Padding="10">
