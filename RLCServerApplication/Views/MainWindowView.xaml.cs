@@ -32,9 +32,6 @@ namespace RLCServerApplication.Views
         {
             ViewModel.Player.Init(Application.Current.Dispatcher);
             Player.RegisterSoundPlayer(ViewModel.Player);
-            Resources.MergedDictionaries.Clear();
-            ResourceDictionary themeResources = Application.LoadComponent(new Uri("Resources/ExpressionDark.xaml", UriKind.Relative)) as ResourceDictionary;            
-            Resources.MergedDictionaries.Add(themeResources);
         }
 
         protected override void OnClosed(EventArgs e)
