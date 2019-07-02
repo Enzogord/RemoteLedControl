@@ -1,5 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using System.Linq;
+using Core;
 using RLCCore;          
 using RLCServerApplication.Infrastructure;
 
@@ -8,13 +9,18 @@ namespace RLCServerApplication.ViewModels
     public class RemoteClientsViewModel : ViewModelBase
     {
         private readonly RemoteControlProject remoteControlProject;
+        private readonly RLCProjectController projectController;
 
         public RemoteClientsViewModel(RLCProjectController projectController)
         {
+            this.projectController = projectController ?? throw new System.ArgumentNullException(nameof(projectController));
             this.remoteControlProject = projectController.CurrentProject;
             Clients = new ReadOnlyObservableCollection<RemoteClient>(remoteControlProject.Clients);
             CreateCommands();
+            ConfigureBindings();
         }
+
+        public bool CanEdit => projectController.WorkMode == ProjectWorkModes.Setup;
 
         private ReadOnlyObservableCollection<RemoteClient> clients;
         public ReadOnlyObservableCollection<RemoteClient> Clients {
@@ -39,6 +45,11 @@ namespace RLCServerApplication.ViewModels
         public RemoteClientViewModel RemoteClientViewModel {
             get => remoteClientViewModel;
             set => SetField(ref remoteClientViewModel, value, () => RemoteClientViewModel);
+        }
+
+        private void ConfigureBindings()
+        {
+            Bind(() => CanEdit, projectController, x => x.WorkMode);
         }
 
         public RelayCommand OpenClientEditorCommand { get; private set; }

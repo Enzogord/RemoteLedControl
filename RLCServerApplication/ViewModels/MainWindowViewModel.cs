@@ -52,13 +52,15 @@ namespace RLCServerApplication.ViewModels
         private void ConfigureBindings()
         {
             BindAction(UpdatePlayerCommands, ProjectController,
-                   x => x.ServicesIsReady
-               );
+                   x => x.ServicesIsReady,
+                   x => x.WorkMode
+            );
 
             BindAction(UpdatePlayerCommands, Player,
                 x => x.CanPlay,
                 x => x.CanPause,
-                x => x.CanStop
+                x => x.CanStop,
+                x => x.IsInitialized
             );
         }
 
@@ -89,17 +91,21 @@ namespace RLCServerApplication.ViewModels
         {
             PlayCommand = new RelayCommand(
                 () => {
-                    if(Player.CanPlay) {
-                        ProjectController.RemoteClientsOperator.Play();
-                        Player.Play();
+                    if(ProjectController.WorkMode == ProjectWorkModes.Setup) {
+                        return;
                     }
+                    ProjectController.RemoteClientsOperator.Play();
+                    if(!Player.IsInitialized || !Player.CanPlay) {
+                        return;
+                    }
+                    Player.Play();
                 },
                 () => {
                     if(!ProjectController.ServicesIsReady) {
                         return false;
                     }
                     var playStates = new[]{ OperatorStates.Ready, OperatorStates.Stop, OperatorStates.Pause };
-                    return playStates.Contains(ProjectController.RemoteClientsOperator.State) && Player.CanPlay;
+                    return ProjectController.WorkMode != ProjectWorkModes.Setup && playStates.Contains(ProjectController.RemoteClientsOperator.State);
                 }
             );
         }
@@ -108,17 +114,21 @@ namespace RLCServerApplication.ViewModels
         {
             StopCommand = new RelayCommand(
                 () => {
-                    if(Player.CanStop) {
-                        ProjectController.RemoteClientsOperator.Stop();
-                        Player.Stop();
+                    if(ProjectController.WorkMode == ProjectWorkModes.Setup) {
+                        return;
                     }
+                    ProjectController.RemoteClientsOperator.Stop();
+                    if(!Player.IsInitialized || !Player.CanStop) {
+                        return;
+                    }
+                    Player.Stop();
                 },
                 () => {
                     if(!ProjectController.ServicesIsReady) {
                         return false;
                     }
                     var stopStates = new[]{ OperatorStates.Play, OperatorStates.Pause };
-                    return stopStates.Contains(ProjectController.RemoteClientsOperator.State) && Player.CanStop;
+                    return ProjectController.WorkMode != ProjectWorkModes.Setup && stopStates.Contains(ProjectController.RemoteClientsOperator.State);
                 }
             );
         }
@@ -127,16 +137,20 @@ namespace RLCServerApplication.ViewModels
         {
             PauseCommand = new RelayCommand(
                 () => {
-                    if(Player.CanPause) {
-                        ProjectController.RemoteClientsOperator.Pause();
-                        Player.Pause();
+                    if(ProjectController.WorkMode == ProjectWorkModes.Setup) {
+                        return;
                     }
+                    ProjectController.RemoteClientsOperator.Pause();
+                    if(!Player.IsInitialized || !Player.CanPause) {
+                        return;
+                    }
+                    Player.Pause();
                 },
                 () => {
                     if(!ProjectController.ServicesIsReady) {
                         return false;
                     }
-                    return ProjectController.RemoteClientsOperator.State == OperatorStates.Play && Player.CanPause;
+                    return ProjectController.WorkMode != ProjectWorkModes.Setup && ProjectController.RemoteClientsOperator.State == OperatorStates.Play;
                 }
             );
         }
@@ -154,7 +168,7 @@ namespace RLCServerApplication.ViewModels
                         Player.Volume = 0.1f;
                     }
                 },
-                () => true
+                () => CanEdit
             );
         }
 
@@ -173,6 +187,8 @@ namespace RLCServerApplication.ViewModels
             SwitchToTestCommand = new RelayCommand(
                 () => {
                     ProjectController.SwitchToTestMode();
+                    ProjectController.RemoteClientsOperator.StateChanged -= RemoteClientsOperator_StateChanged;
+                    ProjectController.RemoteClientsOperator.StateChanged += RemoteClientsOperator_StateChanged;
                 },
                 () => true
             );
@@ -183,9 +199,16 @@ namespace RLCServerApplication.ViewModels
             SwitchToWorkCommand = new RelayCommand(
                 () => {
                     ProjectController.SwitchToWorkMode();
+                    ProjectController.RemoteClientsOperator.StateChanged -= RemoteClientsOperator_StateChanged;
+                    ProjectController.RemoteClientsOperator.StateChanged += RemoteClientsOperator_StateChanged;
                 },
-                () => true
+                () => Player.IsInitialized
             );
+        }
+
+        private void RemoteClientsOperator_StateChanged(object sender, OperatorStateEventArgs e)
+        {
+            UpdatePlayerCommands();
         }
 
         #endregion Commands
