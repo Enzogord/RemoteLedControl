@@ -195,6 +195,7 @@ namespace RLCServerApplication.ViewModels
                 },
                 () => CanEdit
             );
+            AddAudioTrackCommand.CanExecuteChangedWith(this, x => x.CanEdit);
         }
 
         #endregion AddAudioTrackCommand
