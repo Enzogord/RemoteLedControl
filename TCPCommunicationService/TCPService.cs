@@ -59,6 +59,7 @@ namespace TCPCommunicationService
                         });
                     }
                 }
+                Thread.Sleep(1);
             }
         }
 
