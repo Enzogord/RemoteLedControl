@@ -16,16 +16,11 @@ namespace RLCCore.RemoteOperations
         private readonly INetworkSettingProvider networkSettingProvider;
         private readonly IRemoteClientCommunication remoteClientCommunication;
 
-        public event EventHandler<OperatorStateEventArgs> StateChanged;
 
         private OperatorStates state;
         public OperatorStates State {
             get => state;
-            private set {
-                if(SetField(ref state, value, () => State)) {
-                    StateChanged?.Invoke(this, new OperatorStateEventArgs(state));
-                }
-            }
+            private set => SetField(ref state, value, () => State);
         }
 
         public RemoteClientsOperator(IControlUnit controlUnit, INetworkSettingProvider networkSettingProvider, IRemoteClientCommunication remoteClientCommunication)

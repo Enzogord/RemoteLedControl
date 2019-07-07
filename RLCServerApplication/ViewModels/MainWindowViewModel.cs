@@ -47,12 +47,21 @@ namespace RLCServerApplication.ViewModels
         {
             Bind(() => CanEdit, ProjectController, x => x.WorkMode);
 
-            BindAction(UpdatePlayerState, ProjectController, x => x.WorkMode);
+            BindAction(UpdatePlayerState, ProjectController, x => x.WorkMode);            
 
             BindAction(UpdatePlayerCommands, ProjectController,
                    x => x.ServicesIsReady,
                    x => x.WorkMode
             );
+
+            BindAction(() => {
+                if(ProjectController.RemoteClientsOperator != null) {
+                    BindAction(UpdatePlayerCommands, ProjectController.RemoteClientsOperator, x => x.State);                    
+                    Bind(() => CanSwitchToSetup, ProjectController.RemoteClientsOperator, x => x.State);
+                    Bind(() => CanSwitchToTest, ProjectController.RemoteClientsOperator, x => x.State);
+                    Bind(() => CanSwitchToWork, ProjectController.RemoteClientsOperator, x => x.State);
+                }
+            }, ProjectController, x => x.RemoteClientsOperator);
 
             BindAction(UpdatePlayerCommands, Player,
                 x => x.CanPlay,
@@ -60,17 +69,13 @@ namespace RLCServerApplication.ViewModels
                 x => x.CanStop,
                 x => x.IsInitialized
             );
+
+            Bind(() => CanSwitchToWork, Player,
+                x => x.IsInitialized
+            );
         }
 
         #region Commands
-
-        public DelegateCommand PlayCommand { get; private set; }
-        public DelegateCommand StopCommand { get; private set; }
-        public DelegateCommand PauseCommand { get; private set; }
-        public DelegateCommand AddAudioTrackCommand { get; private set; }
-        public DelegateCommand SwitchToSetupCommand { get; private set; }
-        public DelegateCommand SwitchToTestCommand { get; private set; }
-        public DelegateCommand SwitchToWorkCommand { get; private set; }
 
         private void CreateCommands()
         {
@@ -82,6 +87,11 @@ namespace RLCServerApplication.ViewModels
             CreateSwitchToTestCommand();
             CreateSwitchToWorkCommand();
         }
+
+
+        #region PlayCommand
+
+        public DelegateCommand PlayCommand { get; private set; }
 
         private void CreatePlayCommand()
         {
@@ -106,6 +116,12 @@ namespace RLCServerApplication.ViewModels
             );
         }
 
+        #endregion PlayCommand
+
+        #region StopCommand
+
+        public DelegateCommand StopCommand { get; private set; }
+
         private void CreateStopCommand()
         {
             StopCommand = new DelegateCommand(
@@ -129,6 +145,13 @@ namespace RLCServerApplication.ViewModels
             );
         }
 
+
+        #endregion StopCommand
+
+        #region PauseCommand
+
+        public DelegateCommand PauseCommand { get; private set; }
+
         private void CreatePauseCommand()
         {
             PauseCommand = new DelegateCommand(
@@ -150,7 +173,13 @@ namespace RLCServerApplication.ViewModels
                 }
             );
         }
-        
+
+        #endregion PauseCommand
+
+        #region AddAudioTrackCommand
+
+        public DelegateCommand AddAudioTrackCommand { get; private set; }
+
         private void CreateAddAudioTrackCommand()
         {
             AddAudioTrackCommand = new DelegateCommand(
@@ -168,6 +197,12 @@ namespace RLCServerApplication.ViewModels
             );
         }
 
+        #endregion AddAudioTrackCommand
+
+        #region SwitchToSetupCommand
+
+        public DelegateCommand SwitchToSetupCommand { get; private set; }
+
         private void CreateSwitchToSetupCommand()
         {
             SwitchToSetupCommand = new DelegateCommand(
@@ -175,38 +210,79 @@ namespace RLCServerApplication.ViewModels
                     Player.Stop();
                     ProjectController.SwitchToSetupMode();
                 },
-                () => true
+                () => CanSwitchToSetup
             );
+            SwitchToSetupCommand.CanExecuteChangedWith(this, x => x.CanSwitchToSetup);
         }
+
+        public bool CanSwitchToSetup {
+            get {
+                if(ProjectController.RemoteClientsOperator == null) {
+                    return true;
+                }
+                return (ProjectController.RemoteClientsOperator.State != OperatorStates.Play
+                    && ProjectController.RemoteClientsOperator.State != OperatorStates.Pause
+                );
+            }
+        }
+
+        #endregion SwitchToSetupCommand
+
+        #region SwitchToTestCommand
+
+        public DelegateCommand SwitchToTestCommand { get; private set; }        
 
         private void CreateSwitchToTestCommand()
         {
             SwitchToTestCommand = new DelegateCommand(
                 () => {
                     ProjectController.SwitchToTestMode();
-                    ProjectController.RemoteClientsOperator.StateChanged -= RemoteClientsOperator_StateChanged;
-                    ProjectController.RemoteClientsOperator.StateChanged += RemoteClientsOperator_StateChanged;
                 },
-                () => true
+                () => CanSwitchToTest
             );
+            SwitchToTestCommand.CanExecuteChangedWith(this, x => x.CanSwitchToTest);
         }
+
+        public bool CanSwitchToTest {
+            get {
+                if(ProjectController.RemoteClientsOperator == null) {
+                    return true;
+                }
+                return (ProjectController.RemoteClientsOperator.State != OperatorStates.Play
+                    && ProjectController.RemoteClientsOperator.State != OperatorStates.Pause
+                );
+            }
+        }
+
+        #endregion SwitchToTestCommand
+
+        #region SwitchToWorkCommand
+
+        public DelegateCommand SwitchToWorkCommand { get; private set; }
 
         private void CreateSwitchToWorkCommand()
         {
             SwitchToWorkCommand = new DelegateCommand(
                 () => {
                     ProjectController.SwitchToWorkMode();
-                    ProjectController.RemoteClientsOperator.StateChanged -= RemoteClientsOperator_StateChanged;
-                    ProjectController.RemoteClientsOperator.StateChanged += RemoteClientsOperator_StateChanged;
                 },
-                () => Player.IsInitialized
+                () => CanSwitchToWork
             );
+
+            SwitchToWorkCommand.CanExecuteChangedWith(this, x => x.CanSwitchToWork);
         }
 
-        private void RemoteClientsOperator_StateChanged(object sender, OperatorStateEventArgs e)
-        {
-            UpdatePlayerCommands();
+        public bool CanSwitchToWork {
+            get {
+                if(ProjectController.RemoteClientsOperator == null) {
+                    return Player.IsInitialized;
+                }
+                return Player.IsInitialized
+                    && ProjectController.RemoteClientsOperator.State != OperatorStates.Play
+                    && ProjectController.RemoteClientsOperator.State != OperatorStates.Pause;
+            }
         }
+        #endregion SwitchToWorkCommand
 
         #endregion Commands
 

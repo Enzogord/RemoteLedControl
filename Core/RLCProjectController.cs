@@ -39,7 +39,12 @@ namespace RLCCore
             set => SetField(ref servicesIsReady, value, () => ServicesIsReady);
         }
 
-        public RemoteClientsOperator RemoteClientsOperator { get; private set; }
+        private RemoteClientsOperator remoteClientsOperator;
+        public RemoteClientsOperator RemoteClientsOperator {
+            get => remoteClientsOperator;
+            private set => SetField(ref remoteClientsOperator, value, () => RemoteClientsOperator);
+        }
+
 
         private SntpService sntpService;
         private UDPService<RLCMessage> udpService;
@@ -54,18 +59,27 @@ namespace RLCCore
 
         public void SwitchToSetupMode()
         {
+            if(WorkMode == ProjectWorkModes.Setup) {
+                return;
+            }
             StopServices();
             WorkMode = ProjectWorkModes.Setup;
         }
 
         public void SwitchToTestMode()
         {
+            if(WorkMode == ProjectWorkModes.Test) {
+                return;
+            }
             StartServices();
             WorkMode = ProjectWorkModes.Test;
         }
 
         public void SwitchToWorkMode()
         {
+            if(WorkMode == ProjectWorkModes.Work) {
+                return;
+            }
             StartServices();
             WorkMode = ProjectWorkModes.Work;
         }
@@ -151,7 +165,9 @@ namespace RLCCore
 
         public void StopServices()
         {
-            RemoteClientsOperator.Stop();
+            if(RemoteClientsOperator != null) {
+                RemoteClientsOperator.Stop();
+            }
             if(sntpService != null) {
                 sntpService.Stop();
             }
