@@ -1,6 +1,7 @@
 ﻿using System;
 using RLCCore;
 using RLCServerApplication.Infrastructure;
+using RLCServerApplication.Infrastructure.Command;
 
 namespace RLCServerApplication.ViewModels
 {
@@ -79,19 +80,19 @@ namespace RLCServerApplication.ViewModels
 
         #region Commands
 
-        public RelayCommand SaveChangesCommand { get; private set; }
-        public RelayCommand CloseCommand { get; private set; }
+        public DelegateCommand SaveChangesCommand { get; private set; }
+        public DelegateCommand CloseCommand { get; private set; }
 
         public void CreateCommands()
         {
-            SaveChangesCommand = new RelayCommand(
+            SaveChangesCommand = new DelegateCommand(
                 () => {
                     CommitChanges();
                 },
                 () => true
             );
 
-            CloseCommand = new RelayCommand(
+            CloseCommand = new DelegateCommand(
                 () => { Discard(); },
                 () => true
             );

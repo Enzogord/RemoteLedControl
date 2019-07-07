@@ -82,8 +82,9 @@
     <Compile Include="Converters\NullVisibilityCollapsedConverter.cs" />
     <Compile Include="Converters\OnlineStatusToColorConverter.cs" />
     <Compile Include="Converters\StringToIntConverter.cs" />
-    <Compile Include="Infrastructure\IRelayCommand.cs" />
-    <Compile Include="Infrastructure\RelayCommand.cs" />
+    <Compile Include="Infrastructure\Command\DelegateCommand.cs" />
+    <Compile Include="Infrastructure\Command\DelegateCommandGeneric.cs" />
+    <Compile Include="Infrastructure\Command\PropertySubscribedCommandBase.cs" />
     <Compile Include="Infrastructure\ViewModelBase.cs" />
     <Compile Include="Services\TempService.cs" />
     <Compile Include="ViewModels\CyclogrammViewModel.cs" />

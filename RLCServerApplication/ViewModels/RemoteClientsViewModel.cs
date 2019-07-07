@@ -3,6 +3,7 @@ using System.Linq;
 using Core;
 using RLCCore;          
 using RLCServerApplication.Infrastructure;
+using RLCServerApplication.Infrastructure.Command;
 
 namespace RLCServerApplication.ViewModels
 {
@@ -52,13 +53,13 @@ namespace RLCServerApplication.ViewModels
             Bind(() => CanEdit, projectController, x => x.WorkMode);
         }
 
-        public RelayCommand OpenClientEditorCommand { get; private set; }
-        public RelayCommand AddNewClientCommand { get; private set; }
-        public RelayCommand DeleteClientCommand { get; private set; }
+        public DelegateCommand OpenClientEditorCommand { get; private set; }
+        public DelegateCommand AddNewClientCommand { get; private set; }
+        public DelegateCommand DeleteClientCommand { get; private set; }
 
         private void CreateCommands()
         {
-            OpenClientEditorCommand = new RelayCommand(
+            OpenClientEditorCommand = new DelegateCommand(
                 () => {
                     if(SelectedClient != null) {
                         RemoteClientViewModel = new RemoteClientViewModel(SelectedClient);
@@ -68,7 +69,7 @@ namespace RLCServerApplication.ViewModels
                 () => SelectedClient != null
             );
 
-            AddNewClientCommand = new RelayCommand(
+            AddNewClientCommand = new DelegateCommand(
                 () => {
                     RemoteClient newRemoteClient = new RemoteClient("Новый клиент", Clients.Max(x => x.Number) + 1);
                     RemoteClientViewModel = new RemoteClientViewModel(newRemoteClient);
@@ -82,7 +83,7 @@ namespace RLCServerApplication.ViewModels
                 () => true
             );
 
-            DeleteClientCommand = new RelayCommand(
+            DeleteClientCommand = new DelegateCommand(
                 () => { remoteControlProject.DeleteClient(SelectedClient); },
                 () => SelectedClient != null
             );

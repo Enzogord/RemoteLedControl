@@ -3,6 +3,7 @@ using Core;
 using RLCCore;
 using RLCCore.RemoteOperations;
 using RLCServerApplication.Infrastructure;
+using RLCServerApplication.Infrastructure.Command;
 
 namespace RLCServerApplication.ViewModels
 {
@@ -63,13 +64,13 @@ namespace RLCServerApplication.ViewModels
 
         #region Commands
 
-        public RelayCommand PlayCommand { get; private set; }
-        public RelayCommand StopCommand { get; private set; }
-        public RelayCommand PauseCommand { get; private set; }
-        public RelayCommand AddAudioTrackCommand { get; private set; }
-        public RelayCommand SwitchToSetupCommand { get; private set; }
-        public RelayCommand SwitchToTestCommand { get; private set; }
-        public RelayCommand SwitchToWorkCommand { get; private set; }
+        public DelegateCommand PlayCommand { get; private set; }
+        public DelegateCommand StopCommand { get; private set; }
+        public DelegateCommand PauseCommand { get; private set; }
+        public DelegateCommand AddAudioTrackCommand { get; private set; }
+        public DelegateCommand SwitchToSetupCommand { get; private set; }
+        public DelegateCommand SwitchToTestCommand { get; private set; }
+        public DelegateCommand SwitchToWorkCommand { get; private set; }
 
         private void CreateCommands()
         {
@@ -84,7 +85,7 @@ namespace RLCServerApplication.ViewModels
 
         private void CreatePlayCommand()
         {
-            PlayCommand = new RelayCommand(
+            PlayCommand = new DelegateCommand(
                 () => {
                     if(ProjectController.WorkMode == ProjectWorkModes.Setup) {
                         return;
@@ -107,7 +108,7 @@ namespace RLCServerApplication.ViewModels
 
         private void CreateStopCommand()
         {
-            StopCommand = new RelayCommand(
+            StopCommand = new DelegateCommand(
                 () => {
                     if(ProjectController.WorkMode == ProjectWorkModes.Setup) {
                         return;
@@ -130,7 +131,7 @@ namespace RLCServerApplication.ViewModels
 
         private void CreatePauseCommand()
         {
-            PauseCommand = new RelayCommand(
+            PauseCommand = new DelegateCommand(
                 () => {
                     if(ProjectController.WorkMode == ProjectWorkModes.Setup) {
                         return;
@@ -152,7 +153,7 @@ namespace RLCServerApplication.ViewModels
         
         private void CreateAddAudioTrackCommand()
         {
-            AddAudioTrackCommand = new RelayCommand(
+            AddAudioTrackCommand = new DelegateCommand(
                 () => {
                     //FIXME убрать зависимоть от диалога
                     Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog();
@@ -169,7 +170,7 @@ namespace RLCServerApplication.ViewModels
 
         private void CreateSwitchToSetupCommand()
         {
-            SwitchToSetupCommand = new RelayCommand(
+            SwitchToSetupCommand = new DelegateCommand(
                 () => {
                     Player.Stop();
                     ProjectController.SwitchToSetupMode();
@@ -180,7 +181,7 @@ namespace RLCServerApplication.ViewModels
 
         private void CreateSwitchToTestCommand()
         {
-            SwitchToTestCommand = new RelayCommand(
+            SwitchToTestCommand = new DelegateCommand(
                 () => {
                     ProjectController.SwitchToTestMode();
                     ProjectController.RemoteClientsOperator.StateChanged -= RemoteClientsOperator_StateChanged;
@@ -192,7 +193,7 @@ namespace RLCServerApplication.ViewModels
 
         private void CreateSwitchToWorkCommand()
         {
-            SwitchToWorkCommand = new RelayCommand(
+            SwitchToWorkCommand = new DelegateCommand(
                 () => {
                     ProjectController.SwitchToWorkMode();
                     ProjectController.RemoteClientsOperator.StateChanged -= RemoteClientsOperator_StateChanged;

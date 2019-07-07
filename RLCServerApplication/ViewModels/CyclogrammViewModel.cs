@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using RLCCore;
 using RLCServerApplication.Infrastructure;
+using RLCServerApplication.Infrastructure.Command;
 
 namespace RLCServerApplication.ViewModels
 {
@@ -27,11 +28,11 @@ namespace RLCServerApplication.ViewModels
 
         #region Commands
 
-        public RelayCommand SelectCyclogrammFile { get; private set; }
+        public DelegateCommand SelectCyclogrammFile { get; private set; }
 
         private void CreateCommands()
         {
-            SelectCyclogrammFile = new RelayCommand(
+            SelectCyclogrammFile = new DelegateCommand(
                 () => {
                     //FIXME убрать зависимоть от диалога
                     Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog();
