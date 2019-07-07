@@ -752,8 +752,8 @@ namespace AudioPlayer.TimeLine
                 case "ChannelLength":
                     UpdateAllRegions();
                     break;
-                case "IsInitialized":
-                    IsEnabled = soundPlayer.IsInitialized;
+                case "IsEnabled":
+                    IsEnabled = soundPlayer.IsEnabled;
                     break;
             }
         }

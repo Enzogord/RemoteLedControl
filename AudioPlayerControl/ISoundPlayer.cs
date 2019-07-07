@@ -1,15 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel;
 
 namespace AudioPlayer.TimeLine
 {
     public interface ISoundPlayer : INotifyPropertyChanged
     {
-        bool IsInitialized { get; }
+        bool IsEnabled { get; }
 
         /// <summary>
         /// Gets whether the sound player is currently playing audio.

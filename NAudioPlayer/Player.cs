@@ -331,12 +331,21 @@ namespace NAudioPlayer
 
         #region Public Properties
 
+        private bool isEnabled;
+        public bool IsEnabled {
+            get => isEnabled && IsInitialized;
+            set => SetField(ref isEnabled, value, () => IsEnabled);
+        }
+
         private bool isInitialized;
         public bool IsInitialized {
             get => isInitialized;
-            set => SetField(ref isInitialized, value, () => IsInitialized);
+            set {
+                if(SetField(ref isInitialized, value, () => IsInitialized)) {
+                    OnPropertyChanged(() => IsEnabled);
+                }
+            }
         }
-
 
         public WaveStream ActiveStream {
             get { return activeStream; }
@@ -392,7 +401,7 @@ namespace NAudioPlayer
             get { return isPlaying; }
             protected set {
                 SetField(ref isPlaying, value, () => IsPlaying);
-                positionTimer.IsEnabled = value;                
+                positionTimer.IsEnabled = value;              
             }
         }
 

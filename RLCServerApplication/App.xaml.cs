@@ -36,7 +36,7 @@ namespace RLCServerApplication
 
         protected override void OnExit(ExitEventArgs e)
         {
-            mainWindowViewModel.StopServicesCommand.Execute(null);
+            mainWindowViewModel.Close();
 
             base.OnExit(e);
             Environment.Exit(0);

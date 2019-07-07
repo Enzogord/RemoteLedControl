@@ -29,28 +29,25 @@ namespace RLCServerApplication.ViewModels
         public MainWindowViewModel()
         {
             ProjectController = new RLCProjectController();
-            ProjectController.PropertyChanged += (sender, e) => {
-                if(e.PropertyName == nameof(ProjectController.ServicesIsReady)) {
-                    if(StartServicesCommand != null) {
-                        StartServicesCommand.RaiseCanExecuteChanged();
-                    }
-                    if(StopServicesCommand != null) {
-                        StopServicesCommand.RaiseCanExecuteChanged();
-                    }
-                }
-            };
-
             SettingsViewModel = new SettingsViewModel(ProjectController);
             RemoteClientsViewModel = new RemoteClientsViewModel(ProjectController);
-
             Player = new SequencePlayer();
 
             ConfigureBindings();
             CreateCommands();
         }
 
+        public void Close()
+        {
+            ProjectController.Dispose();
+        }
+
         private void ConfigureBindings()
         {
+            Bind(() => CanEdit, ProjectController, x => x.WorkMode);
+
+            BindAction(UpdatePlayerState, ProjectController, x => x.WorkMode);
+
             BindAction(UpdatePlayerCommands, ProjectController,
                    x => x.ServicesIsReady,
                    x => x.WorkMode
@@ -69,8 +66,6 @@ namespace RLCServerApplication.ViewModels
         public RelayCommand PlayCommand { get; private set; }
         public RelayCommand StopCommand { get; private set; }
         public RelayCommand PauseCommand { get; private set; }
-        public RelayCommand StartServicesCommand { get; private set; }
-        public RelayCommand StopServicesCommand { get; private set; }
         public RelayCommand AddAudioTrackCommand { get; private set; }
         public RelayCommand SwitchToSetupCommand { get; private set; }
         public RelayCommand SwitchToTestCommand { get; private set; }
@@ -176,6 +171,7 @@ namespace RLCServerApplication.ViewModels
         {
             SwitchToSetupCommand = new RelayCommand(
                 () => {
+                    Player.Stop();
                     ProjectController.SwitchToSetupMode();
                 },
                 () => true
@@ -218,6 +214,11 @@ namespace RLCServerApplication.ViewModels
             PlayCommand?.RaiseCanExecuteChanged();
             StopCommand?.RaiseCanExecuteChanged();
             PauseCommand?.RaiseCanExecuteChanged();
+        }
+
+        private void UpdatePlayerState()
+        {
+            Player.IsEnabled = ProjectController.WorkMode == ProjectWorkModes.Test;
         }
     }
 }

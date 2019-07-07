@@ -11,7 +11,7 @@ using UDPCommunication;
 
 namespace RLCCore
 {
-    public class RLCProjectController : NotifyPropertyBase
+    public class RLCProjectController : NotifyPropertyBase, IDisposable
     {
         Logger logger = LogManager.GetCurrentClassLogger();
 
@@ -151,6 +151,7 @@ namespace RLCCore
 
         public void StopServices()
         {
+            RemoteClientsOperator.Stop();
             if(sntpService != null) {
                 sntpService.Stop();
             }
@@ -370,6 +371,13 @@ namespace RLCCore
 
             //NetworkController.CurrentAddressSetting = NetworkController.AddressSettings.First(x => x.IPAddress.ToString() == "192.168.1.217");
             //NetworkController.Port = 11010;
+        }
+
+        public void Dispose()
+        {
+            sntpService.Stop();
+            udpService.StopReceiving();
+            remoteClientConnector.Stop();
         }
     }
 }
