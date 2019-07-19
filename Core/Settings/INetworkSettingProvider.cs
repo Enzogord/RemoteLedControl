@@ -1,6 +1,6 @@
 ﻿using System.Net;
 
-namespace RLCCore
+namespace RLCCore.Settings
 {
     public interface INetworkSettingProvider
     {

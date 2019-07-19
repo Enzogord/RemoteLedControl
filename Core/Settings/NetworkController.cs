@@ -1,12 +1,12 @@
-﻿using Service;
-using System;
+﻿using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
+using Service;
 
-namespace RLCCore
+namespace RLCCore.Settings
 {
     public class NetworkController : NotifyPropertyBase, INetworkSettingProvider
     {
@@ -32,7 +32,6 @@ namespace RLCCore
             get => port;
             set => SetField(ref port, value, () => Port);
         }
-
 
         public IPAddress BroadcastIPAddress => IPAddress.Broadcast;
 

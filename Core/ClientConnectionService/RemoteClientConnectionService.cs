@@ -9,7 +9,7 @@ using TCPCommunicationService;
 
 namespace Core.ClientConnectionService
 {
-    public class RemoteClientConnectionService : TCPService, IRemoteClientConnectionService, IRemoteClientCommunication
+    public class RemoteClientConnectionService : TCPService, IRemoteClientCommunication
     {
         Logger logger = LogManager.GetCurrentClassLogger();
 

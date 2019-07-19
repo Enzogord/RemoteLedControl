@@ -1,29 +1,19 @@
-﻿using Service;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System;
 using System.Net;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace RLCCore
+namespace RLCCore.Settings
 {
     public class NetworkAddressSetting
     {
-        private IPAddress ipAddress;
-        public IPAddress IPAddress => ipAddress;
-
-        private IPAddress subNetMask;
-        public IPAddress SubNetMask => subNetMask;
-
-        private IPAddress broadCastAddress;
-        public IPAddress BroadCastAddress => broadCastAddress;
+        public IPAddress IPAddress { get; }
+        public IPAddress SubNetMask { get; }
+        public IPAddress BroadCastAddress { get; }
 
         public NetworkAddressSetting(IPAddress ipAddress, IPAddress subNetMask)
         {
-            this.ipAddress = ipAddress;
-            this.subNetMask = subNetMask;
-            this.broadCastAddress = GetBroadcastAddress(ipAddress, subNetMask);
+            this.IPAddress = ipAddress;
+            this.SubNetMask = subNetMask;
+            this.BroadCastAddress = GetBroadcastAddress(ipAddress, subNetMask);
         }
 
         /// <summary>

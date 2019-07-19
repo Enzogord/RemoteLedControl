@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using RLCCore;
+using RLCCore.Domain;
 using RLCServerApplication.Infrastructure;
 using RLCServerApplication.Infrastructure.Command;
 

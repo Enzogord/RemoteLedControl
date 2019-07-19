@@ -3,15 +3,17 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using System.Net;
 using System.Runtime.Serialization;
+using Core.Messages;
+using Core.RemoteOperations;
 using RLCCore.Exceptions;
+using RLCCore.Serialization;
 using Service;
 
-namespace RLCCore
+namespace RLCCore.Domain
 {
     [DataContract]
-    public class RemoteControlProject : NotifyPropertyBase, IRemoteControlProject, ISettingsProvider
+    public class RemoteControlProject : NotifyPropertyBase, ISettingsProvider, IMessageReceiver
     {
         private uint key;
         [DataMember]
@@ -44,7 +46,6 @@ namespace RLCCore
             get => port;
             set => SetField(ref port, value, () => Port);
         }
-
 
         private string clientsConfigFileName;
         [DataMember]
@@ -107,6 +108,16 @@ namespace RLCCore
             result.Add("UDPPort", Port.ToString());
 
             return result;
+        }
+
+        public void Receive(RLCMessage message)
+        {
+            RemoteClient foundClient = Clients.FirstOrDefault(x => x.Number == message.ClientNumber);
+            if(foundClient == null) {
+                return;
+            }
+
+            foundClient.ClientState = message.ClientState;
         }
 
         #endregion

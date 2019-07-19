@@ -1,9 +1,9 @@
 ﻿using System;
-using System.Linq;
-using Core;
 using Core.ClientConnectionService;
 using Core.Messages;
+using Core.RemoteOperations;
 using NLog;
+using RLCCore.Settings;
 using Service;
 
 namespace RLCCore.RemoteOperations
@@ -11,8 +11,8 @@ namespace RLCCore.RemoteOperations
     public class RemoteClientsOperator : NotifyPropertyBase
     {
         private static Logger logger = LogManager.GetCurrentClassLogger();
-
-        private readonly IControlUnit controlUnit;
+        private readonly uint key;
+        private readonly IMessageReceiver messageReceiver;
         private readonly INetworkSettingProvider networkSettingProvider;
         private readonly IRemoteClientCommunication remoteClientCommunication;
 
@@ -23,9 +23,10 @@ namespace RLCCore.RemoteOperations
             private set => SetField(ref state, value, () => State);
         }
 
-        public RemoteClientsOperator(IControlUnit controlUnit, INetworkSettingProvider networkSettingProvider, IRemoteClientCommunication remoteClientCommunication)
+        public RemoteClientsOperator(uint key, IMessageReceiver messageReceiver, INetworkSettingProvider networkSettingProvider, IRemoteClientCommunication remoteClientCommunication)
         {
-            this.controlUnit = controlUnit;
+            this.key = key;
+            this.messageReceiver = messageReceiver;
             this.networkSettingProvider = networkSettingProvider;
             this.remoteClientCommunication = remoteClientCommunication;
             remoteClientCommunication.OnReceiveMessage -= RemoteClientCommunication_OnReceiveMessage;
@@ -51,19 +52,10 @@ namespace RLCCore.RemoteOperations
                     break;
             }
 
-            UpdateClientInfo(client, message);
+            messageReceiver.Receive(message);
         }
 
         #region private methods
-
-        private void UpdateClientInfo(INumeredClient client, RLCMessage message)
-        {
-            RemoteClient foundClient = controlUnit.Clients.FirstOrDefault(x => x.Number == client.Number);
-            if(foundClient == null) {
-                return;
-            }
-            foundClient.ClientState = message.ClientState;
-        }
 
         #endregion
 
@@ -71,7 +63,7 @@ namespace RLCCore.RemoteOperations
         {
             var stateBackup = State;
             try {
-                var message = RLCMessageFactory.Play(controlUnit.Key);
+                var message = RLCMessageFactory.Play(key);
                 remoteClientCommunication.SendToAll(message);
                 State = OperatorStates.Play;
             }
@@ -87,7 +79,7 @@ namespace RLCCore.RemoteOperations
         {
             var stateBackup = State;
             try {
-                var message = RLCMessageFactory.Stop(controlUnit.Key);
+                var message = RLCMessageFactory.Stop(key);
                 remoteClientCommunication.SendToAll(message);
                 State = OperatorStates.Stop;
             }
@@ -103,7 +95,7 @@ namespace RLCCore.RemoteOperations
         {
             var stateBackup = State;
             try {
-                var message = RLCMessageFactory.Pause(controlUnit.Key);
+                var message = RLCMessageFactory.Pause(key);
                 remoteClientCommunication.SendToAll(message);
                 State = OperatorStates.Pause;
             }

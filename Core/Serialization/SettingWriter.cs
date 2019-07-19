@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+﻿using System.IO;
 using System.Text;
-using System.Threading.Tasks;
 
-namespace RLCCore
+namespace RLCCore.Serialization
 {
     public class SettingWriter
     {

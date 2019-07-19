@@ -1,12 +1,14 @@
-﻿using Core;
+﻿using System;
+using System.IO;
+using Core;
 using Core.ClientConnectionService;
 using Core.Messages;
 using NLog;
+using RLCCore.Domain;
 using RLCCore.RemoteOperations;
+using RLCCore.Settings;
 using Service;
 using SNTPService;
-using System;
-using System.IO;
 using UDPCommunication;
 
 namespace RLCCore
@@ -143,7 +145,7 @@ namespace RLCCore
             remoteClientConnector = new RemoteClientConnectionService(NetworkController.GetServerIPAddress(), rlcPort, connectorMessageService, 200);
 
             //Clients operator
-            RemoteClientsOperator = new RemoteClientsOperator(CurrentProject, NetworkController, remoteClientConnector);
+            RemoteClientsOperator = new RemoteClientsOperator(CurrentProject.Key, CurrentProject, NetworkController, remoteClientConnector);
 
             try {
                 remoteClientConnector.Start();

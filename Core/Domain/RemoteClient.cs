@@ -1,15 +1,15 @@
-﻿using Core.ClientConnectionService;
-using Core.Messages;
-using Service;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Net;
 using System.Runtime.Serialization;
-using TCPCommunicationService;
+using Core.ClientConnectionService;
+using Core.Messages;
+using RLCCore.Serialization;
+using Service;
 
-namespace RLCCore
+namespace RLCCore.Domain
 {
     [DataContract]
     public class RemoteClient : NotifyPropertyBase, ISettingsProvider, INumeredClient, IConnectableClient

@@ -1,7 +1,7 @@
 ﻿using System.Runtime.Serialization;
 using Service;
 
-namespace RLCCore
+namespace RLCCore.Domain
 {
     [DataContract]
     public class Cyclogramm : NotifyPropertyBase

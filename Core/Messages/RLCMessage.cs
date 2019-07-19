@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Net;
-using NLog;
 using TCPCommunicationService;
 using UDPCommunication;
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using RLCCore;
+using RLCCore.Domain;
 using RLCServerApplication.Infrastructure;
 using RLCServerApplication.Infrastructure.Command;
 

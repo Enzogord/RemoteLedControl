@@ -1,7 +1,8 @@
 ﻿using System.Collections.ObjectModel;
 using System.Linq;
 using Core;
-using RLCCore;          
+using RLCCore;
+using RLCCore.Domain;
 using RLCServerApplication.Infrastructure;
 using RLCServerApplication.Infrastructure.Command;
 

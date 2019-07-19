@@ -1,15 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Core.ClientConnectionService;
 using Core.Messages;
 using NLog;
-using RLCCore;
 
 namespace Core.ClientConnectionService
-{ 
+{
     public class ConnectorMessageService : IConnectorMessageService
     {
         private static ILogger logger = LogManager.GetCurrentClassLogger();

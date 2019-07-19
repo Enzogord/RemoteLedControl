@@ -2,10 +2,10 @@
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
 
-namespace RLCCore
+namespace RLCCore.Domain
 {
     [DataContract]
-    public class Pin : NotifyPropertyBase, IPin
+    public class Pin : NotifyPropertyBase
     {
         private byte pinNumber;
         [DataMember]
