@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System;
+using System.Net;
 
 namespace Core.Messages
 {
@@ -22,10 +23,10 @@ namespace Core.Messages
             return message;
         }
 
-        public static RLCMessage PlayFrom(uint key, uint frameTime)
+        public static RLCMessage PlayFrom(uint key, DateTime time)
         {
             var message = new RLCMessage(SourceType.Server, key, MessageType.PlayFrom);
-            message.TimeFrame = frameTime;
+            message.Time = time;
             return message;
         }
 

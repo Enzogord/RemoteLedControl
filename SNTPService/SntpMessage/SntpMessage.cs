@@ -6,20 +6,6 @@ namespace SNTPService
 {
     public class SntpMessage
     {
-        #region Fields
-
-        /// <summary>
-        /// Represents the EPOCH date in DateTime format.
-        /// </summary>
-        private static readonly DateTime Epoch = new DateTime(1900, 1, 1);
-
-        /// <summary>
-        /// Represents the number of ticks in 1 second.
-        /// </summary>
-        private const long TicksPerSecond = TimeSpan.TicksPerSecond;
-
-        #endregion Fields
-
         #region Private Properties
 
         private DateTime _timestamp;
@@ -233,8 +219,8 @@ namespace SNTPService
         /// </summary>
         public DateTime ReferenceDateTime
         {
-            get { return TimestampToDateTime(_referenceTimestamp); }
-            set { DateTimeToTimestamp(value, _referenceTimestamp); }
+            get { return DateTimeSerializator.TimestampToDateTime(_referenceTimestamp); }
+            set { DateTimeSerializator.DateTimeToTimestamp(value, _referenceTimestamp); }
         }
 
         /// <summary>
@@ -242,8 +228,8 @@ namespace SNTPService
         /// </summary>
         public DateTime OriginateDateTime
         {
-            get { return TimestampToDateTime(_originateTimestamp); }
-            set { DateTimeToTimestamp(value, _originateTimestamp); }
+            get { return DateTimeSerializator.TimestampToDateTime(_originateTimestamp); }
+            set { DateTimeSerializator.DateTimeToTimestamp(value, _originateTimestamp); }
         }
 
         /// <summary>
@@ -251,8 +237,8 @@ namespace SNTPService
         /// </summary>
         public DateTime ReceiveDateTime
         {
-            get { return TimestampToDateTime(_receiveTimestamp); }
-            set { DateTimeToTimestamp(value, _receiveTimestamp); }
+            get { return DateTimeSerializator.TimestampToDateTime(_receiveTimestamp); }
+            set { DateTimeSerializator.DateTimeToTimestamp(value, _receiveTimestamp); }
         }
 
         /// <summary>
@@ -260,8 +246,8 @@ namespace SNTPService
         /// </summary>
         public DateTime TransmitDateTime
         {
-            get { return TimestampToDateTime(_transmitTimestamp); }
-            set { DateTimeToTimestamp(value, _transmitTimestamp); }
+            get { return DateTimeSerializator.TimestampToDateTime(_transmitTimestamp); }
+            set { DateTimeSerializator.DateTimeToTimestamp(value, _transmitTimestamp); }
         }
 
         /// <summary>
@@ -289,7 +275,7 @@ namespace SNTPService
             get
             {
                 return ((double)((ReceiveDateTime.Ticks - OriginateDateTime.Ticks) +
-                    (TransmitDateTime.Ticks - DestinationDateTime.Ticks)) / 2) / TicksPerSecond;
+                    (TransmitDateTime.Ticks - DestinationDateTime.Ticks)) / 2) / DateTimeSerializator.TicksPerSecond;
             }
         }
 
@@ -301,39 +287,14 @@ namespace SNTPService
             get
             {
                 return (double)((DestinationDateTime.Ticks - OriginateDateTime.Ticks)
-                    - (ReceiveDateTime.Ticks - TransmitDateTime.Ticks)) / TicksPerSecond;
+                    - (ReceiveDateTime.Ticks - TransmitDateTime.Ticks)) / DateTimeSerializator.TicksPerSecond;
             }
         }
 
         #endregion Properties
 
         #region Methods
-
-        // Private Methods 
-
-        /// <summary>
-        /// Converts a DateTime into a byte array and stores it message.
-        /// </summary>
-        /// <param name="dateTime">The DateTime to convert.</param>
-        /// <param name="data">The data at which to convert.</param>
-        /// <returns>A double that represents the value in seconds</returns>
-        private void DateTimeToTimestamp(DateTime dateTime, byte[] data)
-        {
-            ulong ticks = (ulong)(dateTime - Epoch).Ticks;
-            ulong seconds = ticks / TicksPerSecond;
-            ulong fractions = ((ticks % TicksPerSecond) * 0x100000000L) / TicksPerSecond;
-            for (int i = 3; i >= 0; i--)
-            {
-                data[0 + i] = (byte)seconds;
-                seconds = seconds >> 8;
-            }
-            for (int i = 7; i >= 4; i--)
-            {
-                data[0 + i] = (byte)fractions;
-                fractions = fractions >> 8;
-            }
-        }
-
+        
         /// <summary>
         /// Converts a 32bit seconds (16 integer part, 16 fractional part) into a double that represents the value in seconds.
         /// </summary>
@@ -347,26 +308,9 @@ namespace SNTPService
             ulong fractions = 0;
             for (int i = 2; i <= 3; i++)
                 fractions = (fractions << 8) | data[0 + i];
-            ulong ticks = (seconds * TicksPerSecond) + ((fractions * TicksPerSecond) / 0x10000L);
-            return (double)ticks / TicksPerSecond;
-        }
-
-        /// <summary>
-        /// Converts a byte array starting at the position specified into a DateTime.
-        /// </summary>
-        /// <param name="data">The data at which to convert.</param>
-        /// <returns>A DateTime converted from a byte array starting at the position specified.</returns>
-        private DateTime TimestampToDateTime(byte[] data)
-        {
-            ulong seconds = 0;
-            for (int i = 0; i <= 3; i++)
-                seconds = (seconds << 8) | data[0 + i];
-            ulong fractions = 0;
-            for (int i = 4; i <= 7; i++)
-                fractions = (fractions << 8) | data[0 + i];
-            ulong ticks = (seconds * TicksPerSecond) + ((fractions * TicksPerSecond) / 0x100000000L);
-            return (Epoch + TimeSpan.FromTicks((long)ticks));
-        }
+            ulong ticks = (seconds * DateTimeSerializator.TicksPerSecond) + ((fractions * DateTimeSerializator.TicksPerSecond) / 0x10000L);
+            return (double)ticks / DateTimeSerializator.TicksPerSecond;
+        }        
 
         /// <summary>
         /// Converts a byte array into a IPAddress.

@@ -53,6 +53,7 @@
     <Compile Include="ClientConnectedEventArgs.cs" />
     <Compile Include="ClientDisconnectedEventArgs.cs" />
     <Compile Include="Constants.cs" />
+    <Compile Include="DateTimeSerializator.cs" />
     <Compile Include="DisconnectHandler.cs" />
     <Compile Include="ErrorHandler.cs" />
     <Compile Include="IO\ByteOrder.cs" />

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net;
+using SNTPService;
 using TCPCommunicationService;
 using UDPCommunication;
 
@@ -19,11 +20,11 @@ namespace Core.Messages
         private byte clientStateData;
         //byte 9-12
         private byte[] ipAddressData = new byte[4];
-        //byte 13-16
-        private byte[] timeFrameData = new byte[4];
+        //byte 13-20
+        private byte[] timeData = new byte[8];
 
         //Текущая длина сообщения, при изменение полей пересчитать
-        private int Length => 17;
+        private int Length => 21;
 
         public byte[] ToArray()
         {
@@ -47,10 +48,14 @@ namespace Core.Messages
             result[11] = ipAddressData[2];
             result[12] = ipAddressData[3];
 
-            result[13] = timeFrameData[0];
-            result[14] = timeFrameData[1];
-            result[15] = timeFrameData[2];
-            result[16] = timeFrameData[3];
+            result[13] = timeData[0];
+            result[14] = timeData[1];
+            result[15] = timeData[2];
+            result[16] = timeData[3];
+            result[17] = timeData[4];
+            result[18] = timeData[5];
+            result[19] = timeData[6];
+            result[20] = timeData[7];
 
             return result;
         }
@@ -80,7 +85,7 @@ namespace Core.Messages
             clientNumberData[1] = bytes[7];
             clientStateData = bytes[8];
             Array.Copy(bytes, 9, ipAddressData, 0, 4);
-            Array.Copy(bytes, 13, timeFrameData, 0, 4);
+            Array.Copy(bytes, 13, timeData, 0, 8);
         }
 
         public RLCMessage()
@@ -124,9 +129,9 @@ namespace Core.Messages
             set { ipAddressData = IPAddressToBytes(value); }
         }
 
-        public uint TimeFrame {
-            get { return BytesToUInt(timeFrameData); }
-            set { timeFrameData = UIntToBytes(value); }
+        public DateTime Time {
+            get { return DateTimeSerializator.TimestampToDateTime(timeData); }
+            set { DateTimeSerializator.DateTimeToTimestamp(value, timeData); }
         }
 
         #region methods
