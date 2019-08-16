@@ -34,6 +34,7 @@ namespace SNTPService
         {
             ulong ticks = (ulong)(dateTime - Epoch).Ticks;
             ulong seconds = ticks / TicksPerSecond;
+            Console.WriteLine(seconds);
             ulong fractions = ((ticks % TicksPerSecond) * 0x100000000L) / TicksPerSecond;
             for(int i = 3; i >= 0; i--) {
                 data[0 + i] = (byte)seconds;

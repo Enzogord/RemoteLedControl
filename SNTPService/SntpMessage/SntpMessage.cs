@@ -247,7 +247,10 @@ namespace SNTPService
         public DateTime TransmitDateTime
         {
             get { return DateTimeSerializator.TimestampToDateTime(_transmitTimestamp); }
-            set { DateTimeSerializator.DateTimeToTimestamp(value, _transmitTimestamp); }
+            set {
+                Console.Write("SendTime: ");
+                DateTimeSerializator.DateTimeToTimestamp(value, _transmitTimestamp);
+            }
         }
 
         /// <summary>
