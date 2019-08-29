@@ -105,6 +105,15 @@ namespace NAudioPlayer
                 }
             }
         }
+
+        public event EventHandler ChannelPositionUserChanged;
+
+        public void ChangePosition(double position)
+        {
+            ChannelPosition = position;
+            ChannelPositionUserChanged?.Invoke(this, EventArgs.Empty);
+        }
+
         #endregion
 
         #region INotifyPropertyChanged

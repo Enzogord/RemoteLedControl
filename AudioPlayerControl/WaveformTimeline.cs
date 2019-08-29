@@ -803,7 +803,7 @@ namespace AudioPlayer.TimeLine
                 initialPositionX = currentPoint.X;
             }
             double position = (initialPositionX / RenderSize.Width) * soundPlayer.ChannelLength;
-            soundPlayer.ChannelPosition = Math.Min(soundPlayer.ChannelLength, Math.Max(0, position));
+            soundPlayer.ChangePosition(Math.Min(soundPlayer.ChannelLength, Math.Max(0, position)));
         }
 
         /// <summary>

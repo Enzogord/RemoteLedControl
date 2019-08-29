@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using Core;
 using RLCCore;
 using RLCCore.RemoteOperations;
@@ -33,9 +34,14 @@ namespace RLCServerApplication.ViewModels
             SettingsViewModel = new SettingsViewModel(ProjectController);
             RemoteClientsViewModel = new RemoteClientsViewModel(ProjectController);
             Player = new SequencePlayer();
-
+            Player.ChannelPositionUserChanged += Player_ChannelPositionUserChanged;
             ConfigureBindings();
             CreateCommands();
+        }
+
+        private void Player_ChannelPositionUserChanged(object sender, System.EventArgs e)
+        {
+            PlayFromTimelineCommand.Execute();
         }
 
         public void Close()
@@ -80,6 +86,8 @@ namespace RLCServerApplication.ViewModels
         private void CreateCommands()
         {
             CreatePlayCommand();
+            CreatePlayFromCommand();
+            CreatePlayFromTimelineCommand();
             CreateStopCommand();
             CreatePauseCommand();
             CreateAddAudioTrackCommand();
@@ -117,6 +125,74 @@ namespace RLCServerApplication.ViewModels
         }
 
         #endregion PlayCommand
+
+        #region PlayFromButtonCommand
+
+        private TimeSpan playFromTime;
+        public TimeSpan PlayFromTime {
+            get => playFromTime;
+            set => SetField(ref playFromTime, value, () => PlayFromTime);
+        }
+
+        public DelegateCommand PlayFromButtonCommand { get; private set; }
+
+        private void CreatePlayFromCommand()
+        {
+            PlayFromButtonCommand = new DelegateCommand(
+                () => {
+                    if(ProjectController.WorkMode == ProjectWorkModes.Setup) {
+                        return;
+                    }
+                    ProjectController.RemoteClientsOperator.PlayFrom(PlayFromTime);
+                    if(!Player.IsInitialized || !Player.CanPlay) {
+                        return;
+                    }
+                    Player.ChannelPosition = PlayFromTime.TotalSeconds;
+                    Player.Play();
+                },
+                () => {
+                    if(!ProjectController.ServicesIsReady) {
+                        return false;
+                    }
+                    var playStates = new[]{ OperatorStates.Ready, OperatorStates.Stop, OperatorStates.Pause };
+                    return ProjectController.WorkMode == ProjectWorkModes.Test 
+                        && playStates.Contains(ProjectController.RemoteClientsOperator.State)
+                        && PlayFromTime.TotalMilliseconds > 0;
+                }
+            );
+            PlayFromButtonCommand.CanExecuteChangedWith(this, x => x.PlayFromTime);
+        }
+
+        #endregion PlayFromButtonCommand
+
+        #region PlayFromTimelineCommand
+
+        public DelegateCommand PlayFromTimelineCommand { get; private set; }
+
+        private void CreatePlayFromTimelineCommand()
+        {
+            PlayFromTimelineCommand = new DelegateCommand(
+                () => {
+                    if(ProjectController.WorkMode == ProjectWorkModes.Setup) {
+                        return;
+                    }
+                    ProjectController.RemoteClientsOperator.PlayFrom(Player.CurrentTime);
+                    if(!Player.IsInitialized || !Player.CanPlay) {
+                        return;
+                    }
+                    Player.Play();
+                },
+                () => {
+                    if(!ProjectController.ServicesIsReady) {
+                        return false;
+                    }
+                    return ProjectController.WorkMode == ProjectWorkModes.Test
+                        && Player.IsEnabled;
+                }
+            );
+        }
+
+        #endregion PlayFromTimelineCommand
 
         #region StopCommand
 
@@ -290,6 +366,7 @@ namespace RLCServerApplication.ViewModels
         private void UpdatePlayerCommands()
         {
             PlayCommand?.RaiseCanExecuteChanged();
+            PlayFromButtonCommand?.RaiseCanExecuteChanged();
             StopCommand?.RaiseCanExecuteChanged();
             PauseCommand?.RaiseCanExecuteChanged();
         }

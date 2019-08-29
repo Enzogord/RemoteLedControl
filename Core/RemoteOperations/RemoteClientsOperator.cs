@@ -68,7 +68,7 @@ namespace RLCCore.RemoteOperations
                 State = OperatorStates.Play;
             }
             catch(Exception ex) {
-                logger.Error(ex, $"Не удалось отправить команду {OperatorStates.Play}");
+                logger.Error(ex, $"Не удалось отправить команду {MessageType.Play}");
                 //восстановление состояния
                 State = stateBackup;
                 throw;
@@ -84,7 +84,7 @@ namespace RLCCore.RemoteOperations
                 State = OperatorStates.Stop;
             }
             catch(Exception ex) {
-                logger.Error(ex, $"Не удалось отправить команду {OperatorStates.Stop}");
+                logger.Error(ex, $"Не удалось отправить команду {MessageType.Stop}");
                 //восстановление состояния
                 State = stateBackup;
                 throw;
@@ -100,23 +100,27 @@ namespace RLCCore.RemoteOperations
                 State = OperatorStates.Pause;
             }
             catch(Exception ex) {
-                logger.Error(ex, $"Не удалось отправить команду {OperatorStates.Pause}");
+                logger.Error(ex, $"Не удалось отправить команду {MessageType.Pause}");
                 //восстановление состояния
                 State = stateBackup;
                 throw;
             }
         }
 
-        public void PlayFrom()
+        public void PlayFrom(TimeSpan time)
         {
-            /*var state = GlobalCommands.PlayFrom;
-            var playFromContext = globalContextProvider.GetCommandContext(state);
-            communicationService.SendGlobalCommand(state, playFromContext);*/
-
-
-            /*RLCMessage message =  RLCMessageFactory.PlayFrom(controlUnit.Key, );
-            udpService.Send(message, networkSettingProvider.BroadcastIPAddress, networkSettingProvider.Port);
-            State = OperatorStates.Play;*/
+            var stateBackup = State;
+            try {
+                var message = RLCMessageFactory.PlayFrom(key, time);
+                remoteClientCommunication.SendToAll(message);
+                State = OperatorStates.Play;
+            }
+            catch(Exception ex) {
+                logger.Error(ex, $"Не удалось отправить команду {MessageType.PlayFrom}");
+                //восстановление состояния
+                State = stateBackup;
+                throw;
+            }
         }
     }
 }

@@ -11,7 +11,12 @@ namespace AudioPlayer.TimeLine
         /// <summary>
         /// Gets or sets the current sound streams playback position.
         /// </summary>
-        double ChannelPosition { get; set; }
+        double ChannelPosition { get; }
+
+        /// <summary>
+        /// Gets or sets the current sound streams playback position.
+        /// </summary>
+        void ChangePosition(double position);
 
         /// <summary>
         /// Gets the total channel length in seconds.

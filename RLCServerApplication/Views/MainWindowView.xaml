@@ -6,6 +6,7 @@
         xmlns:local="clr-namespace:RLCServerApplication.Views"
         xmlns:vm="clr-namespace:RLCServerApplication.ViewModels"
         xmlns:player="clr-namespace:AudioPlayer.TimeLine;assembly=AudioPlayerControl"
+        xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         mc:Ignorable="d"
         Title="MainWindowView" Height="450" Width="800"
         d:DataContext="{d:DesignInstance vm:MainWindowViewModel}"
@@ -370,13 +371,34 @@
                     <Button Margin="5" Command="{Binding StopCommand}">Stop</Button>
                     <Button Margin="5" Command="{Binding PauseCommand}">Pause</Button>
                 </StackPanel>
-                <Label Grid.Row="1" x:Name="LabelTime" HorizontalAlignment="Right" Content="{Binding Player.CurrentTime}" ContentStringFormat="{}{0:hh}:{0:mm}:{0:ss}"/>
+                <Grid Grid.Row="1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0" Orientation="Horizontal" Margin="5">
+                        <xctk:TimeSpanUpDown Minimum="0" Maximum="10.23:59:59" Value="{Binding PlayFromTime}" Text="00:00" ShowDays="False"/>
+                        <Button  Content="PlayFrom" Command="{Binding PlayFromButtonCommand}"></Button>
+                        <!--<xctk:MaskedTextBox Mask="999:99:99" Text="000:00:00" VerticalAlignment="Center" PreviewTextInput="TextBox_PreviewTextInput"></xctk:MaskedTextBox>-->
+                    </StackPanel>
+                </Grid>
+                
             </Grid>
-            <player:WaveformTimeline 
-                Grid.Column="2" 
-                x:Name="Player" 
-                HorizontalAlignment="Stretch"
-                />
+            <Grid Grid.Column="2">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <Grid Grid.Column="0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+                    <Label Grid.Row="1" x:Name="LabelTime" HorizontalAlignment="Right" Content="{Binding Player.CurrentTime}" ContentStringFormat="{}{0:hh}:{0:mm}:{0:ss}"/>
+                </Grid>
+                <player:WaveformTimeline x:Name="Player" Grid.Column="1" HorizontalAlignment="Stretch"/>
+            </Grid>
+            
         </Grid>
 
         <TabControl Grid.Row="3" TabStripPlacement="Left">

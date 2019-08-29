@@ -21,7 +21,9 @@ namespace Core.Messages
         //byte 9-12
         private byte[] ipAddressData = new byte[4];
         //byte 13-20
-        private byte[] timeData = new byte[8];
+        private byte[] playFromTimeData = new byte[8];
+        //byte 21-28
+        private byte[] sendTimeData = new byte[8];
 
         //Текущая длина сообщения, при изменение полей пересчитать
         private int Length => 21;
@@ -48,14 +50,23 @@ namespace Core.Messages
             result[11] = ipAddressData[2];
             result[12] = ipAddressData[3];
 
-            result[13] = timeData[0];
-            result[14] = timeData[1];
-            result[15] = timeData[2];
-            result[16] = timeData[3];
-            result[17] = timeData[4];
-            result[18] = timeData[5];
-            result[19] = timeData[6];
-            result[20] = timeData[7];
+            result[13] = playFromTimeData[0];
+            result[14] = playFromTimeData[1];
+            result[15] = playFromTimeData[2];
+            result[16] = playFromTimeData[3];
+            result[17] = playFromTimeData[4];
+            result[18] = playFromTimeData[5];
+            result[19] = playFromTimeData[6];
+            result[20] = playFromTimeData[7];
+
+            result[21] = sendTimeData[0];
+            result[22] = sendTimeData[1];
+            result[23] = sendTimeData[2];
+            result[24] = sendTimeData[3];
+            result[25] = sendTimeData[4];
+            result[26] = sendTimeData[5];
+            result[27] = sendTimeData[6];
+            result[28] = sendTimeData[7];
 
             return result;
         }
@@ -85,7 +96,8 @@ namespace Core.Messages
             clientNumberData[1] = bytes[7];
             clientStateData = bytes[8];
             Array.Copy(bytes, 9, ipAddressData, 0, 4);
-            Array.Copy(bytes, 13, timeData, 0, 8);
+            Array.Copy(bytes, 13, playFromTimeData, 0, 8);
+            Array.Copy(bytes, 21, sendTimeData, 0, 8);
         }
 
         public RLCMessage()
@@ -129,9 +141,14 @@ namespace Core.Messages
             set { ipAddressData = IPAddressToBytes(value); }
         }
 
-        public DateTime Time {
-            get { return DateTimeSerializator.TimestampToDateTime(timeData); }
-            set { DateTimeSerializator.DateTimeToTimestamp(value, timeData); }
+        public TimeSpan PlayFromTime {
+            get { return DateTimeSerializator.DeserializeTimeSpanFromNtpTime(playFromTimeData); }
+            set { DateTimeSerializator.SerializeTimeSpanToNtpTime(value, playFromTimeData); }
+        }
+
+        public DateTime SendTime {
+            get { return DateTimeSerializator.TimestampToDateTime(sendTimeData); }
+            set { DateTimeSerializator.DateTimeToTimestamp(value, sendTimeData); }
         }
 
         #region methods

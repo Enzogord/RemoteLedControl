@@ -23,10 +23,11 @@ namespace Core.Messages
             return message;
         }
 
-        public static RLCMessage PlayFrom(uint key, DateTime time)
+        public static RLCMessage PlayFrom(uint key, TimeSpan time)
         {
             var message = new RLCMessage(SourceType.Server, key, MessageType.PlayFrom);
-            message.Time = time;
+            message.PlayFromTime = time;
+            message.SendTime = DateTime.Now;
             return message;
         }
 
