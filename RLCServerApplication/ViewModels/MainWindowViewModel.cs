@@ -278,14 +278,21 @@ namespace RLCServerApplication.ViewModels
 
         #region SwitchToSetupCommand
 
+        public bool IsSetupMode => ProjectController.WorkMode == ProjectWorkModes.Setup;
+
         public DelegateCommand SwitchToSetupCommand { get; private set; }
 
         private void CreateSwitchToSetupCommand()
         {
             SwitchToSetupCommand = new DelegateCommand(
                 () => {
-                    Player.Stop();
-                    ProjectController.SwitchToSetupMode();
+                    try {
+                        Player.Stop();
+                        ProjectController.SwitchToSetupMode();
+                    }
+                    finally {
+                        UpdateWorkModeProperties();
+                    }                    
                 },
                 () => CanSwitchToSetup
             );
@@ -307,13 +314,20 @@ namespace RLCServerApplication.ViewModels
 
         #region SwitchToTestCommand
 
-        public DelegateCommand SwitchToTestCommand { get; private set; }        
+        public bool IsTestMode => ProjectController.WorkMode == ProjectWorkModes.Test;
+
+        public DelegateCommand SwitchToTestCommand { get; private set; }
 
         private void CreateSwitchToTestCommand()
         {
             SwitchToTestCommand = new DelegateCommand(
                 () => {
-                    ProjectController.SwitchToTestMode();
+                    try {
+                        ProjectController.SwitchToTestMode();
+                    }
+                    finally {
+                        UpdateWorkModeProperties();
+                    }
                 },
                 () => CanSwitchToTest
             );
@@ -335,13 +349,20 @@ namespace RLCServerApplication.ViewModels
 
         #region SwitchToWorkCommand
 
+        public bool IsWorkMode => ProjectController.WorkMode == ProjectWorkModes.Work;
+
         public DelegateCommand SwitchToWorkCommand { get; private set; }
 
         private void CreateSwitchToWorkCommand()
         {
             SwitchToWorkCommand = new DelegateCommand(
-                () => {
-                    ProjectController.SwitchToWorkMode();
+                () => {                    
+                    try {
+                        ProjectController.SwitchToWorkMode();
+                    }
+                    finally {
+                        UpdateWorkModeProperties();
+                    }
                 },
                 () => CanSwitchToWork
             );
@@ -362,6 +383,13 @@ namespace RLCServerApplication.ViewModels
         #endregion SwitchToWorkCommand
 
         #endregion Commands
+
+        private void UpdateWorkModeProperties()
+        {
+            OnPropertyChanged(() => IsSetupMode);
+            OnPropertyChanged(() => IsTestMode);
+            OnPropertyChanged(() => IsWorkMode);
+        }
 
         private void UpdatePlayerCommands()
         {

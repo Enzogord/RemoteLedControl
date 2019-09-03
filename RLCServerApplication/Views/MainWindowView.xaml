@@ -6,6 +6,7 @@
         xmlns:local="clr-namespace:RLCServerApplication.Views"
         xmlns:vm="clr-namespace:RLCServerApplication.ViewModels"
         xmlns:player="clr-namespace:AudioPlayer.TimeLine;assembly=AudioPlayerControl"
+        xmlns:rlcCore="clr-namespace:RLCCore;assembly=Core"
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         mc:Ignorable="d"
         Title="MainWindowView" Height="450" Width="800"
@@ -340,17 +341,19 @@
                              Content="Настройка" 
                              GroupName="ToggleGroup" 
                              Style="{StaticResource {x:Type ToggleButton}}" 
-                             IsChecked="True" 
+                             IsChecked="{Binding IsSetupMode, Mode=OneWay}" 
                              Command="{Binding SwitchToSetupCommand}"/>
                 <RadioButton Margin="1, 2" Padding="5,0" 
                              Content="Тест" 
                              GroupName="ToggleGroup" 
                              Style="{StaticResource {x:Type ToggleButton}}"
+                             IsChecked="{Binding IsTestMode, Mode=OneWay}" 
                              Command="{Binding SwitchToTestCommand}"/>
                 <RadioButton Margin="1, 2" Padding="5,0" 
                              Content="Работа" 
                              GroupName="ToggleGroup" 
                              Style="{StaticResource {x:Type ToggleButton}}"
+                             IsChecked="{Binding IsWorkMode, Mode=OneWay}" 
                              Command="{Binding SwitchToWorkCommand}"/>
             </StackPanel>
         </Grid>
