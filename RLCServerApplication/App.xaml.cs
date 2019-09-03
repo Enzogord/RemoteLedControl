@@ -44,6 +44,8 @@ namespace RLCServerApplication
 
         private void SubscribeUnhandledException()
         {
+            Application.Current.DispatcherUnhandledException += Current_DispatcherUnhandledException;
+
             AppDomain.CurrentDomain.UnhandledException += (sender, e) =>
             {                
                 logger.Fatal((Exception)e.ExceptionObject, $"Поймано необработаное исключение в Application Domain. Is terminating: {e.IsTerminating}");
@@ -61,5 +63,10 @@ namespace RLCServerApplication
             };
         }
 
+        private void Current_DispatcherUnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
+        {
+            e.Handled = true;
+            MessageBox.Show($"Возникла непредвиденная ошибка.{Environment.NewLine} Техническая информация: {e.Exception}", "Исключение", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
     }
 }
