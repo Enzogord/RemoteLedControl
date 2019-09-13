@@ -1,10 +1,11 @@
 ﻿using System;
+using Core.RemoteOperations;
 using NAudioPlayer;
 using NLog;
 
 namespace Core
 {
-    public class SequencePlayer : Player, ISequenceController
+    public class SequencePlayer : Player, ISequenceController, ISequenceTimeProvider
     {
         private static ILogger logger = LogManager.GetCurrentClassLogger();
 

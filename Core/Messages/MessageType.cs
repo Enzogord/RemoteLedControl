@@ -10,6 +10,7 @@
         PlayFrom = 4,
         SendServerIp = 5,
         RequestClientInfo = 6,
+        Rewind = 7,
 
         //to server
         ClientInfo = 100,

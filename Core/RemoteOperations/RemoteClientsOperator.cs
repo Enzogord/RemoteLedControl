@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Core.ClientConnectionService;
 using Core.Messages;
 using Core.RemoteOperations;
 using NLog;
+using RLCCore.Domain;
 using RLCCore.Settings;
 using Service;
 
@@ -12,6 +15,7 @@ namespace RLCCore.RemoteOperations
     {
         private static Logger logger = LogManager.GetCurrentClassLogger();
         private readonly uint key;
+        private readonly IEnumerable<RemoteClient> clients;
         private readonly IMessageReceiver messageReceiver;
         private readonly INetworkSettingProvider networkSettingProvider;
         private readonly IRemoteClientCommunication remoteClientCommunication;
@@ -23,15 +27,54 @@ namespace RLCCore.RemoteOperations
             private set => SetField(ref state, value, () => State);
         }
 
-        public RemoteClientsOperator(uint key, IMessageReceiver messageReceiver, INetworkSettingProvider networkSettingProvider, IRemoteClientCommunication remoteClientCommunication)
+        private ISequenceTimeProvider timeProvider;
+        public ISequenceTimeProvider TimeProvider {
+            get => timeProvider;
+            set => SetField(ref timeProvider, value, () => TimeProvider);
+        }
+
+
+        public RemoteClientsOperator(uint key, IEnumerable<RemoteClient> clients, IMessageReceiver messageReceiver, INetworkSettingProvider networkSettingProvider, IRemoteClientCommunication remoteClientCommunication)
         {
             this.key = key;
             this.messageReceiver = messageReceiver;
             this.networkSettingProvider = networkSettingProvider;
             this.remoteClientCommunication = remoteClientCommunication;
+            this.clients = clients ?? throw new ArgumentNullException(nameof(clients));
             remoteClientCommunication.OnReceiveMessage -= RemoteClientCommunication_OnReceiveMessage;
             remoteClientCommunication.OnReceiveMessage += RemoteClientCommunication_OnReceiveMessage;
+            remoteClientCommunication.OnClientAuthorized -= RemoteClientCommunication_OnClientAuthorized;
+            remoteClientCommunication.OnClientAuthorized += RemoteClientCommunication_OnClientAuthorized;
             State = OperatorStates.Ready;
+        }
+
+        private void RemoteClientCommunication_OnClientAuthorized(object sender, INumeredClient e)
+        {
+            RemoteClient foundClient = clients.FirstOrDefault(x => x.Number == e.Number);
+            if(foundClient != null){
+                RestoreClientPlaying(foundClient);
+            }
+        }
+
+        private void RestoreClientPlaying(RemoteClient client)
+        {
+            if(TimeProvider == null) {
+                return;
+            }
+            if(State == OperatorStates.Play || State == OperatorStates.Pause) {
+                ClientState clientState;
+                switch(State) {
+                    case OperatorStates.Play:
+                        clientState = ClientState.Playing;
+                        break;
+                    case OperatorStates.Pause:
+                        clientState = ClientState.Paused;
+                        break;
+                    default:
+                        return;
+                }
+                remoteClientCommunication.Send(client, RLCMessageFactory.Rewind(key, TimeProvider.CurrentTime, clientState));
+            }
         }
 
         private void RemoteClientCommunication_OnReceiveMessage(object sender, ClientMessageEventArgs e)
@@ -54,10 +97,6 @@ namespace RLCCore.RemoteOperations
 
             messageReceiver.Receive(message);
         }
-
-        #region private methods
-
-        #endregion
 
         public void Play()
         {

@@ -65,6 +65,7 @@
     <Compile Include="ClientConnectionService\RemoteClientIdentificator.cs" />
     <Compile Include="ClientConnectionService\ConnectorMessageService.cs" />
     <Compile Include="ClientConnectionService\IRemoteClientCommunication.cs" />
+    <Compile Include="RemoteOperations\ISequenceTimeProvider.cs" />
     <Compile Include="Sequence\ISequenceController.cs" />
     <Compile Include="Messages\ClientState.cs" />
     <Compile Include="Messages\MessageType.cs" />

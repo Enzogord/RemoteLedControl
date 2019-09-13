@@ -31,6 +31,15 @@ namespace Core.Messages
             return message;
         }
 
+        public static RLCMessage Rewind(uint key, TimeSpan time, ClientState state)
+        {
+            var message = new RLCMessage(SourceType.Server, key, MessageType.Rewind);
+            message.PlayFromTime = time;
+            message.SendTime = DateTime.Now;
+            message.ClientState = state;
+            return message;
+        }
+
         public static RLCMessage SendServerIP(uint key, IPAddress ipAddress)
         {
             var message = new RLCMessage(SourceType.Server, key, MessageType.SendServerIp);

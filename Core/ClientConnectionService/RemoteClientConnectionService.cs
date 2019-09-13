@@ -18,6 +18,7 @@ namespace Core.ClientConnectionService
         private readonly RemoteClientIdentificator clientsIdentificator;
 
         public event EventHandler<ClientMessageEventArgs> OnReceiveMessage;
+        public event EventHandler<INumeredClient> OnClientAuthorized;
 
         public RemoteClientConnectionService(IPAddress address, int port, IConnectorMessageService connectorMessageService, int bufferSize, byte workersCount = 1) 
             : this(new IPEndPoint(address, port), connectorMessageService, bufferSize, workersCount)
@@ -99,6 +100,7 @@ namespace Core.ClientConnectionService
             IConnectableClient connectableClient = connectorMessageService.Clients.FirstOrDefault(x => x.Number == client.Number);
             if(connectableClient != null) {
                 connectableClient.Connection = new RemoteClientConnection(connector);
+                OnClientAuthorized?.Invoke(this, client);
             }
         }
 

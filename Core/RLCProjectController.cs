@@ -3,6 +3,7 @@ using System.IO;
 using Core;
 using Core.ClientConnectionService;
 using Core.Messages;
+using Core.RemoteOperations;
 using NLog;
 using RLCCore.Domain;
 using RLCCore.RemoteOperations;
@@ -47,6 +48,11 @@ namespace RLCCore
             private set => SetField(ref remoteClientsOperator, value, () => RemoteClientsOperator);
         }
 
+        private ISequenceTimeProvider timeProvider;
+        public ISequenceTimeProvider TimeProvider {
+            get => timeProvider;
+            set => SetField(ref timeProvider, value, () => TimeProvider);
+        }
 
         private SntpService sntpService;
         private UDPService<RLCMessage> udpService;
@@ -145,7 +151,10 @@ namespace RLCCore
             remoteClientConnector = new RemoteClientConnectionService(NetworkController.GetServerIPAddress(), rlcPort, connectorMessageService, 200);
 
             //Clients operator
-            RemoteClientsOperator = new RemoteClientsOperator(CurrentProject.Key, CurrentProject, NetworkController, remoteClientConnector);
+            RemoteClientsOperator = new RemoteClientsOperator(CurrentProject.Key, CurrentProject.Clients, CurrentProject, NetworkController, remoteClientConnector);
+            if(TimeProvider != null) {
+                RemoteClientsOperator.TimeProvider = TimeProvider;
+            }
 
             try {
                 remoteClientConnector.Start();

@@ -34,6 +34,7 @@ namespace RLCServerApplication.ViewModels
             SettingsViewModel = new SettingsViewModel(ProjectController);
             RemoteClientsViewModel = new RemoteClientsViewModel(ProjectController);
             Player = new SequencePlayer();
+            ProjectController.TimeProvider = Player;
             Player.ChannelPositionUserChanged += Player_ChannelPositionUserChanged;
             ConfigureBindings();
             CreateCommands();

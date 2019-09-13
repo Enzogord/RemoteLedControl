@@ -8,5 +8,6 @@ namespace Core.ClientConnectionService
         void Send(INumeredClient client, RLCMessage message);
         void SendToAll(RLCMessage message);
         event EventHandler<ClientMessageEventArgs> OnReceiveMessage;
+        event EventHandler<INumeredClient> OnClientAuthorized;
     }
 }
