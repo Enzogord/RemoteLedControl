@@ -18,7 +18,6 @@ namespace RLCServerApplication.ViewModels
             this.projectController = projectController ?? throw new System.ArgumentNullException(nameof(projectController));
             this.remoteControlProject = projectController.CurrentProject;
             Clients = new ReadOnlyObservableCollection<RemoteClient>(remoteControlProject.Clients);
-            CreateCommands();
             ConfigureBindings();
         }
 
@@ -54,40 +53,69 @@ namespace RLCServerApplication.ViewModels
             Bind(() => CanEdit, projectController, x => x.WorkMode);
         }
 
-        public DelegateCommand OpenClientEditorCommand { get; private set; }
-        public DelegateCommand AddNewClientCommand { get; private set; }
-        public DelegateCommand DeleteClientCommand { get; private set; }
+        #region OpenClientEditorCommand
 
-        private void CreateCommands()
-        {
-            OpenClientEditorCommand = new DelegateCommand(
-                () => {
-                    if(SelectedClient != null) {
-                        RemoteClientViewModel = new RemoteClientViewModel(SelectedClient);
-                        RemoteClientViewModel.OnClose += (sender, e) => { RemoteClientViewModel = null; };
-                    }
-                },
-                () => SelectedClient != null
-            );
-
-            AddNewClientCommand = new DelegateCommand(
-                () => {
-                    RemoteClient newRemoteClient = new RemoteClient("Новый клиент", Clients.Max(x => x.Number) + 1);
-                    RemoteClientViewModel = new RemoteClientViewModel(newRemoteClient);
-                    RemoteClientViewModel.OnClose += (sender, e) => {
-                        if(e.Commited) {
-                            remoteControlProject.AddClient(newRemoteClient);
-                        }
-                        RemoteClientViewModel = null;
-                    };
-                },
-                () => true
-            );
-
-            DeleteClientCommand = new DelegateCommand(
-                () => { remoteControlProject.DeleteClient(SelectedClient); },
-                () => SelectedClient != null
-            );
+        public DelegateCommand openClientEditorCommand;
+        public DelegateCommand OpenClientEditorCommand {
+            get {
+                if(openClientEditorCommand == null) {
+                    openClientEditorCommand = new DelegateCommand(
+                        () => {
+                            if(SelectedClient != null) {
+                                RemoteClientViewModel = new RemoteClientViewModel(SelectedClient);
+                                RemoteClientViewModel.OnClose += (sender, e) => { RemoteClientViewModel = null; };
+                            }
+                        },
+                        () => SelectedClient != null
+                    );
+                }
+                return openClientEditorCommand;
+            }
         }
+
+        #endregion OpenClientEditorCommand
+
+        #region AddNewClientCommand
+
+        public DelegateCommand addNewClientCommand;
+        public DelegateCommand AddNewClientCommand {
+            get {
+                if(addNewClientCommand == null) {
+                    addNewClientCommand = new DelegateCommand(
+                        () => {
+                            RemoteClient newRemoteClient = new RemoteClient("Новый клиент", Clients.Max(x => x.Number) + 1);
+                            RemoteClientViewModel = new RemoteClientViewModel(newRemoteClient);
+                            RemoteClientViewModel.OnClose += (sender, e) => {
+                                if(e.Commited) {
+                                    remoteControlProject.AddClient(newRemoteClient);
+                                }
+                                RemoteClientViewModel = null;
+                            };
+                        },
+                        () => true
+                    );
+                }
+                return addNewClientCommand;
+            }
+        }
+
+        #endregion AddNewClientCommand
+
+        #region DeleteClientCommand
+
+        public DelegateCommand deleteClientCommand;
+        public DelegateCommand DeleteClientCommand {
+            get {
+                if(deleteClientCommand == null) {
+                    deleteClientCommand = new DelegateCommand(
+                        () => { remoteControlProject.DeleteClient(SelectedClient); },
+                        () => SelectedClient != null
+                    );
+                }
+                return deleteClientCommand;
+            }
+        }
+
+        #endregion DeleteClientCommand	
     }
 }
