@@ -100,6 +100,10 @@
       <Project>{293BBD8E-7EC8-49ED-A0C7-7124405C2242}</Project>
       <Name>NAudioPlayer</Name>
     </ProjectReference>
+    <ProjectReference Include="..\NotifiedObjectsFramework\NotifiedObjectsFramework.csproj">
+      <Project>{B5672B8B-286B-4C51-8457-3066FBD713A2}</Project>
+      <Name>NotifiedObjectsFramework</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Service\Service.csproj">
       <Project>{e10168f4-2657-4fdf-bf2d-d9dc58ab7e51}</Project>
       <Name>Service</Name>

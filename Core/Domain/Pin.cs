@@ -1,11 +1,12 @@
-﻿using Service;
+﻿using NotifiedObjectsFramework;
+using Service;
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
 
 namespace RLCCore.Domain
 {
     [DataContract]
-    public class Pin : NotifyPropertyBase
+    public class Pin : NotifyPropertyChangedBase
     {
         private byte pinNumber;
         [DataMember]
@@ -22,7 +23,6 @@ namespace RLCCore.Domain
             get => ledCount;
             set => SetField(ref ledCount, value, () => LEDCount);
         }
-
 
         public Pin(byte pin, ushort ledCount)
         {

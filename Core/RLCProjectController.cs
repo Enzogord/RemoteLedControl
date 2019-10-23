@@ -5,6 +5,7 @@ using Core.ClientConnectionService;
 using Core.Messages;
 using Core.RemoteOperations;
 using NLog;
+using NotifiedObjectsFramework;
 using RLCCore.Domain;
 using RLCCore.RemoteOperations;
 using RLCCore.Settings;
@@ -14,7 +15,7 @@ using UDPCommunication;
 
 namespace RLCCore
 {
-    public class RLCProjectController : NotifyPropertyBase, IDisposable
+    public class RLCProjectController : NotifyPropertyChangedBase, IDisposable
     {
         Logger logger = LogManager.GetCurrentClassLogger();
 

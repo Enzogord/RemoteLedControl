@@ -1,10 +1,11 @@
 ﻿using System.Runtime.Serialization;
+using NotifiedObjectsFramework;
 using Service;
 
 namespace RLCCore.Domain
 {
     [DataContract]
-    public class Cyclogramm : NotifyPropertyBase
+    public class Cyclogramm : NotifyPropertyChangedBase
     {
         [DataMember]
         private string name;

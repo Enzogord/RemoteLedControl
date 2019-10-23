@@ -4,11 +4,12 @@ using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
+using NotifiedObjectsFramework;
 using Service;
 
 namespace RLCCore.Settings
 {
-    public class NetworkController : NotifyPropertyBase, INetworkSettingProvider
+    public class NetworkController : NotifyPropertyChangedBase, INetworkSettingProvider
     {
         private bool editable;
         public bool Editable {

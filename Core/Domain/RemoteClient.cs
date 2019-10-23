@@ -6,13 +6,14 @@ using System.Net;
 using System.Runtime.Serialization;
 using Core.ClientConnectionService;
 using Core.Messages;
+using NotifiedObjectsFramework;
 using RLCCore.Serialization;
 using Service;
 
 namespace RLCCore.Domain
 {
     [DataContract]
-    public class RemoteClient : NotifyPropertyBase, ISettingsProvider, INumeredClient, IConnectableClient
+    public class RemoteClient : NotifyPropertyChangedBase, ISettingsProvider, INumeredClient, IConnectableClient
     {
         private string name;
         [DataMember]

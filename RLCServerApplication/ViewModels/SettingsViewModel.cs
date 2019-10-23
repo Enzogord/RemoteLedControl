@@ -18,7 +18,10 @@ namespace RLCServerApplication.ViewModels
 
         private void ConfigureBindings()
         {
-            Bind(() => CanEdit, RLCProjectController, x => x.WorkMode);
+            CreateNotificationBinding().AddProperty(nameof(CanEdit))
+                .SetNotifier(RLCProjectController)
+                .BindToProperty(x => x.WorkMode)
+                .End();
         }
     }
 }

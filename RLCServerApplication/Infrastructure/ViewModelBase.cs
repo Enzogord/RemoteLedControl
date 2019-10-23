@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Reflection;
-using Service;
+﻿using NotifiedObjectsFramework;
 
 namespace RLCServerApplication.Infrastructure
 {
-    public class ViewModelBase : NotifyPropertyBase
+    public class ViewModelBase : NotifyPropertyChangedBase
     {
         
     }

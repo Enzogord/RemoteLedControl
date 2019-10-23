@@ -50,7 +50,10 @@ namespace RLCServerApplication.ViewModels
 
         private void ConfigureBindings()
         {
-            Bind(() => CanEdit, projectController, x => x.WorkMode);
+            CreateNotificationBinding().AddProperty(nameof(CanEdit))
+                .SetNotifier(projectController)
+                .BindToProperty(x => x.WorkMode)
+                .End();
         }
 
         #region OpenClientEditorCommand

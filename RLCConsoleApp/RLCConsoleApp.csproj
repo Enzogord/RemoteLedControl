@@ -55,6 +55,10 @@
       <Project>{202f2159-593b-4e89-afdf-fb3daf2d9ea6}</Project>
       <Name>RLCCore</Name>
     </ProjectReference>
+    <ProjectReference Include="..\NotifiedObjectsFramework\NotifiedObjectsFramework.csproj">
+      <Project>{b5672b8b-286b-4c51-8457-3066fbd713a2}</Project>
+      <Name>NotifiedObjectsFramework</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Service\Service.csproj">
       <Project>{E10168F4-2657-4FDF-BF2D-D9DC58AB7E51}</Project>
       <Name>Service</Name>

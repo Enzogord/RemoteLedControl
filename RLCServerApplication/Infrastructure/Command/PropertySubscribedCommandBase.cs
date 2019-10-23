@@ -4,7 +4,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Windows.Input;
-using Service;
+using NotifiedObjectsFramework;
 
 namespace RLCServerApplication.Infrastructure.Command
 {
@@ -19,7 +19,7 @@ namespace RLCServerApplication.Infrastructure.Command
         private List<object[]> updatedSets = new List<object[]>();
 
         public void CanExecuteChangedWith<TUpdatedSubject>(TUpdatedSubject updatedSubject, params Expression<Func<TUpdatedSubject, object>>[] propertySelectors)
-            where TUpdatedSubject : NotifyPropertyBase
+            where TUpdatedSubject : NotifyPropertyChangedBase
         {
             var updatedPropertiesNames = propertySelectors.Select(updatedSubject.GetPropertyName).ToArray();
 

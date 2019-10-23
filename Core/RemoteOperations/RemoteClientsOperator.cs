@@ -5,13 +5,14 @@ using Core.ClientConnectionService;
 using Core.Messages;
 using Core.RemoteOperations;
 using NLog;
+using NotifiedObjectsFramework;
 using RLCCore.Domain;
 using RLCCore.Settings;
 using Service;
 
 namespace RLCCore.RemoteOperations
 {
-    public class RemoteClientsOperator : NotifyPropertyBase
+    public class RemoteClientsOperator : NotifyPropertyChangedBase
     {
         private static Logger logger = LogManager.GetCurrentClassLogger();
         private readonly uint key;

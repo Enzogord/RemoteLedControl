@@ -1,10 +1,11 @@
-﻿using System;
-using System.Linq;
-using Core;
+﻿using Core;
 using RLCCore;
 using RLCCore.RemoteOperations;
 using RLCServerApplication.Infrastructure;
 using RLCServerApplication.Infrastructure.Command;
+using System;
+using System.IO;
+using System.Linq;
 
 namespace RLCServerApplication.ViewModels
 {
@@ -52,34 +53,54 @@ namespace RLCServerApplication.ViewModels
 
         private void ConfigureBindings()
         {
-            Bind(() => CanEdit, ProjectController, x => x.WorkMode);
+            CreateNotificationBinding().AddProperty(nameof(CanEdit))
+                .SetNotifier(ProjectController)
+                .BindToProperty(x => x.WorkMode)
+                .End();
 
-            BindAction(UpdatePlayerState, ProjectController, x => x.WorkMode);            
+            CreateNotificationBinding().AddAction(UpdatePlayerState)
+                .SetNotifier(ProjectController)
+                .BindToProperty(x => x.WorkMode)
+                .End();
 
-            BindAction(UpdatePlayerCommands, ProjectController,
-                   x => x.ServicesIsReady,
-                   x => x.WorkMode
-            );
+            CreateNotificationBinding().AddAction(UpdatePlayerCommands)
+                .SetNotifier(ProjectController)
+                .BindToProperty(x => x.ServicesIsReady)
+                .BindToProperty(x => x.WorkMode)
+                .End();
 
-            BindAction(() => {
-                if(ProjectController.RemoteClientsOperator != null) {
-                    BindAction(UpdatePlayerCommands, ProjectController.RemoteClientsOperator, x => x.State);                    
-                    Bind(() => CanSwitchToSetup, ProjectController.RemoteClientsOperator, x => x.State);
-                    Bind(() => CanSwitchToTest, ProjectController.RemoteClientsOperator, x => x.State);
-                    Bind(() => CanSwitchToWork, ProjectController.RemoteClientsOperator, x => x.State);
-                }
-            }, ProjectController, x => x.RemoteClientsOperator);
+            CreateNotificationBinding()
+                .AddAction(() => {
+                    if(ProjectController.RemoteClientsOperator != null) {
+                        CreateNotificationBinding()
+                            .AddAction(UpdatePlayerCommands)
+                            .AddProperty(nameof(CanSwitchToSetup), nameof(CanSwitchToTest), nameof(CanSwitchToWork))
+                            .SetNotifier(ProjectController.RemoteClientsOperator)
+                            .BindToProperty(x => x.State)
+                            .End();
+                    }
+                })
+                .SetNotifier(ProjectController)
+                .BindToProperty(x => x.RemoteClientsOperator)
+                .End();
 
-            BindAction(UpdatePlayerCommands, Player,
-                x => x.CanPlay,
-                x => x.CanPause,
-                x => x.CanStop,
-                x => x.IsInitialized
-            );
+            CreateNotificationBinding().AddAction(() => RemoteClientsViewModel = new RemoteClientsViewModel(ProjectController))
+                .SetNotifier(ProjectController)
+                .BindToProperty(x => x.CurrentProject)
+                .End();
 
-            Bind(() => CanSwitchToWork, Player,
-                x => x.IsInitialized
-            );
+            CreateNotificationBinding().AddAction(UpdatePlayerCommands)
+                .SetNotifier(Player)
+                .BindToProperty(x => x.CanPlay)
+                .BindToProperty(x => x.CanPause)
+                .BindToProperty(x => x.CanStop)
+                .BindToProperty(x => x.IsInitialized)
+                .End();
+
+            CreateNotificationBinding().AddProperty(nameof(CanSwitchToWork))
+                .SetNotifier(Player)
+                .BindToProperty(x => x.IsInitialized)
+                .End();
         }
 
         #region Commands
@@ -96,7 +117,6 @@ namespace RLCServerApplication.ViewModels
             CreateSwitchToTestCommand();
             CreateSwitchToWorkCommand();
         }
-
 
         #region PlayCommand
 
@@ -119,7 +139,7 @@ namespace RLCServerApplication.ViewModels
                     if(!ProjectController.ServicesIsReady) {
                         return false;
                     }
-                    var playStates = new[]{ OperatorStates.Ready, OperatorStates.Stop, OperatorStates.Pause };
+                    var playStates = new[] { OperatorStates.Ready, OperatorStates.Stop, OperatorStates.Pause };
                     return ProjectController.WorkMode != ProjectWorkModes.Setup && playStates.Contains(ProjectController.RemoteClientsOperator.State);
                 }
             );
@@ -155,8 +175,8 @@ namespace RLCServerApplication.ViewModels
                     if(!ProjectController.ServicesIsReady) {
                         return false;
                     }
-                    var playStates = new[]{ OperatorStates.Ready, OperatorStates.Stop, OperatorStates.Pause };
-                    return ProjectController.WorkMode == ProjectWorkModes.Test 
+                    var playStates = new[] { OperatorStates.Ready, OperatorStates.Stop, OperatorStates.Pause };
+                    return ProjectController.WorkMode == ProjectWorkModes.Test
                         && playStates.Contains(ProjectController.RemoteClientsOperator.State)
                         && PlayFromTime.TotalMilliseconds > 0;
                 }
@@ -216,7 +236,7 @@ namespace RLCServerApplication.ViewModels
                     if(!ProjectController.ServicesIsReady) {
                         return false;
                     }
-                    var stopStates = new[]{ OperatorStates.Play, OperatorStates.Pause };
+                    var stopStates = new[] { OperatorStates.Play, OperatorStates.Pause };
                     return ProjectController.WorkMode != ProjectWorkModes.Setup && stopStates.Contains(ProjectController.RemoteClientsOperator.State);
                 }
             );
@@ -293,7 +313,7 @@ namespace RLCServerApplication.ViewModels
                     }
                     finally {
                         UpdateWorkModeProperties();
-                    }                    
+                    }
                 },
                 () => CanSwitchToSetup
             );
@@ -357,7 +377,7 @@ namespace RLCServerApplication.ViewModels
         private void CreateSwitchToWorkCommand()
         {
             SwitchToWorkCommand = new DelegateCommand(
-                () => {                    
+                () => {
                     try {
                         ProjectController.SwitchToWorkMode();
                     }

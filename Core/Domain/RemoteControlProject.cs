@@ -6,6 +6,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using Core.Messages;
 using Core.RemoteOperations;
+using NotifiedObjectsFramework;
 using RLCCore.Exceptions;
 using RLCCore.Serialization;
 using Service;
@@ -13,7 +14,7 @@ using Service;
 namespace RLCCore.Domain
 {
     [DataContract]
-    public class RemoteControlProject : NotifyPropertyBase, ISettingsProvider, IMessageReceiver
+    public class RemoteControlProject : NotifyPropertyChangedBase, ISettingsProvider, IMessageReceiver
     {
         private uint key;
         [DataMember]
