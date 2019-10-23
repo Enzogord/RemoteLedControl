@@ -1,21 +1,22 @@
 ﻿using System;
 using System.IO;
+using System.Text;
 using Core;
 using Core.ClientConnectionService;
 using Core.Messages;
 using Core.RemoteOperations;
+using Newtonsoft.Json;
 using NLog;
 using NotifiedObjectsFramework;
 using RLCCore.Domain;
 using RLCCore.RemoteOperations;
 using RLCCore.Settings;
-using Service;
 using SNTPService;
 using UDPCommunication;
 
 namespace RLCCore
 {
-    public class RLCProjectController : NotifyPropertyChangedBase, IDisposable
+    public sealed class RLCProjectController : NotifyPropertyChangedBase, IDisposable
     {
         Logger logger = LogManager.GetCurrentClassLogger();
 
@@ -59,10 +60,10 @@ namespace RLCCore
         private UDPService<RLCMessage> udpService;
         private RemoteClientConnectionService remoteClientConnector;
 
-        public RLCProjectController()
+        public RLCProjectController(NetworkController networkController)
         {
             WorkMode = ProjectWorkModes.Setup;
-            NetworkController = new NetworkController();
+            NetworkController = networkController ?? throw new ArgumentNullException(nameof(networkController));
             TestDefaultConfig();
         }
 
@@ -200,24 +201,28 @@ namespace RLCCore
             ServicesIsReady = false;
         }
 
-        public void CreateProject()
+        public void LoadProject(Stream saveFile)
         {
-            
+            if(saveFile == null) {
+                throw new ArgumentNullException(nameof(saveFile));
+            }
+            StreamReader sr = new StreamReader(saveFile);
+            string saveContent = sr.ReadToEnd();
+
+            RemoteControlProject project = JsonConvert.DeserializeObject<RemoteControlProject>(saveContent);
+            CurrentProject = project;
         }
 
-        public void LoadProject()
+        public void SaveProject(Stream saveFile)
         {
+            if(saveFile == null) {
+                throw new ArgumentNullException(nameof(saveFile));
+            }
 
-        }
-
-        public void SaveProject()
-        {
-            /*if (ServiceFunc.CheckFolderAccess(CurrentProject.AbsoluteFolderPath + "\\" + CurrentProject.ClientsFolderName)) {
-                Save();
-            } else {
-                MessageBox.Show("Нет доступа к папке \"" + CurrentProject.AbsoluteFolderPath + "\\" + CurrentProject.ClientsFolderName + "\". Возможно некоторые файлы в ней открыты в другой программе", "Ошибка сохранения", MessageBoxButtons.OK);
-                return;
-            }*/
+            using(StreamWriter sw = new StreamWriter(saveFile, Encoding.UTF8)) {
+                var content = JsonConvert.SerializeObject(CurrentProject);
+                sw.Write(content);
+            }
         }
 
         public void SaveProjectAs()

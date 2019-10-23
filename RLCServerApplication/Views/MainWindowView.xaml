@@ -324,7 +324,9 @@
         </Grid.RowDefinitions>
         <Menu Grid.Row="0" Height="auto">
             <MenuItem Header="Файл">
-                <MenuItem Header="Создать"></MenuItem>
+                <MenuItem Header="Создать" IsEnabled="False"></MenuItem>
+                <MenuItem Header="Открыть" Command="{Binding LoadCommand}"></MenuItem>
+                <MenuItem Header="Сохранить" Command="{Binding SaveCommand}"></MenuItem>
             </MenuItem>
             <MenuItem Header="Проект">
                 <MenuItem Header="Добавить аудиотрек" Command="{Binding AddAudioTrackCommand}"></MenuItem>

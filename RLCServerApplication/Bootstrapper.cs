@@ -1,5 +1,8 @@
 ﻿using System.Reflection;
 using Autofac;
+using Core;
+using RLCCore;
+using RLCCore.Settings;
 using RLCServerApplication.ViewModels;
 
 namespace RLCServerApplication
@@ -27,7 +30,10 @@ namespace RLCServerApplication
 
             var builder = new ContainerBuilder();
 
-            builder.RegisterType<MainWindowViewModel>();
+            builder.RegisterType<MainWindowViewModel>().InstancePerLifetimeScope();
+            builder.RegisterType<SequencePlayer>().InstancePerLifetimeScope();
+            builder.RegisterType<RLCProjectController>().InstancePerLifetimeScope();
+            builder.RegisterType<NetworkController>().InstancePerLifetimeScope();
 
             rootScope = builder.Build();
         }

@@ -17,17 +17,12 @@ namespace RLCServerApplication.ViewModels
         {
             this.projectController = projectController ?? throw new System.ArgumentNullException(nameof(projectController));
             this.remoteControlProject = projectController.CurrentProject;
-            Clients = new ReadOnlyObservableCollection<RemoteClient>(remoteControlProject.Clients);
             ConfigureBindings();
         }
 
         public bool CanEdit => projectController.WorkMode == ProjectWorkModes.Setup;
 
-        private ReadOnlyObservableCollection<RemoteClient> clients;
-        public ReadOnlyObservableCollection<RemoteClient> Clients {
-            get => clients;
-            set => SetField(ref clients, value, () => Clients);
-        }
+        public ObservableCollection<RemoteClient> Clients => projectController.CurrentProject.Clients;
 
         private RemoteClient selectedClient;
         public RemoteClient SelectedClient {
@@ -53,6 +48,11 @@ namespace RLCServerApplication.ViewModels
             CreateNotificationBinding().AddProperty(nameof(CanEdit))
                 .SetNotifier(projectController)
                 .BindToProperty(x => x.WorkMode)
+                .End();
+
+            CreateNotificationBinding().AddProperty(nameof(Clients))
+                .SetNotifier(projectController)
+                .BindToProperty(x => x.CurrentProject)
                 .End();
         }
 

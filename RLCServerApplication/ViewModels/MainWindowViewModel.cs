@@ -29,12 +29,12 @@ namespace RLCServerApplication.ViewModels
 
         public bool CanEdit => ProjectController.WorkMode == ProjectWorkModes.Setup;
 
-        public MainWindowViewModel()
+        public MainWindowViewModel(RLCProjectController projectController, SequencePlayer player)
         {
-            ProjectController = new RLCProjectController();
+            ProjectController = projectController ?? throw new ArgumentNullException(nameof(projectController));
+            Player = player ?? throw new ArgumentNullException(nameof(player));
             SettingsViewModel = new SettingsViewModel(ProjectController);
             RemoteClientsViewModel = new RemoteClientsViewModel(ProjectController);
-            Player = new SequencePlayer();
             ProjectController.TimeProvider = Player;
             Player.ChannelPositionUserChanged += Player_ChannelPositionUserChanged;
             ConfigureBindings();
@@ -116,6 +116,8 @@ namespace RLCServerApplication.ViewModels
             CreateSwitchToSetupCommand();
             CreateSwitchToTestCommand();
             CreateSwitchToWorkCommand();
+            CreateLoadCommand();
+            CreateSaveCommand();
         }
 
         #region PlayCommand
@@ -402,6 +404,67 @@ namespace RLCServerApplication.ViewModels
             }
         }
         #endregion SwitchToWorkCommand
+
+        #region SaveCommand
+
+        public DelegateCommand SaveCommand { get; private set; }
+
+        private void CreateSaveCommand()
+        {
+            SaveCommand = new DelegateCommand(
+                () => {
+                    //FIXME убрать зависимоть от диалога
+                    Microsoft.Win32.SaveFileDialog dlg = new Microsoft.Win32.SaveFileDialog();
+                    dlg.DefaultExt = ".rlcsave";
+                    dlg.Filter = "RemoteLedControl save file|*.rlcsave";
+                    dlg.CreatePrompt = true;
+                    if(dlg.ShowDialog() == true) {
+                        Stream myStream = dlg.OpenFile();
+                        if(myStream == null) {
+                            return;
+                        }
+                        using(myStream) {
+                            ProjectController.SaveProject(myStream);
+                        }
+                    }
+                },
+                () => true
+            );
+        }
+
+        #endregion SaveCommand
+
+        #region LoadCommand
+
+        public DelegateCommand LoadCommand { get; private set; }
+
+        private void CreateLoadCommand()
+        {
+            LoadCommand = new DelegateCommand(
+                () => {
+                    //FIXME убрать зависимоть от диалога
+                    Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog();
+                    dlg.InitialDirectory = Environment.CurrentDirectory;
+                    dlg.DefaultExt = ".rlcsave";
+                    dlg.Filter = "RemoteLedControl save file|*.rlcsave";
+                    dlg.CheckFileExists = true;
+                    dlg.CheckPathExists = true;
+                    dlg.Multiselect = false;
+                    if(dlg.ShowDialog() == true) {
+                        Stream myStream = dlg.OpenFile();
+                        if(myStream == null) {
+                            return;
+                        }
+                        using(myStream) {
+                            ProjectController.LoadProject(myStream);
+                        }
+                    }
+                },
+                () => true
+            );
+        }
+
+        #endregion LoadCommand	
 
         #endregion Commands
 
