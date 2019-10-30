@@ -1,4 +1,5 @@
-﻿using System.Collections.ObjectModel;
+﻿using System.Collections;
+using System.Collections.ObjectModel;
 using System.Linq;
 using Core;
 using RLCCore;
@@ -107,13 +108,20 @@ namespace RLCServerApplication.ViewModels
 
         #region DeleteClientCommand
 
-        public DelegateCommand deleteClientCommand;
-        public DelegateCommand DeleteClientCommand {
+        public DelegateCommand<IList> deleteClientCommand;
+        public DelegateCommand<IList> DeleteClientCommand {
             get {
                 if(deleteClientCommand == null) {
-                    deleteClientCommand = new DelegateCommand(
-                        () => { remoteControlProject.DeleteClient(SelectedClient); },
-                        () => SelectedClient != null
+                    deleteClientCommand = new DelegateCommand<IList>(
+                        (selectedClients) => {
+                            var selectedClientsClone = selectedClients.OfType<RemoteClient>().ToList();
+                            foreach(var selectedClient in selectedClientsClone) {
+                                remoteControlProject.DeleteClient(selectedClient);
+                            }
+                        },
+                        (selectedClients) => { 
+                            return SelectedClient != null; 
+                        }
                     );
                 }
                 return deleteClientCommand;

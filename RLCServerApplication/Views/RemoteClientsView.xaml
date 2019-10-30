@@ -30,7 +30,8 @@
                     Command="{Binding AddNewClientCommand}"/>
             <Button Margin="5, 5, 5, 5" Padding="10, 0" HorizontalAlignment="Right"
                     Content="Удалить"
-                    Command="{Binding DeleteClientCommand}"/>
+                    Command="{Binding DeleteClientCommand}"
+                    CommandParameter="{Binding SelectedItems, ElementName=ListViewClients}"/>
         </StackPanel>
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
@@ -46,7 +47,7 @@
                   ScrollViewer.VerticalScrollBarVisibility="Disabled" 
                   ScrollViewer.CanContentScroll="False" 
                   Background="{x:Null}" 
-                  BorderBrush="{x:Null}"
+                  BorderBrush="{x:Null}"                      
                   SelectedItem="{Binding SelectedClient}"
                   MouseDown="ListViewClients_MouseDown"                  
                   >
