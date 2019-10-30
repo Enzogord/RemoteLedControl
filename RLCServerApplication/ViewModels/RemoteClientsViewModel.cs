@@ -86,7 +86,8 @@ namespace RLCServerApplication.ViewModels
                 if(addNewClientCommand == null) {
                     addNewClientCommand = new DelegateCommand(
                         () => {
-                            RemoteClient newRemoteClient = new RemoteClient("Новый клиент", Clients.Max(x => x.Number) + 1);
+                            int newClientNumber = Clients.Count != 0 ? Clients.Max(x => x.Number) + 1 : 1;
+                            RemoteClient newRemoteClient = new RemoteClient("Новый клиент", newClientNumber);
                             RemoteClientViewModel = new RemoteClientViewModel(newRemoteClient);
                             RemoteClientViewModel.OnClose += (sender, e) => {
                                 if(e.Commited) {
