@@ -323,22 +323,36 @@
             <RowDefinition Height="1*"/>
         </Grid.RowDefinitions>
         <Menu Grid.Row="0" Height="auto">
-            <MenuItem Header="Файл">
+            <MenuItem Header="Проект">
                 <MenuItem Header="Создать" IsEnabled="False"></MenuItem>
                 <MenuItem Header="Открыть" Command="{Binding LoadCommand}"></MenuItem>
                 <MenuItem Header="Сохранить" Command="{Binding SaveCommand}"></MenuItem>
             </MenuItem>
-            <MenuItem Header="Проект">
-                <MenuItem Header="Добавить аудиотрек" Command="{Binding AddAudioTrackCommand}"></MenuItem>
-            </MenuItem>
         </Menu>
 
-        <Grid Grid.Row="1">
+        <Grid Grid.Row="1" Margin="3, 3, 3, 0">
             <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto"/>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="auto"/>
             </Grid.ColumnDefinitions>
-            <StackPanel Orientation="Horizontal" Grid.Column="1" HorizontalAlignment="Right">
+            <StackPanel Grid.Column="0" Orientation="Horizontal">
+                <Button Margin="1, 2" Command="{Binding PlayCommand}">Play</Button>
+                <Button Margin="1, 2" Command="{Binding StopCommand}">Stop</Button>
+                <Button Margin="1, 2" Command="{Binding PauseCommand}">Pause</Button>
+            </StackPanel>
+            <StackPanel Grid.Column="1" Orientation="Horizontal" Margin="1, 2">
+                <xctk:TimeSpanUpDown Minimum="0" Maximum="10.23:59:59" Value="{Binding PlayFromTime}" Text="00:00" ShowDays="False"/>
+                <Button  Content="PlayFrom" Command="{Binding PlayFromButtonCommand}"></Button>
+            </StackPanel>
+            <StackPanel Grid.Column="2" Orientation="Horizontal" Margin="5, 2">
+                <Button Margin="2, 0" Content="Mute" Command="{Binding MuteCommand}"></Button>
+                <Slider VerticalAlignment="Center" Margin="2, 0" Width="100" Minimum="0" Maximum="1" SmallChange="0.01" LargeChange="0.01" Value="{Binding Player.Volume}"/>
+                <Button Margin="2, 0" Padding="5, 0" Content="Добавить трек" Command="{Binding AddAudioTrackCommand}"></Button>
+                <Separator></Separator>
+            </StackPanel>
+            <StackPanel Grid.Column="3" Orientation="Horizontal" HorizontalAlignment="Right">
                 <RadioButton Margin="1, 2" Padding="5,0" 
                              Content="Настройка" 
                              GroupName="ToggleGroup" 
@@ -360,62 +374,30 @@
             </StackPanel>
         </Grid>
 
-        <Grid Grid.Row="2">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="auto"/>
-                <ColumnDefinition Width="auto"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition/>
-                    <RowDefinition/>
-                </Grid.RowDefinitions>
-                <StackPanel Grid.Row="0" Orientation="Horizontal">
-                    <Button Margin="5" Command="{Binding PlayCommand}">Play</Button>
-                    <Button Margin="5" Command="{Binding StopCommand}">Stop</Button>
-                    <Button Margin="5" Command="{Binding PauseCommand}">Pause</Button>
-                </StackPanel>
-                <Grid Grid.Row="1">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition/>
-                        <ColumnDefinition/>
-                    </Grid.ColumnDefinitions>
-                    <StackPanel Grid.Column="0" Orientation="Horizontal" Margin="5">
-                        <xctk:TimeSpanUpDown Minimum="0" Maximum="10.23:59:59" Value="{Binding PlayFromTime}" Text="00:00" ShowDays="False"/>
-                        <Button  Content="PlayFrom" Command="{Binding PlayFromButtonCommand}"></Button>
-                        <!--<xctk:MaskedTextBox Mask="999:99:99" Text="000:00:00" VerticalAlignment="Center" PreviewTextInput="TextBox_PreviewTextInput"></xctk:MaskedTextBox>-->
-                    </StackPanel>
-                </Grid>
-                
-            </Grid>
-            <Grid Grid.Column="2">
+        <Grid Grid.Row="2" Margin="3">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="60" MinHeight="40"/>
+            </Grid.RowDefinitions>
+            <player:WaveformTimeline x:Name="Player" Grid.Row="0" HorizontalAlignment="Stretch"/>
+            <Grid Grid.Row="0" Height="20" VerticalAlignment="Top" Margin="3, 0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="auto"/>
-                    <ColumnDefinition/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="auto"/>
                 </Grid.ColumnDefinitions>
-                <Grid Grid.Column="0">
-                    <Grid.RowDefinitions>
-                        <RowDefinition/>
-                        <RowDefinition/>
-                    </Grid.RowDefinitions>
-                    <Label Grid.Row="1" x:Name="LabelTime" HorizontalAlignment="Right" Content="{Binding Player.CurrentTime}" ContentStringFormat="{}{0:hh}:{0:mm}:{0:ss}"/>
-                </Grid>
-                <player:WaveformTimeline x:Name="Player" Grid.Column="1" HorizontalAlignment="Stretch"/>
+                <Label Grid.Column="0" Padding="0" x:Name="LabelTime" VerticalAlignment="Top" HorizontalAlignment="Right" Content="{Binding Player.CurrentTime}" ContentStringFormat="{}{0:hh}:{0:mm}:{0:ss}" FontSize="10"/>
+                <Label Grid.Column="2" Padding="0" x:Name="LabelTotalTime" VerticalAlignment="Top" HorizontalAlignment="Right" Content="{Binding Player.TotalTime}" ContentStringFormat="{}{0:hh}:{0:mm}:{0:ss}" FontSize="10"/>
             </Grid>
-            
         </Grid>
-
-        <TabControl Grid.Row="3" TabStripPlacement="Left">
-            <TabItem Header="Настройки" Padding="10">
+        <TabControl Grid.Row="3" TabStripPlacement="Top">
+            <TabItem Header="Клиенты" Padding="5, 2">
+                <ContentPresenter Content="{Binding RemoteClientsViewModel}" ContentTemplate="{StaticResource RemoteClientsTemplate}" />
+            </TabItem>
+            <TabItem Header="Настройки" Padding="5, 2">
                 <ContentPresenter 
                     Content="{Binding SettingsViewModel}" 
                     ContentTemplate="{StaticResource SettingsTemplate}" 
                     IsEnabled="{Binding ProjectController.WorkMode}"/>
-            </TabItem>
-
-            <TabItem Header="Клиенты" Padding="10">
-                <ContentPresenter Content="{Binding RemoteClientsViewModel}" ContentTemplate="{StaticResource RemoteClientsTemplate}" />
             </TabItem>
         </TabControl>
     </Grid>

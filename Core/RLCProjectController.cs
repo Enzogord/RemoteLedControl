@@ -101,14 +101,12 @@ namespace RLCCore
             }
 
             var ipAddress = networkController.GetServerIPAddress();
-            int rlcPort = 11010;
-            int sntpPort = 11011;
 
             //SNTP service
             if(sntpService != null) {
                 sntpService.Stop();
             }
-            sntpService = new SntpService(sntpPort);
+            sntpService = new SntpService(CurrentProject.SntpPort);
             sntpService.InterfaceAddress = ipAddress;
 
             try {
@@ -125,11 +123,11 @@ namespace RLCCore
             if(udpService != null) {
                 udpService.StopReceiving();                
             }
-            udpService = new UDPService<RLCMessage>(ipAddress, rlcPort);
+            udpService = new UDPService<RLCMessage>(ipAddress, CurrentProject.RlcPort);
             udpService.OnReceiveMessage += (sender, endPoint, message) => {
                 logger.Debug($"Receive message: {message.MessageType}");
                 if(message.MessageType == MessageType.RequestServerIp) {
-                    udpService.Send(RLCMessageFactory.SendServerIP(CurrentProject.Key, ipAddress), endPoint.Address, rlcPort);
+                    udpService.Send(RLCMessageFactory.SendServerIP(CurrentProject.Key, ipAddress), endPoint.Address, CurrentProject.RlcPort);
                 }
             };
 
@@ -150,7 +148,7 @@ namespace RLCCore
                 remoteClientConnector.Stop();
             }
             IConnectorMessageService connectorMessageService = new ConnectorMessageService(CurrentProject.Key, CurrentProject.Clients);
-            remoteClientConnector = new RemoteClientConnectionService(NetworkController.GetServerIPAddress(), rlcPort, connectorMessageService, 200);
+            remoteClientConnector = new RemoteClientConnectionService(NetworkController.GetServerIPAddress(), CurrentProject.RlcPort, connectorMessageService, 200);
 
             //Clients operator
             RemoteClientsOperator = new RemoteClientsOperator(CurrentProject.Key, CurrentProject.Clients, CurrentProject, NetworkController, remoteClientConnector);
@@ -388,7 +386,7 @@ namespace RLCCore
         private void TestDefaultConfig()
         {
             CurrentProject = new RemoteControlProject(158018933);
-            CurrentProject.Port = 11010;
+            //CurrentProject.RlcPort = 11010;
             CurrentProject.WifiSSID = "Ufanet_315";
             CurrentProject.WifiPassword = "158018933";
 

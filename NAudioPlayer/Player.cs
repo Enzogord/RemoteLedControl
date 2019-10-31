@@ -1,5 +1,6 @@
 ﻿using AudioPlayer.TimeLine;
 using NAudio.Wave;
+using NLog;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -10,6 +11,8 @@ namespace NAudioPlayer
 {
     public class Player : IWaveformPlayer, IDisposable
     {
+        private static Logger logger = LogManager.GetCurrentClassLogger();
+
         #region Fields
         private readonly DispatcherTimer positionTimer = new DispatcherTimer(DispatcherPriority.ApplicationIdle);
         private readonly BackgroundWorker waveformGenerateWorker = new BackgroundWorker();
@@ -324,6 +327,7 @@ namespace NAudioPlayer
                     sampleAggregator = new SampleAggregator(fftDataSize);
                     inputStream.Sample += inputStream_Sample;
                     waveOutDevice.Init(inputStream);
+                    TotalTime = inputStream.TotalTime;
                     ChannelLength = inputStream.TotalTime.TotalSeconds;
                     GenerateWaveformData(path);
                     CanPlay = true;
@@ -363,6 +367,12 @@ namespace NAudioPlayer
             }
         }
 
+        private TimeSpan totalTime;
+        public TimeSpan TotalTime {
+            get => totalTime;
+            private set => SetField(ref totalTime, value, () => TotalTime);
+        }
+
         public float Volume {
             get {
                 if (waveOutDevice == null) {
@@ -374,10 +384,15 @@ namespace NAudioPlayer
                 if (waveOutDevice == null) {
                     return;
                 }
-                float volume = 0f;
-                if (SetField(ref volume, value, () => Volume)) {
-                    waveOutDevice.Volume = volume;
+                float volume = value;
+                if(value < 0) {
+                    volume = 0;
                 }
+                if(value > 1) {
+                    volume = 1;
+                }
+                waveOutDevice.Volume = volume;
+                OnPropertyChanged(() => Volume);
             }
         }
 

@@ -16,6 +16,9 @@ namespace RLCCore.Domain
     [DataContract]
     public class RemoteControlProject : NotifyPropertyChangedBase, ISettingsProvider, IMessageReceiver
     {
+        private const int defaultRlcPort = 11010;
+        private const int defaultSntpPort = 11011;
+
         private uint key;
         [DataMember]
         [Display(Name = "Ключ")]
@@ -40,12 +43,20 @@ namespace RLCCore.Domain
             set => SetField(ref wifiPassword, value, () => WifiPassword);
         }
 
-        private int port;
+        private int rlcPort = defaultRlcPort;
         [DataMember]
-        [Display(Name = "Port")]
-        public int Port {
-            get => port;
-            set => SetField(ref port, value, () => Port);
+        [Display(Name = "RLC Port")]
+        public int RlcPort {
+            get => rlcPort;
+            set => SetField(ref rlcPort, value, () => RlcPort);
+        }
+
+        private int sntpPort = defaultSntpPort;
+        [DataMember]
+        [Display(Name = "SNTP Port")]
+        public int SntpPort {
+            get => sntpPort;
+            set => SetField(ref sntpPort, value, () => SntpPort);
         }
 
         private string clientsConfigFileName;
@@ -106,7 +117,7 @@ namespace RLCCore.Domain
             result.Add("Password", WifiPassword);
 
             result.Add("ProjectKey", Key.ToString());
-            result.Add("UDPPort", Port.ToString());
+            result.Add("UDPPort", RlcPort.ToString());
 
             return result;
         }

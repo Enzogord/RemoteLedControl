@@ -53,17 +53,16 @@ namespace RLCServerApplication.ViewModels
 
         private void ConfigureBindings()
         {
-            CreateNotificationBinding().AddProperty(nameof(CanEdit))
+            CreateNotificationBinding()
+                .AddProperty(nameof(CanEdit))
+                .AddAction(UpdatePlayerState)
                 .SetNotifier(ProjectController)
                 .BindToProperty(x => x.WorkMode)
                 .End();
 
-            CreateNotificationBinding().AddAction(UpdatePlayerState)
-                .SetNotifier(ProjectController)
-                .BindToProperty(x => x.WorkMode)
-                .End();
-
-            CreateNotificationBinding().AddAction(UpdatePlayerCommands)
+            CreateNotificationBinding()
+                .AddAction(UpdateProjectCommands)
+                .AddAction(UpdatePlayerCommands)
                 .SetNotifier(ProjectController)
                 .BindToProperty(x => x.ServicesIsReady)
                 .BindToProperty(x => x.WorkMode)
@@ -73,6 +72,7 @@ namespace RLCServerApplication.ViewModels
                 .AddAction(() => {
                     if(ProjectController.RemoteClientsOperator != null) {
                         CreateNotificationBinding()
+                            .AddAction(UpdateProjectCommands)
                             .AddAction(UpdatePlayerCommands)
                             .AddProperty(nameof(CanSwitchToSetup), nameof(CanSwitchToTest), nameof(CanSwitchToWork))
                             .SetNotifier(ProjectController.RemoteClientsOperator)
@@ -118,6 +118,7 @@ namespace RLCServerApplication.ViewModels
             CreateSwitchToWorkCommand();
             CreateLoadCommand();
             CreateSaveCommand();
+            CreateMuteCommand();
         }
 
         #region PlayCommand
@@ -187,6 +188,21 @@ namespace RLCServerApplication.ViewModels
         }
 
         #endregion PlayFromButtonCommand
+
+        #region MuteCommand
+
+        public DelegateCommand MuteCommand { get; private set; }
+
+        private void CreateMuteCommand()
+        {
+            MuteCommand = new DelegateCommand(
+                () => Player.Volume = 0f,
+                () => Player != null
+            );
+            MuteCommand.CanExecuteChangedWith(this, x => x.Player);
+        }
+
+        #endregion MuteCommand
 
         #region PlayFromTimelineCommand
 
@@ -428,7 +444,7 @@ namespace RLCServerApplication.ViewModels
                         }
                     }
                 },
-                () => true
+                () => ProjectController.WorkMode == ProjectWorkModes.Setup
             );
         }
 
@@ -460,7 +476,7 @@ namespace RLCServerApplication.ViewModels
                         }
                     }
                 },
-                () => true
+                () => ProjectController.WorkMode == ProjectWorkModes.Setup
             );
         }
 
@@ -481,6 +497,12 @@ namespace RLCServerApplication.ViewModels
             PlayFromButtonCommand?.RaiseCanExecuteChanged();
             StopCommand?.RaiseCanExecuteChanged();
             PauseCommand?.RaiseCanExecuteChanged();
+        }
+
+        private void UpdateProjectCommands()
+        {
+            LoadCommand?.RaiseCanExecuteChanged();
+            SaveCommand?.RaiseCanExecuteChanged();
         }
 
         private void UpdatePlayerState()
