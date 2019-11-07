@@ -70,6 +70,7 @@
     <Compile Include="ClientConnectionService\IRemoteClientCommunication.cs" />
     <Compile Include="CyclogrammUtility\CyclogrammCsvToCycConverter.cs" />
     <Compile Include="CyclogrammUtility\LinearCyclogrammConverter.cs" />
+    <Compile Include="IO\FileHolder.cs" />
     <Compile Include="RemoteOperations\ISequenceTimeProvider.cs" />
     <Compile Include="Sequence\ISequenceController.cs" />
     <Compile Include="Messages\ClientState.cs" />

@@ -41,7 +41,7 @@ namespace RLCServerApplication.ViewModels
                     dlg.DefaultExt = ".cyc";
                     dlg.Filter = "CSV unconverted cyclogramms (.csv)|*.csv|Cyc converted cyclogramms (.cyc)|*.cyc";
                     if(dlg.ShowDialog() == true) {
-                        Cyclogramm.FilePath = dlg.FileName;
+                        Cyclogramm.FileFullName = dlg.FileName;
                     }
                 },
                 () => Editable

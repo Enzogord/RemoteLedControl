@@ -1,4 +1,5 @@
-﻿using System.Runtime.Serialization;
+﻿using System.IO;
+using System.Runtime.Serialization;
 using NotifiedObjectsFramework;
 using Service;
 
@@ -11,21 +12,27 @@ namespace RLCCore.Domain
         private string name;
         public string Name {
             get => name;
-            set => SetField(ref name, value, () => Name);
+            set => SetField(ref name, value);
         }
 
-        [DataMember]
-        private int fileSize;
-        public int FileSize {
-            get => fileSize;
-            set => SetField(ref fileSize, value, () => FileSize);
+        private string fileFullName;        
+        public string FileFullName {
+            get => fileFullName;
+            set {
+                SetField(ref fileFullName, value);
+                OnPropertyChanged(nameof(CyclogrammFileInfo));
+            }
         }
 
-        private string filePath;
-        public string FilePath {
-            get => filePath;
-            set => SetField(ref filePath, value, () => FilePath);
+        private FileInfo cyclogrammFileInfo;
+        public FileInfo CyclogrammFileInfo {
+            get {
+                if(cyclogrammFileInfo == null || cyclogrammFileInfo.FullName != FileFullName) {
+                    cyclogrammFileInfo = new FileInfo(FileFullName);
+                }
+                cyclogrammFileInfo.Refresh();
+                return cyclogrammFileInfo;
+            }
         }
     }
-
 }
