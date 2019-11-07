@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27130.2020
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29409.12
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RLCCore", "Core\RLCCore.csproj", "{202F2159-593B-4E89-AFDF-FB3DAF2D9EA6}"
 EndProject
@@ -28,6 +28,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Player", "Player", "{6DB8EC13-051C-4C2B-8190-321077B7D947}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NotifiedObjectsFramework", "NotifiedObjectsFramework\NotifiedObjectsFramework.csproj", "{B5672B8B-286B-4C51-8457-3066FBD713A2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CyclogrammConverter", "CyclogrammConverter\CyclogrammConverter.csproj", "{10D5E64F-2D86-4703-989B-BD3DDC70475D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -83,6 +85,10 @@ Global
 		{B5672B8B-286B-4C51-8457-3066FBD713A2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B5672B8B-286B-4C51-8457-3066FBD713A2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B5672B8B-286B-4C51-8457-3066FBD713A2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{10D5E64F-2D86-4703-989B-BD3DDC70475D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{10D5E64F-2D86-4703-989B-BD3DDC70475D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{10D5E64F-2D86-4703-989B-BD3DDC70475D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{10D5E64F-2D86-4703-989B-BD3DDC70475D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
