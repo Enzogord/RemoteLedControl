@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -38,6 +39,14 @@ namespace RLCServerApplication.Views
         {
             Environment.Exit(0);
             base.OnClosed(e);
+        }
+
+        protected override void OnClosing(CancelEventArgs e)
+        {
+            if(MessageBox.Show("Все не сохраненные данные будут утеряны, продолжить?", "Внимание!", MessageBoxButton.YesNo) == MessageBoxResult.No) {
+                e.Cancel = true;
+            }
+            base.OnClosing(e);
         }
     }
 }
