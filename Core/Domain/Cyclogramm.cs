@@ -15,11 +15,11 @@ namespace RLCCore.Domain
             set => SetField(ref name, value);
         }
 
-        private string fileFullName;        
-        public string FileFullName {
-            get => fileFullName;
+        private string filePath;        
+        public string FilePath {
+            get => filePath;
             set {
-                SetField(ref fileFullName, value);
+                SetField(ref filePath, value);
                 OnPropertyChanged(nameof(CyclogrammFileInfo));
             }
         }
@@ -27,8 +27,8 @@ namespace RLCCore.Domain
         private FileInfo cyclogrammFileInfo;
         public FileInfo CyclogrammFileInfo {
             get {
-                if(cyclogrammFileInfo == null || cyclogrammFileInfo.FullName != FileFullName) {
-                    cyclogrammFileInfo = new FileInfo(FileFullName);
+                if(cyclogrammFileInfo == null || cyclogrammFileInfo.FullName != FilePath) {
+                    cyclogrammFileInfo = new FileInfo(FilePath);
                 }
                 cyclogrammFileInfo.Refresh();
                 return cyclogrammFileInfo;
