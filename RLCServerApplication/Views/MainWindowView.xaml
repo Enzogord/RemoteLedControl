@@ -10,7 +10,7 @@
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         xmlns:Converters="clr-namespace:RLCServerApplication.Converters" x:Class="RLCServerApplication.Views.MainWindowView"
         mc:Ignorable="d"
-        Title="RemoteLedControl" Height="450" Width="800"
+        Title="RemoteLedControl" Height="450" Width="800" MinHeight="350" MinWidth="700"
         d:DataContext="{d:DesignInstance {x:Type vm:MainWindowViewModel}}"
         >
 
@@ -397,7 +397,7 @@
             </Grid>
             <TabControl Grid.Row="2" TabStripPlacement="Top">
                 <TabItem Header="Клиенты" Padding="5, 2">
-                    <ContentPresenter Content="{Binding RemoteClientsViewModel}" ContentTemplate="{StaticResource RemoteClientsTemplate}" />
+                    <ContentPresenter Content="{Binding RemoteClientsViewModel}" ContentTemplate="{StaticResource RemoteClientsTemplate}"/>
                 </TabItem>
                 <TabItem Header="Настройки" Padding="5, 2">
                     <ContentPresenter 
