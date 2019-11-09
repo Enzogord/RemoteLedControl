@@ -23,7 +23,10 @@ namespace RLCCore
         private ProjectWorkModes workMode;
         public ProjectWorkModes WorkMode {
             get => workMode;
-            set => SetField(ref workMode, value, () => WorkMode);
+            set {
+                SetField(ref workMode, value, () => WorkMode);
+                OnPropertyChanged(nameof(CanCreateNewProject));
+            }
         }
 
         private NetworkController networkController;
@@ -196,6 +199,25 @@ namespace RLCCore
             RemoteClientsOperator = null;
 
             ServicesIsReady = false;
+        }
+
+        private uint GenerateProjectKey()
+        {
+            byte[] bytes = new byte[4];
+
+            Random Rand = new Random();
+            Rand.NextBytes(bytes);
+
+            return (uint)((bytes[0] << 24) + (bytes[1] << 16) + (bytes[2] << 8) + (bytes[3] << 0));
+        }
+
+        public bool CanCreateNewProject => WorkMode == ProjectWorkModes.Setup;
+
+        public void CreateProject()
+        {
+            if(CanCreateNewProject) {
+                CurrentProject = new RemoteControlProject(GenerateProjectKey());
+            }
         }
 
         public void LoadProject(Stream saveFile)

@@ -6,6 +6,7 @@ using RLCServerApplication.Infrastructure.Command;
 using System;
 using System.IO;
 using System.Linq;
+using System.Windows;
 
 namespace RLCServerApplication.ViewModels
 {
@@ -119,6 +120,7 @@ namespace RLCServerApplication.ViewModels
             CreateLoadCommand();
             CreateSaveCommand();
             CreateMuteCommand();
+            CreateCreateCommand();
         }
 
         #region PlayCommand
@@ -421,6 +423,28 @@ namespace RLCServerApplication.ViewModels
         }
         #endregion SwitchToWorkCommand
 
+        #region CreateCommand
+
+        public DelegateCommand CreateCommand { get; private set; }
+
+        private void CreateCreateCommand()
+        {
+            CreateCommand = new DelegateCommand(
+                () => {
+                    if(ProjectController.CurrentProject != null) {
+                        if(MessageBox.Show("Уже есть открытый проект, не сохраненные изменения будут утеряны, все равно открыть новый?", "Внимание!" , MessageBoxButton.YesNo) == MessageBoxResult.No) {
+                            return;
+                        }
+                    }
+                    ProjectController.CreateProject();
+                },
+                () => ProjectController.CanCreateNewProject
+            );
+            CreateCommand.CanExecuteChangedWith(ProjectController, x => x.CanCreateNewProject);
+        }
+
+        #endregion CreateCommand	
+
         #region SaveCommand
 
         public DelegateCommand SaveCommand { get; private set; }
@@ -447,6 +471,7 @@ namespace RLCServerApplication.ViewModels
                 () => ProjectController.WorkMode == ProjectWorkModes.Setup && ProjectController.CurrentProject != null
             );
             SaveCommand.CanExecuteChangedWith(ProjectController, x => x.WorkMode);
+            SaveCommand.CanExecuteChangedWith(ProjectController, x => x.CurrentProject);
         }
 
         #endregion SaveCommand

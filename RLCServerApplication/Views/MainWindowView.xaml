@@ -324,7 +324,7 @@
         </Grid.RowDefinitions>
         <Menu Grid.Row="0" Height="auto">
             <MenuItem Header="Проект">
-                <MenuItem Header="Создать" IsEnabled="False"/>
+                <MenuItem Header="Создать" Command="{Binding CreateCommand}"/>
                 <MenuItem Header="Открыть" Command="{Binding LoadCommand}"/>
                 <MenuItem Header="Сохранить" Command="{Binding SaveCommand}"/>
             </MenuItem>
