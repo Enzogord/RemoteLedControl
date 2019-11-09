@@ -31,16 +31,20 @@ namespace SNTPService
             return udpListener.Start(port, true);
         }
 
-        public bool Stop()
+        public void Stop()
         {
-            try  {
-                return udpListener.Stop();
+            try {
+                udpListener.Stop();
             }
-            catch (Exception ex) {
+            catch(Exception ex) {
                 logger.Error(ex, "Stopping Service failed");
             }
-
-            return false;
+            finally {
+                if(udpListener != null) {
+                    udpListener.Dispose();
+                    udpListener = null;
+                }                
+            }
         }
 
         private void OnClientConnect(object sender, ClientConnectedEventArgs args)

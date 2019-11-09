@@ -61,6 +61,9 @@ namespace SNTPService
             if(Thread != null) {
                 Thread = null;
             }
+            if(Socket != null) {
+                Socket.Dispose();
+            }
         }
 
         #region Methods
