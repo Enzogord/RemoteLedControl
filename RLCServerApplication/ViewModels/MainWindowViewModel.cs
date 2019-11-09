@@ -444,8 +444,9 @@ namespace RLCServerApplication.ViewModels
                         }
                     }
                 },
-                () => ProjectController.WorkMode == ProjectWorkModes.Setup
+                () => ProjectController.WorkMode == ProjectWorkModes.Setup && ProjectController.CurrentProject != null
             );
+            SaveCommand.CanExecuteChangedWith(ProjectController, x => x.WorkMode);
         }
 
         #endregion SaveCommand
@@ -478,6 +479,7 @@ namespace RLCServerApplication.ViewModels
                 },
                 () => ProjectController.WorkMode == ProjectWorkModes.Setup
             );
+            LoadCommand.CanExecuteChangedWith(ProjectController, x => x.WorkMode);
         }
 
         #endregion LoadCommand	

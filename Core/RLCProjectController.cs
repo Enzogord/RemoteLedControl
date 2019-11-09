@@ -64,7 +64,6 @@ namespace RLCCore
         {
             WorkMode = ProjectWorkModes.Setup;
             NetworkController = networkController ?? throw new ArgumentNullException(nameof(networkController));
-            TestDefaultConfig();
         }
 
         public void SwitchToSetupMode()
@@ -380,28 +379,6 @@ namespace RLCCore
             }
             CurrentProject.AbsoluteFilePath = FilePath;
             CurrentProject.Saved = true;*/
-        }
-
-        [Obsolete("Тестовая конфигурация платы, для проверки программы в дебаге")]
-        private void TestDefaultConfig()
-        {
-            CurrentProject = new RemoteControlProject(158018933);
-            //CurrentProject.RlcPort = 11010;
-            CurrentProject.WifiSSID = "Ufanet_315";
-            CurrentProject.WifiPassword = "158018933";
-
-            var client = new RemoteClient("test", 1);
-            client.AddPin(0, 1);
-            client.AddPin(2, 2);
-            client.AddPin(4, 1);
-            client.AddPin(5, 1);
-            CurrentProject.AddClient(client);
-
-            string music = @"C:\Users\Enzo\Desktop\October\002. Aviators - Monumental.mp3";
-            CurrentProject.AudioFilePath = new FileInfo(music);
-
-            //NetworkController.CurrentAddressSetting = NetworkController.AddressSettings.First(x => x.IPAddress.ToString() == "192.168.1.217");
-            //NetworkController.Port = 11010;
         }
 
         public void Dispose()
