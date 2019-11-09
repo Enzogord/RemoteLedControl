@@ -59,6 +59,9 @@
                 </ListView.ItemsPanel>
                 <ListView.ItemContainerStyle>
                     <Style TargetType="{x:Type ListViewItem}">
+                        <Setter Property="Height" Value="35"/>
+                        <Setter Property="VerticalContentAlignment" Value="Center"/>
+                        <Setter Property="VerticalAlignment" Value="Center"/>
                         <Setter Property="HorizontalAlignment" Value="Stretch"/>
                         <Setter Property="Background" Value="{x:Null}"/>
                         <Setter Property="Padding" Value="0"/>
@@ -77,32 +80,29 @@
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
                             <Ellipse Grid.Column="0"
-                            Fill="{Binding Connected, Converter={StaticResource OnlineStatusToColorConverter}}"
-                            Margin="5, 0, 0, 0"
-                            Height="12"
-                            Width="12"
-                            VerticalAlignment="Center"
-                            HorizontalAlignment="Center"
-                            StrokeThickness="1"
-                            Stroke="Black">
-
+                                Fill="{Binding Connected, Converter={StaticResource OnlineStatusToColorConverter}}"
+                                Margin="5, 0, 0, 0"
+                                Height="12"
+                                Width="12"
+                                VerticalAlignment="Center"
+                                HorizontalAlignment="Center"
+                                StrokeThickness="1"
+                                Stroke="Black">
                             </Ellipse>
                             <TextBlock Grid.Column="1"                           
-                            VerticalAlignment="Center" 
-                            HorizontalAlignment="Center"
-                            Margin="3, 0"
-                            Background="{x:Null}"
-                            FontSize="14"
-                            Text="{Binding Number}" TextAlignment="Center" MinWidth="20" 
+                                VerticalAlignment="Center" 
+                                HorizontalAlignment="Center"
+                                Margin="3, 0"
+                                FontSize="14"
+                                Text="{Binding Number}" TextAlignment="Center" MinWidth="20" 
                             />
                             <TextBlock Grid.Column="2"
-                            VerticalAlignment="Center" 
-                            HorizontalAlignment="Left"
-                            Margin="3, 0"
-                            Background="Azure"
-                            Padding="4, 0"
-                            FontSize="18"
-                            Text="{Binding Name}" TextAlignment="Left"
+                                VerticalAlignment="Center" 
+                                HorizontalAlignment="Left"
+                                Margin="3, 0"
+                                Padding="4, 0"
+                                FontSize="18"
+                                Text="{Binding Name}" TextAlignment="Left"
                             />
                         </Grid>
                     </DataTemplate>
