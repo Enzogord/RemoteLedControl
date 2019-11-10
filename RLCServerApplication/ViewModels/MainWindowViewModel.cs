@@ -85,6 +85,20 @@ namespace RLCServerApplication.ViewModels
                 .BindToProperty(x => x.RemoteClientsOperator)
                 .End();
 
+            CreateNotificationBinding()
+                .AddAction(() => {
+                    if(ProjectController.CurrentProject != null) {
+                        CreateNotificationBinding()
+                            .AddAction(ReloadAudioTrack)
+                            .SetNotifier(ProjectController.CurrentProject)
+                            .BindToProperty(x => x.SoundtrackFilePath)
+                            .End();
+                    }
+                })
+                .SetNotifier(ProjectController)
+                .BindToProperty(x => x.CurrentProject)
+                .End();
+
             CreateNotificationBinding().AddAction(() => RemoteClientsViewModel = new RemoteClientsViewModel(ProjectController))
                 .SetNotifier(ProjectController)
                 .BindToProperty(x => x.CurrentProject)
@@ -113,7 +127,6 @@ namespace RLCServerApplication.ViewModels
             CreatePlayFromTimelineCommand();
             CreateStopCommand();
             CreatePauseCommand();
-            CreateAddAudioTrackCommand();
             CreateSwitchToSetupCommand();
             CreateSwitchToTestCommand();
             CreateSwitchToWorkCommand();
@@ -292,30 +305,6 @@ namespace RLCServerApplication.ViewModels
         }
 
         #endregion PauseCommand
-
-        #region AddAudioTrackCommand
-
-        public DelegateCommand AddAudioTrackCommand { get; private set; }
-
-        private void CreateAddAudioTrackCommand()
-        {
-            AddAudioTrackCommand = new DelegateCommand(
-                () => {
-                    //FIXME убрать зависимоть от диалога
-                    Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog();
-                    dlg.DefaultExt = ".mp3";
-                    dlg.Filter = "Mp3 files|*.mp3";
-                    if(dlg.ShowDialog() == true) {
-                        Player.OpenFile(dlg.FileName);
-                        Player.Volume = 0.1f;
-                    }
-                },
-                () => CanEdit
-            );
-            AddAudioTrackCommand.CanExecuteChangedWith(this, x => x.CanEdit);
-        }
-
-        #endregion AddAudioTrackCommand
 
         #region SwitchToSetupCommand
 
@@ -510,6 +499,15 @@ namespace RLCServerApplication.ViewModels
         #endregion LoadCommand	
 
         #endregion Commands
+
+        private void ReloadAudioTrack()
+        {
+            if(ProjectController.CurrentProject == null || Player == null || ProjectController.WorkMode != ProjectWorkModes.Setup) {
+                return;
+            }
+            Player.OpenFile(ProjectController.CurrentProject.SoundtrackFilePath);
+            Player.Volume = 0.1f;
+        }
 
         private void UpdateWorkModeProperties()
         {

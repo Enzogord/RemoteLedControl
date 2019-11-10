@@ -340,8 +340,8 @@
             <Grid Grid.Row="0" Margin="3, 3, 3, 0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="auto"/>
-                    <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="auto"/>
                 </Grid.ColumnDefinitions>
                 <StackPanel Grid.Column="0" Orientation="Horizontal">
@@ -353,11 +353,10 @@
                     <xctk:TimeSpanUpDown Minimum="0" Maximum="10.23:59:59" Value="{Binding PlayFromTime}" Text="00:00" ShowDays="False" IsEnabled="{Binding IsEnabled, ElementName=playFromButton}"/>
                     <Button x:Name="playFromButton" Content="PlayFrom" Command="{Binding PlayFromButtonCommand}"/>
                 </StackPanel>
-                <StackPanel Grid.Column="2" Orientation="Horizontal" Margin="5, 2">
-                    <Button Margin="2, 0" Content="Mute" Command="{Binding MuteCommand}"/>
-                    <Slider VerticalAlignment="Center" Margin="2, 0" Width="100" Minimum="0" Maximum="1" SmallChange="0.01" LargeChange="0.01" Value="{Binding Player.Volume}"/>
-                    <Button Margin="2, 0" Padding="5, 0" Content="Добавить трек" Command="{Binding AddAudioTrackCommand}"/>
-                    <Separator/>
+                <StackPanel Grid.Column="2" Orientation="Horizontal" Margin="0, 2">
+                    <Separator Margin="10, 0" Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}"/>
+                    <Button Margin="0, 0, 3, 0" Content="Mute" Command="{Binding MuteCommand}"/>
+                    <Slider Margin="3, 0" VerticalAlignment="Center" Width="100" Minimum="0" Maximum="1" SmallChange="0.01" LargeChange="0.01" Value="{Binding Player.Volume}"/>
                 </StackPanel>
                 <StackPanel Grid.Column="3" Orientation="Horizontal" HorizontalAlignment="Right">
                     <RadioButton Margin="1, 2" Padding="5,0" 
