@@ -16,20 +16,20 @@ namespace RLCCore.Serialization
 
         public void WriteSettings(string filePath, params ISettingsProvider[] settingsProvider)
         {
-            using(FileStream stream = new FileStream(filePath, FileMode.OpenOrCreate, FileAccess.ReadWrite)) {
+            using(FileStream stream = new FileStream(filePath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.Read)) {
                 WriteSettings(stream, settingsProvider);
             }
         }
 
         public void WriteSettings(Stream stream, params ISettingsProvider[] settingsProvider)
         {
-            using(StreamWriter writer = new StreamWriter(stream, Encoding.ASCII)) {
-                foreach(var sp in settingsProvider) {
-                    foreach(var settings in sp.GetSettings()) {
-                        writer.WriteLine($"{settings.Key}{keyValueDelimiter}{settings.Value}{parameterDelimiter}");
-                    }
+            StreamWriter writer = new StreamWriter(stream, Encoding.ASCII, 1024, true);
+            foreach(var sp in settingsProvider) {
+                foreach(var settings in sp.GetSettings()) {
+                    writer.WriteLine($"{settings.Key}{keyValueDelimiter}{settings.Value}{parameterDelimiter}");
                 }
             }
+            writer.Close();
         }
     }
 }

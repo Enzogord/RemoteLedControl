@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using NotifiedObjectsFramework;
 using RLCCore.Domain;
+using RLCCore.Serialization;
 using System;
 using System.Drawing;
 using System.IO;
@@ -46,6 +47,11 @@ namespace Core.IO
         public string GetWorkFullPath(string fileName)
         {
             return Path.Combine(WorkPath, fileName);
+        }
+
+        public string GetClientWorkFullPath(string clientFolderName, string fileName)
+        {
+            return Path.Combine(WorkPath, "Clients", clientFolderName, fileName);
         }
 
         public void CopyToWorkDirectory(string filePath)
@@ -96,8 +102,8 @@ namespace Core.IO
             FileInfo saveFileInfo = new FileInfo(saveFilePath);
             if(!saveFileInfo.Exists) {
                 fileStream.WriteByte(1);
-                fileStream.SetLength(0);
             }
+            fileStream.SetLength(0);
 
             SaveFilePath = saveFilePath;
         }
@@ -117,6 +123,15 @@ namespace Core.IO
 
             CopyToWorkDirectory(GetSaveFullPath(project.SoundtrackFileName));
 
+            foreach(var client in project.Clients) {
+                string uniqueClientName = $"{client.Number}_{client.Name}";
+                string savePathFile = Path.Combine(SavePath, "Clients", uniqueClientName);
+                string workPathFile = Path.Combine(WorkPath, "Clients", uniqueClientName);
+                Directory.CreateDirectory(workPathFile);
+                File.Copy(Path.Combine(savePathFile, client.Cyclogramm.FileName + ".cyc"), Path.Combine(workPathFile, client.Cyclogramm.FileName + ".cyc"), true);
+                fileHolder.HoldFile(new FileStream(Path.Combine(workPathFile, client.Cyclogramm.FileName + ".cyc"), FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.Read));
+            }
+
             return project;
         }
 
@@ -125,7 +140,7 @@ namespace Core.IO
             string fileName = Path.GetFileName(filePath);
             string sourceFilePath = Path.Combine(WorkPath, fileName);
             string destFilePath = Path.Combine(SavePath, fileName);
-            File.Copy(sourceFilePath, destFilePath);
+            File.Copy(sourceFilePath, destFilePath, true);
         }
 
         public void Save(RemoteControlProject project)
@@ -133,8 +148,16 @@ namespace Core.IO
             if(project is null) {
                 throw new ArgumentNullException(nameof(project));
             }
+            SettingWriter settingsWriter = new SettingWriter();
 
             CopyToSaveDirectory(project.SoundtrackFileName);
+            foreach(var client in project.Clients) {
+                string uniqueClientName = $"{client.Number}_{client.Name}";
+                Directory.CreateDirectory(Path.Combine(SavePath, "Clients", uniqueClientName));
+                File.Copy(Path.Combine(WorkPath, "Clients", uniqueClientName, client.Cyclogramm.FileName + ".cyc"), Path.Combine(SavePath, "Clients", uniqueClientName, client.Cyclogramm.FileName + ".cyc"), true);
+
+                settingsWriter.WriteSettings(Path.Combine(SavePath, "Clients", uniqueClientName, "set.txt"), project, client);
+            }
 
             var stream = fileHolder.GetFileStream(SaveFilePath);
             stream.SetLength(0);

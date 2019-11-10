@@ -20,7 +20,7 @@
             <TextBox Grid.Column="0" 
                         HorizontalAlignment="Stretch"
                         IsReadOnly="True"
-                        Text="{Binding Cyclogramm.FilePath}"></TextBox>
+                        Text="{Binding Cyclogramm.FileName}"></TextBox>
             <Button 
                 Grid.Column="1" 
                 Margin="2, 0, 0, 0" 

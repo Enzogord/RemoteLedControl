@@ -125,6 +125,8 @@ namespace RLCCore.Domain
 
             result.Add("ProjectKey", Key.ToString());
             result.Add("UDPPort", RlcPort.ToString());
+            result.Add("UDPPackageSize", "200");
+            result.Add("RefreshInterval", "50");
 
             return result;
         }

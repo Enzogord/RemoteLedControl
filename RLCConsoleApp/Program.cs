@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Net;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Core;
@@ -19,20 +20,34 @@ namespace RLCConsoleApp
         static void Main(string[] args)
         {
             string file = @"C:\Users\Enzo\Desktop\TestFileAccess.txt";
+            FileInfo fi = new FileInfo(file);
 
+            FileStream stream = new FileStream(file, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.Read);
+
+            StreamWriter writer = new StreamWriter(stream, Encoding.ASCII, 1024, true);
+            writer.WriteLine($"111111");
+            writer.WriteLine($"111111");
+            writer.WriteLine($"111111");
+            writer.WriteLine($"111111");
+            writer.WriteLine($"111111");
+            writer.WriteLine($"111111");
+            writer.Close();
+            /*
             FileStream stream = new FileStream(file, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.Read);
 
             string directory = Path.GetDirectoryName(file);
             string fileName = Path.GetFileName(file);
 
             DirectoryInfo directoryInfo = new DirectoryInfo(directory);
-            var name = directoryInfo.Name;
+            var name = directoryInfo.Name;*/
 
             //StreamReader sr = new StreamReader(stream);
             //string saveContent = sr.ReadToEnd();
-
+            
+            /*
             stream.SetLength(0);
             stream.WriteByte(55);
+            */
 
             //controller.Server = new UDPServer(controller.CurrentProject.Key);
             //controller.Server.Initialize(controller.NetworkController.GetServerIPAddress(), 11010, controller.NetworkController.BroadcastIPAddress);

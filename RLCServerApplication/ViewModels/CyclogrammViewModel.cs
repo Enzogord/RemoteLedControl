@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using RLCCore;
-using RLCCore.Domain;
+﻿using RLCCore.Domain;
 using RLCServerApplication.Infrastructure;
 using RLCServerApplication.Infrastructure.Command;
+using System;
+using System.IO;
 
 namespace RLCServerApplication.ViewModels
 {
@@ -22,6 +18,8 @@ namespace RLCServerApplication.ViewModels
         }
 
         private bool editable;
+        private readonly RemoteClient client;
+
         public bool Editable {
             get => editable;
             private set => SetField(ref editable, value, () => Editable);
@@ -39,9 +37,10 @@ namespace RLCServerApplication.ViewModels
                     Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog();
                     dlg.FileName = "Cyclogramm";
                     dlg.DefaultExt = ".cyc";
-                    dlg.Filter = "CSV unconverted cyclogramms (.csv)|*.csv|Cyc converted cyclogramms (.cyc)|*.cyc";
+                    dlg.Filter = "Unconverted cyclogramms (.csv)|*.csv";
                     if(dlg.ShowDialog() == true) {
                         Cyclogramm.FilePath = dlg.FileName;
+                        Cyclogramm.FileName = Path.GetFileNameWithoutExtension(dlg.FileName);
                     }
                 },
                 () => Editable

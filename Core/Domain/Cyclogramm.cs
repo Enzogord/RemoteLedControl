@@ -1,7 +1,6 @@
 ﻿using System.IO;
 using System.Runtime.Serialization;
 using NotifiedObjectsFramework;
-using Service;
 
 namespace RLCCore.Domain
 {
@@ -15,20 +14,27 @@ namespace RLCCore.Domain
             set => SetField(ref name, value);
         }
 
-        private string filePath;        
-        public string FilePath {
-            get => filePath;
+        private string fileName;
+        [DataMember]
+        public string FileName {
+            get => fileName;
             set {
-                SetField(ref filePath, value);
+                SetField(ref fileName, value);
                 OnPropertyChanged(nameof(CyclogrammFileInfo));
             }
+        }
+
+        private string filePath;
+        public string FilePath {
+            get => filePath;
+            set => SetField(ref filePath, value, () => FilePath);
         }
 
         private FileInfo cyclogrammFileInfo;
         public FileInfo CyclogrammFileInfo {
             get {
-                if(cyclogrammFileInfo == null || cyclogrammFileInfo.FullName != FilePath) {
-                    cyclogrammFileInfo = new FileInfo(FilePath);
+                if(cyclogrammFileInfo == null || cyclogrammFileInfo.FullName != FileName) {
+                    cyclogrammFileInfo = new FileInfo(FileName);
                 }
                 cyclogrammFileInfo.Refresh();
                 return cyclogrammFileInfo;

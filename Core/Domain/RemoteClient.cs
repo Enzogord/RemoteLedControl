@@ -8,7 +8,6 @@ using Core.ClientConnectionService;
 using Core.Messages;
 using NotifiedObjectsFramework;
 using RLCCore.Serialization;
-using Service;
 
 namespace RLCCore.Domain
 {
@@ -111,15 +110,21 @@ namespace RLCCore.Domain
         {
             Dictionary<string, string> result = new Dictionary<string, string>();
             result.Add("PlateNumber", Number.ToString());
+            result.Add("IsDigitalPWMSignal", "1");
+            result.Add("InvertedPWMSignal", "1");
+            result.Add("DefaultLightMode", "On");
+            result.Add("SPILedGlobalBrightness", "30");
+            result.Add("LEDCount", "8");
+            result.Add("Pins", "P5-1,P4-1,P0-1,S2-1");
 
-            string pinsValue = "";
+            /*string pinsValue = "";
             foreach(var pin in Pins) {
                 if(!string.IsNullOrWhiteSpace(pinsValue)) {
                     pinsValue += ',';
                 }
                 pinsValue += $"{pin.PinNumber}-{pin.LEDCount}";
             }
-            result.Add("Pins", pinsValue);
+            result.Add("Pins", pinsValue);*/
 
             return result;
         }
