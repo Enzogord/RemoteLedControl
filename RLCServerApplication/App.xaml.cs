@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using NLog;
@@ -14,6 +15,9 @@ namespace RLCServerApplication
     {
         private static Logger logger = LogManager.GetCurrentClassLogger();
 
+        bool createdMutex = true;
+        Mutex mutex;
+
         MainWindowViewModel mainWindowViewModel;
 
         private void InitMainViewModel()
@@ -23,21 +27,30 @@ namespace RLCServerApplication
 
         protected override void OnStartup(StartupEventArgs e)
         {
-            base.OnStartup(e);
-            Current.Exit += (sender, eventArg) => Bootstrapper.Stop();
-            SubscribeUnhandledException();
+            mutex = new Mutex(true, "RemoteLedControl", out createdMutex);
 
-            Bootstrapper.Start();
-            InitMainViewModel();
-            MainWindowView mainWindowView = new MainWindowView() { DataContext = mainWindowViewModel };
-            mainWindowView.InitPlayer();
-            mainWindowView.Show();
+            if(createdMutex && mutex.WaitOne()) {
+                base.OnStartup(e);
+                Current.Exit += (sender, eventArg) => Bootstrapper.Stop();
+                SubscribeUnhandledException();
+
+                Bootstrapper.Start();
+                InitMainViewModel();
+                MainWindowView mainWindowView = new MainWindowView() { DataContext = mainWindowViewModel };
+                mainWindowView.InitPlayer();
+                mainWindowView.Show();
+            }
+            else {
+                MessageBox.Show("Может быть открыто только одно приложение.", "Ошибка!", MessageBoxButton.OK, MessageBoxImage.Error);
+                mutex.Close();
+                Environment.Exit(0);
+            }
         }
 
         protected override void OnExit(ExitEventArgs e)
         {
             mainWindowViewModel.Close();
-
+            mutex.ReleaseMutex();
             base.OnExit(e);
             Environment.Exit(0);
         }
