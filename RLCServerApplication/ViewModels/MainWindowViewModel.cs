@@ -4,7 +4,6 @@ using RLCCore.RemoteOperations;
 using RLCServerApplication.Infrastructure;
 using RLCServerApplication.Infrastructure.Command;
 using System;
-using System.IO;
 using System.Linq;
 using System.Windows;
 
@@ -91,7 +90,7 @@ namespace RLCServerApplication.ViewModels
                         CreateNotificationBinding()
                             .AddAction(ReloadAudioTrack)
                             .SetNotifier(ProjectController.CurrentProject)
-                            .BindToProperty(x => x.SoundtrackFilePath)
+                            .BindToProperty(x => x.SoundtrackFileName)
                             .End();
                     }
                 })
@@ -503,6 +502,7 @@ namespace RLCServerApplication.ViewModels
                     dlg.Multiselect = false;
                     if(dlg.ShowDialog() == true) {
                         ProjectController.LoadProject(dlg.FileName);
+                        ReloadAudioTrack();
                     }
                 },
                 () => ProjectController.WorkMode == ProjectWorkModes.Setup
@@ -518,8 +518,8 @@ namespace RLCServerApplication.ViewModels
         {
             if(ProjectController.CurrentProject == null || Player == null || ProjectController.WorkMode != ProjectWorkModes.Setup) {
                 return;
-            }
-            Player.OpenFile(ProjectController.CurrentProject.SoundtrackFilePath);
+            }            
+            Player.OpenFile(ProjectController.SaveController.GetWorkFullPath(ProjectController.CurrentProject.SoundtrackFileName));
             Player.Volume = 0.1f;
         }
 

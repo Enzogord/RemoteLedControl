@@ -83,10 +83,11 @@ namespace RLCCore.Domain
             set => SetField(ref audioFile, value, () => AudioFile);
         }
 
-        private string soundtrackFilePath;
-        public string SoundtrackFilePath {
-            get => soundtrackFilePath;
-            set => SetField(ref soundtrackFilePath, value, () => SoundtrackFilePath);
+        private string soundtrackFileName;
+        [DataMember]
+        public string SoundtrackFileName {
+            get => soundtrackFileName;
+            set => SetField(ref soundtrackFileName, value, () => SoundtrackFileName);
         }
 
         [Obsolete("Для поддержки на момент перехода к новой версии")]

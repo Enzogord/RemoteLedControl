@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using Core;
 using RLCCore;
 using RLCServerApplication.Infrastructure;
@@ -47,7 +48,8 @@ namespace RLCServerApplication.ViewModels
                     dlg.DefaultExt = ".mp3";
                     dlg.Filter = "Mp3 files|*.mp3";
                     if(dlg.ShowDialog() == true) {
-                        RLCProjectController.CurrentProject.SoundtrackFilePath = dlg.FileName;
+                        RLCProjectController.SaveController.CopyToWorkDirectory(dlg.FileName);
+                        RLCProjectController.CurrentProject.SoundtrackFileName = Path.GetFileName(dlg.FileName);
                     }
                 },
                 () => CanEdit
