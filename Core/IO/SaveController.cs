@@ -65,6 +65,9 @@ namespace Core.IO
         {
             string tmpPath = Path.GetTempPath();
             string tempSavePath = Path.Combine(tmpPath, "RemoteLedControl");
+            if(!Directory.Exists(tempSavePath)) {
+                return;
+            }
             Directory.Delete(tempSavePath, true);
         }
 
