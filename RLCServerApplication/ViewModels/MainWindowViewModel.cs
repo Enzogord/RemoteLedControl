@@ -425,7 +425,15 @@ namespace RLCServerApplication.ViewModels
                             return;
                         }
                     }
-                    ProjectController.CreateProject();
+
+                    //FIXME убрать зависимоть от диалога                    
+                    Microsoft.Win32.SaveFileDialog dlg = new Microsoft.Win32.SaveFileDialog();
+                    dlg.DefaultExt = ".rlcsave";
+                    dlg.Filter = "RemoteLedControl save file|*.rlcsave";
+                    dlg.CreatePrompt = true;
+                    if(dlg.ShowDialog() == true) {
+                        ProjectController.CreateProject(dlg.FileName);
+                    }
                 },
                 () => ProjectController.CanCreateNewProject
             );
@@ -441,22 +449,7 @@ namespace RLCServerApplication.ViewModels
         private void CreateSaveCommand()
         {
             SaveCommand = new DelegateCommand(
-                () => {
-                    //FIXME убрать зависимоть от диалога
-                    Microsoft.Win32.SaveFileDialog dlg = new Microsoft.Win32.SaveFileDialog();
-                    dlg.DefaultExt = ".rlcsave";
-                    dlg.Filter = "RemoteLedControl save file|*.rlcsave";
-                    dlg.CreatePrompt = true;
-                    if(dlg.ShowDialog() == true) {
-                        Stream myStream = dlg.OpenFile();
-                        if(myStream == null) {
-                            return;
-                        }
-                        using(myStream) {
-                            ProjectController.SaveProject(myStream);
-                        }
-                    }
-                },
+                () => ProjectController.SaveProject(),
                 () => ProjectController.WorkMode == ProjectWorkModes.Setup && ProjectController.CurrentProject != null
             );
             SaveCommand.CanExecuteChangedWith(ProjectController, x => x.WorkMode);
@@ -464,6 +457,33 @@ namespace RLCServerApplication.ViewModels
         }
 
         #endregion SaveCommand
+
+        #region SaveAsCommand
+
+        public DelegateCommand SaveAsCommand { get; private set; }
+
+        private void CreateSaveAsCommand()
+        {
+            SaveAsCommand = new DelegateCommand(
+                () => {
+                    //FIXME убрать зависимоть от диалога
+                    /*
+                    Microsoft.Win32.SaveFileDialog dlg = new Microsoft.Win32.SaveFileDialog();
+                    dlg.DefaultExt = ".rlcsave";
+                    dlg.Filter = "RemoteLedControl save file|*.rlcsave";
+                    dlg.CreatePrompt = true;
+                    if(dlg.ShowDialog() == true) {
+                        ProjectController.SaveProject(dlg.FileName);
+                    }
+                    */
+                },
+                () => ProjectController.WorkMode == ProjectWorkModes.Setup && ProjectController.CurrentProject != null
+            );
+            SaveAsCommand.CanExecuteChangedWith(ProjectController, x => x.WorkMode);
+            SaveAsCommand.CanExecuteChangedWith(ProjectController, x => x.CurrentProject);
+        }
+
+        #endregion SaveAsCommand
 
         #region LoadCommand
 
@@ -482,13 +502,7 @@ namespace RLCServerApplication.ViewModels
                     dlg.CheckPathExists = true;
                     dlg.Multiselect = false;
                     if(dlg.ShowDialog() == true) {
-                        Stream myStream = dlg.OpenFile();
-                        if(myStream == null) {
-                            return;
-                        }
-                        using(myStream) {
-                            ProjectController.LoadProject(myStream);
-                        }
+                        ProjectController.LoadProject(dlg.FileName);
                     }
                 },
                 () => ProjectController.WorkMode == ProjectWorkModes.Setup

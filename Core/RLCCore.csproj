@@ -71,6 +71,7 @@
     <Compile Include="CyclogrammUtility\CyclogrammCsvToCycConverter.cs" />
     <Compile Include="CyclogrammUtility\LinearCyclogrammConverter.cs" />
     <Compile Include="IO\FileHolder.cs" />
+    <Compile Include="IO\SaveController.cs" />
     <Compile Include="RemoteOperations\ISequenceTimeProvider.cs" />
     <Compile Include="Sequence\ISequenceController.cs" />
     <Compile Include="Messages\ClientState.cs" />

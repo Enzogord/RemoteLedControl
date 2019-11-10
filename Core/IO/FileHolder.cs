@@ -9,6 +9,14 @@ namespace Core.IO
     {
         private Dictionary<string, FileStream> filesDictionary = new Dictionary<string, FileStream>();
 
+        public FileStream GetFileStream(string filePath)
+        {
+            if(filesDictionary.ContainsKey(filePath)) {
+                return filesDictionary[filePath];
+            }
+            return null;
+        }
+
         public void HoldFile(FileStream fileStream)
         {
             if(fileStream is null) {
@@ -25,6 +33,15 @@ namespace Core.IO
             filesDictionary.Add(fileStream.Name, fileStream);
         }
 
+        public void UnholdAndCloseFile(string filePath)
+        {
+            FileStream stream = GetFileStream(filePath);
+            if(stream == null) {
+                return;
+            }
+            UnholdAndCloseFile(stream);
+        }
+
         public void UnholdAndCloseFile(FileStream fileStream)
         {
             UnholdFile(fileStream);
@@ -37,7 +54,9 @@ namespace Core.IO
                 throw new ArgumentNullException(nameof(fileStream));
             }
 
-            filesDictionary.Remove(fileStream.Name);
+            if(filesDictionary.ContainsKey(fileStream.Name)) {
+                filesDictionary.Remove(fileStream.Name);
+            }
         }
 
         #region IDisposable Support

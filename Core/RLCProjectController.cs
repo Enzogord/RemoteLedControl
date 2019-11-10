@@ -3,6 +3,7 @@ using System.IO;
 using System.Text;
 using Core;
 using Core.ClientConnectionService;
+using Core.IO;
 using Core.Messages;
 using Core.RemoteOperations;
 using Newtonsoft.Json;
@@ -19,6 +20,9 @@ namespace RLCCore
     public sealed class RLCProjectController : NotifyPropertyChangedBase, IDisposable
     {
         Logger logger = LogManager.GetCurrentClassLogger();
+
+        public FileHolder FileHolder { get; }
+        public SaveController SaveController { get; }
 
         private ProjectWorkModes workMode;
         public ProjectWorkModes WorkMode {
@@ -67,6 +71,9 @@ namespace RLCCore
         {
             WorkMode = ProjectWorkModes.Setup;
             NetworkController = networkController ?? throw new ArgumentNullException(nameof(networkController));
+
+            FileHolder = new FileHolder();
+            SaveController = new SaveController(FileHolder);
         }
 
         public void SwitchToSetupMode()
@@ -213,35 +220,31 @@ namespace RLCCore
 
         public bool CanCreateNewProject => WorkMode == ProjectWorkModes.Setup;
 
-        public void CreateProject()
+
+        public void CreateProject(string saveFilePath)
         {
-            if(CanCreateNewProject) {
-                CurrentProject = new RemoteControlProject(GenerateProjectKey());
+            if(!CanCreateNewProject) {
+                return;
             }
+
+            RemoteControlProject newProject = new RemoteControlProject(GenerateProjectKey());
+            SaveController.Create(newProject, saveFilePath);
+            CurrentProject = newProject;
         }
 
-        public void LoadProject(Stream saveFile)
+        public void LoadProject(string loadFilePath)
         {
-            if(saveFile == null) {
-                throw new ArgumentNullException(nameof(saveFile));
+            if(string.IsNullOrWhiteSpace(loadFilePath)) {
+                throw new ArgumentNullException(nameof(loadFilePath));
             }
-            StreamReader sr = new StreamReader(saveFile);
-            string saveContent = sr.ReadToEnd();
 
-            RemoteControlProject project = JsonConvert.DeserializeObject<RemoteControlProject>(saveContent);
+            RemoteControlProject project = SaveController.Load(loadFilePath);
             CurrentProject = project;
         }
 
-        public void SaveProject(Stream saveFile)
+        public void SaveProject()
         {
-            if(saveFile == null) {
-                throw new ArgumentNullException(nameof(saveFile));
-            }
-
-            using(StreamWriter sw = new StreamWriter(saveFile, Encoding.UTF8)) {
-                var content = JsonConvert.SerializeObject(CurrentProject);
-                sw.Write(content);
-            }
+            SaveController.Save(CurrentProject);
         }
 
         public void SaveProjectAs()
