@@ -122,7 +122,9 @@ namespace Core.IO
                 projectContent = sr.ReadToEnd();
             }
             RemoteControlProject project = JsonConvert.DeserializeObject<RemoteControlProject>(projectContent);
-            safeStream.Dispose();
+            if(safeStream != null) {
+                safeStream.Dispose();
+            }
             safeStream = loadStream;
             return project;
         }
