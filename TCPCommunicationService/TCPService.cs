@@ -40,28 +40,7 @@ namespace TCPCommunicationService
 
             this.bufferSize = bufferSize;
             this.workersCount = workersCount;
-        }
-
-        private void ReadingWorker()
-        {
-            while(!cancelationTokenSource.IsCancellationRequested) {
-                foreach(var clientConnectionRecord in activeConnections) {
-                    if(!clientConnectionRecord.Key.ReadingInProgress && !clientConnectionRecord.Value) {
-                        TcpClientListener listener = clientConnectionRecord.Key;
-                        activeConnections[listener] = true;
-                        Task.Run(() =>
-                        {
-                            byte[] buffer = new byte[bufferSize];
-                            if(listener.Read(buffer, buffer.Length)) {
-                                PackageReceived(listener.IPEndPoint, buffer);
-                            }
-                            activeConnections[listener] = false;
-                        });
-                    }
-                }
-                Thread.Sleep(1);
-            }
-        }
+        }        
 
         private void OpenNewConnection(Socket socket)
         {
@@ -119,60 +98,81 @@ namespace TCPCommunicationService
 
             Exception serviceStartException = null;
 
-            Task.Run(async () =>
-            {
-                int attemptsCounter = 1;
-                ClientAddingEnabled = true;
-                try{
-                    CancellationTokenSource timingCancelationTokenSource = new CancellationTokenSource(5000);
-                    await Task.Run(() => {
-                        while (!IsActive && ClientAddingEnabled && !cancelationTokenSource.IsCancellationRequested && !timingCancelationTokenSource.IsCancellationRequested) {
-                            try {
-                                if(tcpListener != null) {
-                                    tcpListener.Stop();
-                                }
-                                tcpListener = new TcpListener(localIpEndPoint);
-                                tcpListener.Start();
-                                IsActive = true;
-                            }
-                            catch(SocketException e) {
-                                logger.Error(e, $"SocketException on start tcp service. Attempt number: {attemptsCounter}.");
-                                attemptsCounter++;
-                                if(attemptsCounter > 5) {
-                                    serviceStartException = e;
-                                    break;
-                                }
-                                Thread.Sleep(500);
-                            }
+            int attemptsCount = 1;
+            Task startServiceTask = Task.Run(() => {
+                while(!IsActive && ClientAddingEnabled && !cancelationTokenSource.IsCancellationRequested) {
+                    try {
+                        if(tcpListener != null) {
+                            tcpListener.Stop();
                         }
-                    }, timingCancelationTokenSource.Token);
-                    
-                    while(IsActive && ClientAddingEnabled && !cancelationTokenSource.IsCancellationRequested) {
-                        Socket clientSocket = await tcpListener.AcceptSocketAsync();
-                        if(ClientAddingEnabled) {
-                            OpenNewConnection(clientSocket);
-                        } else {
-                            clientSocket.Close();
+                        tcpListener = new TcpListener(localIpEndPoint);
+                        tcpListener.Start();
+                        logger.Info("TCP service запущен");
+                        IsActive = true;
+                        logger.Info($"IsActive: {IsActive}");
+                    }
+                    catch(SocketException e) {
+                        logger.Error(e, $"SocketException on start tcp service. Attempt number: {attemptsCount}.");
+                        attemptsCount++;
+                        if(attemptsCount > 10) {
+                            serviceStartException = e;
+                            throw;
                         }
+                        Thread.Sleep(500);
                     }
                 }
-                finally{
-                    try{
-                        tcpListener.Stop();
-                    }
-                    catch(Exception ex){
-                        logger.Error(ex, "Исключение при остановке TCP сервиса");
-                    }
-                }                
+                if(!IsActive) {
+                    throw new TimeoutException("Истекло время ожидания запуска службы");
+                }
             });
+            startServiceTask.ContinueWith((task) => Task.Run(() => ClientAddingWorker()), TaskContinuationOptions.OnlyOnRanToCompletion);
+            startServiceTask.ContinueWith((task) => Task.Run(() => ReadingWorker()), TaskContinuationOptions.OnlyOnRanToCompletion);
+            startServiceTask.ContinueWith((task) => Task.Run(() => {
+                serviceStartException = task.Exception?.InnerException;
+            }), TaskContinuationOptions.OnlyOnFaulted);
+            startServiceTask.Wait();
 
-            while(!IsActive) {
-                if(serviceStartException != null) {
-                    throw serviceStartException;
+            if(serviceStartException != null) {
+                throw serviceStartException;
+            }
+        }
+
+        private void ClientAddingWorker()
+        {
+            logger.Info($"Start client adding worker");
+            while(IsActive && ClientAddingEnabled && !cancelationTokenSource.IsCancellationRequested) {
+                Task<Socket> clientSocketTask = tcpListener.AcceptSocketAsync();
+                clientSocketTask.Wait();
+                Socket clientSocket = clientSocketTask.Result;
+                logger.Info($"New client connected");
+                if(ClientAddingEnabled) {
+                    OpenNewConnection(clientSocket);
+                }
+                else {
+                    clientSocket.Close();
                 }
             }
+        }
 
-            Task.Run(() => ReadingWorker());
+        private void ReadingWorker()
+        {
+            logger.Info($"Start client reading worker");
+            while(!cancelationTokenSource.IsCancellationRequested) {
+                foreach(var clientConnectionRecord in activeConnections) {
+                    if(!clientConnectionRecord.Key.ReadingInProgress && !clientConnectionRecord.Value) {
+                        TcpClientListener listener = clientConnectionRecord.Key;
+                        activeConnections[listener] = true;
+                        Task.Run(() => {
+                            byte[] buffer = new byte[bufferSize];
+                            if(listener.Read(buffer, buffer.Length)) {
+                                PackageReceived(listener.IPEndPoint, buffer);
+                            }
+                            activeConnections[listener] = false;
+                        });
+                    }
+                }
+                Thread.Sleep(1);
+            }
         }
 
         public void Stop()
