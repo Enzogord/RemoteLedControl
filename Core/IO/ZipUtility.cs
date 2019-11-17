@@ -18,6 +18,7 @@ namespace Core.IO
             int folderOffset = folderName.Length + (folderName.EndsWith("\\") ? 0 : 1);
 
             CompressFolder(folderName, zipStream, folderOffset);
+            zipStream.Finish();
         }
         
 
