@@ -254,9 +254,15 @@ namespace RLCCore
 
         public void Dispose()
         {
-            sntpService.Stop();
-            udpService.StopReceiving();
-            remoteClientConnector.Stop();
+            if(sntpService != null) {
+                sntpService.Stop();
+            }
+            if(udpService != null) {
+                udpService.StopReceiving();
+            }
+            if(remoteClientConnector != null) {
+                remoteClientConnector.Stop();
+            }
         }
     }
 }
