@@ -37,7 +37,7 @@ namespace RLCServerApplication.Views
 
         protected override void OnClosed(EventArgs e)
         {
-            Environment.Exit(0);
+            Application.Current.Shutdown(0);
             base.OnClosed(e);
         }
 
