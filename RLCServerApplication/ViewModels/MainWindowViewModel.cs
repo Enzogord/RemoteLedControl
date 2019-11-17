@@ -448,11 +448,12 @@ namespace RLCServerApplication.ViewModels
         {
             SaveCommand = new DelegateCommand(
                 () => {
-                    if(!ProjectController.NeedSelectSavePath) {
-                        ProjectController.SaveProject();
+                    if(ProjectController.NeedSelectSavePath) {
+                        SaveAsCommand.Execute();
                         return;
                     }
-                    SaveAsCommand.Execute();
+                    ProjectController.SaveProject();
+                    MessageBox.Show("Сохранено");
                 },
                 () => ProjectController.WorkMode == ProjectWorkModes.Setup && ProjectController.CurrentProject != null
             );
@@ -479,7 +480,8 @@ namespace RLCServerApplication.ViewModels
                     if(dlg.ShowDialog() == true) {
                         //Stream сохраняется, не закрывать
                         ProjectController.SaveProjectAs(new FileStream(dlg.FileName, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.Read));
-                    }                    
+                        MessageBox.Show("Сохранено");
+                    }
                 },
                 () => ProjectController.WorkMode == ProjectWorkModes.Setup && ProjectController.CurrentProject != null
             );
