@@ -146,7 +146,7 @@ namespace Core.IO
             }
             safeStream.SetLength(0);
             ZipUtility.ZipFolder(safeStream, WorkDirectory);
-            if(this.safeStream != null) {
+            if(this.safeStream != null && this.safeStream != safeStream) {
                 this.safeStream.Dispose();
             }
             this.safeStream = safeStream;
