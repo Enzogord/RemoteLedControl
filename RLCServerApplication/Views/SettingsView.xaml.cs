@@ -25,6 +25,13 @@ namespace RLCServerApplication.Views
         public SettingsView()
         {
             InitializeComponent();
+            comboIpAdresses.DropDownOpened += ComboIpAdresses_DropDownOpened;
+        }
+
+        private void ComboIpAdresses_DropDownOpened(object sender, EventArgs e)
+        {
+            SettingsViewModel viewModel = DataContext as SettingsViewModel;
+            viewModel.RLCProjectController.NetworkController.UpdateIPAddresses();
         }
     }
 }

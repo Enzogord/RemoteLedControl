@@ -54,9 +54,10 @@
                 </Grid.RowDefinitions>
 
                 <TextBlock Grid.Column="0" Grid.Row="0" HorizontalAlignment="Right" Margin="0, 2, 5, 2">IP адрес</TextBlock>
-                <ComboBox Grid.Column="1" Grid.Row="0" Margin="0, 2" ItemsSource="{Binding RLCProjectController.NetworkController.AddressSettings}" 
-                              SelectedItem="{Binding RLCProjectController.NetworkController.CurrentAddressSetting}"
-                              IsEnabled ="{Binding RLCProjectController.NetworkController.Editable}"/>
+                <ComboBox x:Name="comboIpAdresses" Grid.Column="1" Grid.Row="0" Margin="0, 2" 
+                          ItemsSource="{Binding RLCProjectController.NetworkController.AddressSettings}" 
+                          SelectedItem="{Binding RLCProjectController.NetworkController.CurrentAddressSetting}"
+                          IsEnabled ="{Binding RLCProjectController.NetworkController.Editable}"/>
             </Grid>
         </GroupBox>
         <GroupBox Grid.Row="1" Header="Проект" Width="auto" Padding="5">

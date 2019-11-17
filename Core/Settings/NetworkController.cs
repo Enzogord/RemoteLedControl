@@ -51,6 +51,8 @@ namespace RLCCore.Settings
                 return;
             }
 
+            AddressSettings.Clear();
+
             var ipPropertiesList = NetworkInterface.GetAllNetworkInterfaces().Select(x => x.GetIPProperties());
             foreach(var ipProperties in ipPropertiesList.Select(x => x.UnicastAddresses)) {
                 foreach(var ipInfomation in ipProperties) {
@@ -58,6 +60,9 @@ namespace RLCCore.Settings
                         continue;
                     }
                     NetworkAddressSetting setting = new NetworkAddressSetting(ipInfomation.Address, ipInfomation.IPv4Mask);
+                    if(setting.IPAddress.Address == IPAddress.Parse("127.0.0.1").Address) {
+                        continue;
+                    }
                     AddressSettings.Add(setting);
                 }
             }
