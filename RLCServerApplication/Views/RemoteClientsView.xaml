@@ -24,25 +24,42 @@
             <RowDefinition Height="auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Right">
-            <ComboBox x:Name="comboRemovableDrives" Margin="5, 5, 0, 5" Padding="10, 3" HorizontalAlignment="Right"
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Left">
+                <ComboBox x:Name="comboRemovableDrives" Margin="5, 5, 0, 5" Padding="10, 3" HorizontalAlignment="Right"
                       ItemsSource="{Binding RemovableDrives, Mode=OneWay}"
                       SelectedItem="{Binding SelectedRemovableDrive}"
-            />
-            <Button Margin="5, 5, 0, 5" Padding="10, 3" HorizontalAlignment="Right"
+                />
+                <Button Margin="5, 5, 0, 5" Padding="10, 3" HorizontalAlignment="Right"
+                    Content="Открыть папку"
+                    Command="{Binding OpenRemovableDriveCommand}"
+                />
+                <Button Margin="5, 5, 0, 5" Padding="10, 3" HorizontalAlignment="Right"
                     Content="Выгрузить на SD"
-                    Command="{Binding ExportClientDataToSDCommand}"/>
-            <Button Margin="5, 5, 0, 5" Padding="10, 3" HorizontalAlignment="Right"
+                    Command="{Binding ExportClientDataToSDCommand}"
+                    CommandParameter="{Binding SelectedItems, ElementName=ListViewClients}"
+                />
+                <Button Margin="5, 5, 0, 5" Padding="10, 3" HorizontalAlignment="Right"
                     Content="Выгрузить..."
-                    Command="{Binding ExportClientDataCommand}"/>
-            <Button Margin="5, 5, 0, 5" Padding="10, 3" HorizontalAlignment="Right"
+                    Command="{Binding ExportClientDataCommand}"
+                    CommandParameter="{Binding SelectedItems, ElementName=ListViewClients}"
+                 />
+            </StackPanel>
+            <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
+
+                <Button Margin="5, 5, 0, 5" Padding="10, 3" HorizontalAlignment="Right"
                     Content="Добавить"
                     Command="{Binding AddNewClientCommand}"/>
-            <Button Margin="5, 5, 0, 5" Padding="10, 3" HorizontalAlignment="Right"
+                <Button Margin="5, 5, 0, 5" Padding="10, 3" HorizontalAlignment="Right"
                     Content="Удалить"
                     Command="{Binding DeleteClientCommand}"
                     CommandParameter="{Binding SelectedItems, ElementName=ListViewClients}"/>
-        </StackPanel>
+            </StackPanel>
+        </Grid>        
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition/>

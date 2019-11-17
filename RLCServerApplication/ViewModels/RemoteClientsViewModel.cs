@@ -29,7 +29,7 @@ namespace RLCServerApplication.ViewModels
 
         public bool CanEdit => projectController.WorkMode == ProjectWorkModes.Setup;
 
-        public ObservableCollection<RemoteClient> Clients => projectController.CurrentProject.Clients;
+        public ObservableCollection<RemoteClient> Clients => projectController.CurrentProject?.Clients;
 
         private RemoteClient selectedClient;
         public RemoteClient SelectedClient {
@@ -79,6 +79,26 @@ namespace RLCServerApplication.ViewModels
                 .End();
         }
 
+        #region OpenRemovableDriveCommand
+
+        public DelegateCommand openRemovableDriveCommand;
+        public DelegateCommand OpenRemovableDriveCommand {
+            get {
+                if(openRemovableDriveCommand == null) {
+                    openRemovableDriveCommand = new DelegateCommand(
+                        () => {
+                            System.Diagnostics.Process.Start("explorer", SelectedRemovableDrive);
+                        },
+                        () => !string.IsNullOrWhiteSpace(SelectedRemovableDrive) && RemovableDrives.Contains(SelectedRemovableDrive)
+                    );
+                    openRemovableDriveCommand.CanExecuteChangedWith(this, x => x.SelectedRemovableDrive);
+                }
+                return openRemovableDriveCommand;
+            }
+        }
+
+        #endregion OpenRemovableDriveCommand	
+
         #region ExportClientData
 
         private void ExportClientData(string exportPath)
@@ -95,15 +115,15 @@ namespace RLCServerApplication.ViewModels
             }
         }
 
-        public DelegateCommand exportClientDataToSDCommand;
-        public DelegateCommand ExportClientDataToSDCommand {
+        public DelegateCommand<IList> exportClientDataToSDCommand;
+        public DelegateCommand<IList> ExportClientDataToSDCommand {
             get {
                 if(exportClientDataToSDCommand == null) {
-                    exportClientDataToSDCommand = new DelegateCommand(
-                        () => {
+                    exportClientDataToSDCommand = new DelegateCommand<IList>(
+                        (selectedClients) => {
                             ExportClientData(SelectedRemovableDrive);                            
                         },
-                        () => !string.IsNullOrWhiteSpace(SelectedRemovableDrive) && RemovableDrives.Contains(SelectedRemovableDrive) && SelectedClient != null
+                        (selectedClients) => !string.IsNullOrWhiteSpace(SelectedRemovableDrive) && RemovableDrives.Contains(SelectedRemovableDrive) && SelectedClient != null && selectedClients.Count == 1
                     );
                     exportClientDataToSDCommand.CanExecuteChangedWith(this, x => x.SelectedClient);
                 }
@@ -111,12 +131,12 @@ namespace RLCServerApplication.ViewModels
             }
         }
 
-        public DelegateCommand exportClientDataCommand;
-        public DelegateCommand ExportClientDataCommand {
+        public DelegateCommand<IList> exportClientDataCommand;
+        public DelegateCommand<IList> ExportClientDataCommand {
             get {
                 if(exportClientDataCommand == null) {
-                    exportClientDataCommand = new DelegateCommand(
-                        () => {
+                    exportClientDataCommand = new DelegateCommand<IList>(
+                        (selectedClients) => {
                             using(var fbd = new System.Windows.Forms.FolderBrowserDialog()) {
                                 System.Windows.Forms.DialogResult result = fbd.ShowDialog();
                                 if(result == System.Windows.Forms.DialogResult.OK && !string.IsNullOrWhiteSpace(fbd.SelectedPath)) {
@@ -124,7 +144,7 @@ namespace RLCServerApplication.ViewModels
                                 }
                             }
                         },
-                        () => SelectedClient != null
+                        (selectedClients) => SelectedClient != null && selectedClients.Count == 1
                     );
                     exportClientDataCommand.CanExecuteChangedWith(this, x => x.SelectedClient);
                 }
