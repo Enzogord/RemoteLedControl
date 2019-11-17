@@ -100,6 +100,11 @@ namespace RLCCore.Domain
             Key = ProjectKey;
         }
 
+        public bool ClientExists(int number, string name)
+        {            
+            return Clients.Any(x => x.Number == number && x.Name == name);
+        }
+
         public void AddClient(RemoteClient client)
         {
             if(Clients.Any(x => x.Number == client.Number)) {

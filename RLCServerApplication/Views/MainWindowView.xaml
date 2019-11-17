@@ -11,7 +11,7 @@
         xmlns:Converters="clr-namespace:RLCServerApplication.Converters" 
         x:Class="RLCServerApplication.Views.MainWindowView"
         mc:Ignorable="d"
-        Title="RemoteLedControl" Height="450" Width="800" MinHeight="350" MinWidth="700"
+        Title="RemoteLedControl" Height="450" Width="800" MinHeight="450" MinWidth="700"
         d:DataContext="{d:DesignInstance {x:Type vm:MainWindowViewModel}}"
         >
 
@@ -328,6 +328,7 @@
                 <MenuItem Header="Создать" Command="{Binding CreateCommand}"/>
                 <MenuItem Header="Открыть" Command="{Binding LoadCommand}"/>
                 <MenuItem Header="Сохранить" Command="{Binding SaveCommand}"/>
+                <MenuItem Header="Сохранить как" Command="{Binding SaveAsCommand}"/>
             </MenuItem>
         </Menu>
         <Grid Grid.Row="1" Visibility="{Binding ProjectController.CurrentProject, Converter={StaticResource NullVisibilityCollapsedConverter}}">

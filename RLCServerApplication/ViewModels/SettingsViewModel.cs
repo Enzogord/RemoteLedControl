@@ -48,7 +48,7 @@ namespace RLCServerApplication.ViewModels
                     dlg.DefaultExt = ".mp3";
                     dlg.Filter = "Mp3 files|*.mp3";
                     if(dlg.ShowDialog() == true) {
-                        RLCProjectController.SaveController.CopyToWorkDirectory(dlg.FileName);
+                        RLCProjectController.SaveController.UpdateSoundTrackFile(RLCProjectController.CurrentProject.SoundtrackFileName, dlg.FileName);
                         RLCProjectController.CurrentProject.SoundtrackFileName = Path.GetFileName(dlg.FileName);
                     }
                 },

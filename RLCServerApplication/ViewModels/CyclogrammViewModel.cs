@@ -1,4 +1,5 @@
-﻿using RLCCore.Domain;
+﻿using Core.IO;
+using RLCCore.Domain;
 using RLCServerApplication.Infrastructure;
 using RLCServerApplication.Infrastructure.Command;
 using System;
@@ -8,21 +9,30 @@ namespace RLCServerApplication.ViewModels
 {
     public class CyclogrammViewModel : ViewModelBase
     {
+        private readonly RemoteClient client;
+        private readonly SaveController saveController;
         public Cyclogramm Cyclogramm { get; }
 
-        public CyclogrammViewModel(Cyclogramm cyclogramm)
+        public CyclogrammViewModel(Cyclogramm cyclogramm, RemoteClient client, SaveController saveController)
         {
             Cyclogramm = cyclogramm ?? throw new ArgumentNullException(nameof(cyclogramm));
+            this.client = client ?? throw new ArgumentNullException(nameof(client));
+            this.saveController = saveController ?? throw new ArgumentNullException(nameof(saveController));
             Editable = true;
             CreateCommands();
         }
 
         private bool editable;
-        private readonly RemoteClient client;
-
         public bool Editable {
             get => editable;
             private set => SetField(ref editable, value, () => Editable);
+        }
+
+        public bool ConvertedCyclogrammExists {
+            get {
+                string clientPath = saveController.GetClientFolder(client.Number, client.Name);
+                return File.Exists(Path.Combine(clientPath, "Data.cyc"));
+            }
         }
 
         #region Commands
@@ -40,7 +50,6 @@ namespace RLCServerApplication.ViewModels
                     dlg.Filter = "Unconverted cyclogramms (.csv)|*.csv";
                     if(dlg.ShowDialog() == true) {
                         Cyclogramm.FilePath = dlg.FileName;
-                        Cyclogramm.FileName = Path.GetFileNameWithoutExtension(dlg.FileName);
                     }
                 },
                 () => Editable

@@ -11,8 +11,8 @@
     <Grid VerticalAlignment="Center">
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"/>
-        </Grid.RowDefinitions>
-        <Grid Grid.Row="1">
+        </Grid.RowDefinitions>        
+        <Grid Grid.Row="0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="auto"/>
@@ -20,7 +20,7 @@
             <TextBox Grid.Column="0" 
                         HorizontalAlignment="Stretch"
                         IsReadOnly="True"
-                        Text="{Binding Cyclogramm.FileName}"></TextBox>
+                        Text="{Binding Cyclogramm.FilePath}"></TextBox>
             <Button 
                 Grid.Column="1" 
                 Margin="2, 0, 0, 0" 

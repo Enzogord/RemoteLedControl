@@ -73,7 +73,7 @@ namespace RLCCore
             NetworkController = networkController ?? throw new ArgumentNullException(nameof(networkController));
 
             FileHolder = new FileHolder();
-            SaveController = new SaveController(FileHolder);
+            SaveController = new SaveController();
             SaveController.ClearTempFolder();
         }
 
@@ -221,31 +221,35 @@ namespace RLCCore
 
         public bool CanCreateNewProject => WorkMode == ProjectWorkModes.Setup;
 
-
-        public void CreateProject(string saveFilePath)
+        public void CreateProject()
         {
             if(!CanCreateNewProject) {
                 return;
             }
 
-            RemoteControlProject newProject = new RemoteControlProject(GenerateProjectKey());
-            SaveController.Create(newProject, saveFilePath);
-            CurrentProject = newProject;
+            CurrentProject = new RemoteControlProject(GenerateProjectKey());
+            SaveController.Create();
         }
 
-        public void LoadProject(string loadFilePath)
+        public void LoadProject(Stream loadStream)
         {
-            if(string.IsNullOrWhiteSpace(loadFilePath)) {
-                throw new ArgumentNullException(nameof(loadFilePath));
+            if(loadStream is null) {
+                throw new ArgumentNullException(nameof(loadStream));
             }
 
-            RemoteControlProject project = SaveController.Load(loadFilePath);
+            RemoteControlProject project = SaveController.Load(loadStream);
             CurrentProject = project;
         }
 
+        public bool NeedSelectSavePath => SaveController.NeedSelectSavePath;
         public void SaveProject()
         {
             SaveController.Save(CurrentProject);
+        }
+
+        public void SaveProjectAs(Stream saveStream)
+        {
+            SaveController.SaveAs(saveStream, CurrentProject);
         }
 
         public void Dispose()

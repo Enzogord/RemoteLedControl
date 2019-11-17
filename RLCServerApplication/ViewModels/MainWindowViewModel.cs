@@ -1,9 +1,11 @@
 ﻿using Core;
+using Core.IO;
 using RLCCore;
 using RLCCore.RemoteOperations;
 using RLCServerApplication.Infrastructure;
 using RLCServerApplication.Infrastructure.Command;
 using System;
+using System.IO;
 using System.Linq;
 using System.Windows;
 
@@ -29,12 +31,13 @@ namespace RLCServerApplication.ViewModels
 
         public bool CanEdit => ProjectController.WorkMode == ProjectWorkModes.Setup;
 
-        public MainWindowViewModel(RLCProjectController projectController, SequencePlayer player)
+        public MainWindowViewModel(RLCProjectController projectController, SequencePlayer player, RemovableDrivesProvider removableDrivesProvider)
         {
             ProjectController = projectController ?? throw new ArgumentNullException(nameof(projectController));
             Player = player ?? throw new ArgumentNullException(nameof(player));
+            this.removableDrivesProvider = removableDrivesProvider ?? throw new ArgumentNullException(nameof(removableDrivesProvider));
             SettingsViewModel = new SettingsViewModel(ProjectController);
-            RemoteClientsViewModel = new RemoteClientsViewModel(ProjectController);
+            RemoteClientsViewModel = new RemoteClientsViewModel(ProjectController, removableDrivesProvider);
             ProjectController.TimeProvider = Player;
             Player.ChannelPositionUserChanged += Player_ChannelPositionUserChanged;
             ConfigureBindings();
@@ -98,7 +101,7 @@ namespace RLCServerApplication.ViewModels
                 .BindToProperty(x => x.CurrentProject)
                 .End();
 
-            CreateNotificationBinding().AddAction(() => RemoteClientsViewModel = new RemoteClientsViewModel(ProjectController))
+            CreateNotificationBinding().AddAction(() => RemoteClientsViewModel = new RemoteClientsViewModel(ProjectController, removableDrivesProvider))
                 .SetNotifier(ProjectController)
                 .BindToProperty(x => x.CurrentProject)
                 .End();
@@ -131,6 +134,7 @@ namespace RLCServerApplication.ViewModels
             CreateSwitchToWorkCommand();
             CreateLoadCommand();
             CreateSaveCommand();
+            CreateSaveAsCommand();
             CreateMuteCommand();
             CreateCreateCommand();
         }
@@ -167,6 +171,8 @@ namespace RLCServerApplication.ViewModels
         #region PlayFromButtonCommand
 
         private TimeSpan playFromTime;
+        private readonly RemovableDrivesProvider removableDrivesProvider;
+
         public TimeSpan PlayFromTime {
             get => playFromTime;
             set => SetField(ref playFromTime, value, () => PlayFromTime);
@@ -425,14 +431,7 @@ namespace RLCServerApplication.ViewModels
                         }
                     }
 
-                    //FIXME убрать зависимоть от диалога                    
-                    Microsoft.Win32.SaveFileDialog dlg = new Microsoft.Win32.SaveFileDialog();
-                    dlg.DefaultExt = ".rlcsave";
-                    dlg.Filter = "RemoteLedControl save file|*.rlcsave";
-                    dlg.CreatePrompt = true;
-                    if(dlg.ShowDialog() == true) {
-                        ProjectController.CreateProject(dlg.FileName);
-                    }
+                    ProjectController.CreateProject();
                 },
                 () => ProjectController.CanCreateNewProject
             );
@@ -448,7 +447,13 @@ namespace RLCServerApplication.ViewModels
         private void CreateSaveCommand()
         {
             SaveCommand = new DelegateCommand(
-                () => ProjectController.SaveProject(),
+                () => {
+                    if(!ProjectController.NeedSelectSavePath) {
+                        ProjectController.SaveProject();
+                        return;
+                    }
+                    SaveAsCommand.Execute();
+                },
                 () => ProjectController.WorkMode == ProjectWorkModes.Setup && ProjectController.CurrentProject != null
             );
             SaveCommand.CanExecuteChangedWith(ProjectController, x => x.WorkMode);
@@ -466,15 +471,15 @@ namespace RLCServerApplication.ViewModels
             SaveAsCommand = new DelegateCommand(
                 () => {
                     //FIXME убрать зависимоть от диалога
-                    /*
+                    
                     Microsoft.Win32.SaveFileDialog dlg = new Microsoft.Win32.SaveFileDialog();
                     dlg.DefaultExt = ".rlcsave";
                     dlg.Filter = "RemoteLedControl save file|*.rlcsave";
                     dlg.CreatePrompt = true;
                     if(dlg.ShowDialog() == true) {
-                        ProjectController.SaveProject(dlg.FileName);
-                    }
-                    */
+                        //Stream сохраняется, не закрывать
+                        ProjectController.SaveProjectAs(new FileStream(dlg.FileName, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.Read));
+                    }                    
                 },
                 () => ProjectController.WorkMode == ProjectWorkModes.Setup && ProjectController.CurrentProject != null
             );
@@ -501,7 +506,8 @@ namespace RLCServerApplication.ViewModels
                     dlg.CheckPathExists = true;
                     dlg.Multiselect = false;
                     if(dlg.ShowDialog() == true) {
-                        ProjectController.LoadProject(dlg.FileName);
+                        //Stream сохраняется, не закрывать
+                        ProjectController.LoadProject(new FileStream(dlg.FileName, FileMode.Open, FileAccess.ReadWrite, FileShare.Read));
                         ReloadAudioTrack();
                     }
                 },
@@ -516,10 +522,14 @@ namespace RLCServerApplication.ViewModels
 
         private void ReloadAudioTrack()
         {
-            if(ProjectController.CurrentProject == null || Player == null || ProjectController.WorkMode != ProjectWorkModes.Setup) {
+            if(ProjectController.CurrentProject == null || Player == null || ProjectController.WorkMode != ProjectWorkModes.Setup || string.IsNullOrWhiteSpace(ProjectController.CurrentProject.SoundtrackFileName)) {
                 return;
-            }            
-            Player.OpenFile(ProjectController.SaveController.GetWorkFullPath(ProjectController.CurrentProject.SoundtrackFileName));
+            }
+            string soundtrackFilePath = Path.Combine(ProjectController.SaveController.WorkDirectory, ProjectController.CurrentProject.SoundtrackFileName);
+            if(!File.Exists(soundtrackFilePath)) {
+                return;
+            }
+            Player.OpenFile(soundtrackFilePath);
             Player.Volume = 0.1f;
         }
 

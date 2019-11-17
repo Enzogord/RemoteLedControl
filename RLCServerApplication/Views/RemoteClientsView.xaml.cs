@@ -26,6 +26,13 @@ namespace RLCServerApplication.Views
         public RemoteClientsView()
         {
             InitializeComponent();
+            comboRemovableDrives.DropDownOpened += ComboRemovableDrives_DropDownOpened;
+        }
+
+        private void ComboRemovableDrives_DropDownOpened(object sender, EventArgs e)
+        {
+            RemoteClientsViewModel viewModel = DataContext as RemoteClientsViewModel;
+            viewModel.UpdateRemovableDrives();
         }
 
         private void ListViewClients_MouseDown(object sender, MouseButtonEventArgs e)

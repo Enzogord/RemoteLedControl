@@ -1,6 +1,7 @@
 ﻿using System.Reflection;
 using Autofac;
 using Core;
+using Core.IO;
 using RLCCore;
 using RLCCore.Settings;
 using RLCServerApplication.ViewModels;
@@ -32,6 +33,7 @@ namespace RLCServerApplication
 
             builder.RegisterType<MainWindowViewModel>().InstancePerLifetimeScope();
             builder.RegisterType<SequencePlayer>().InstancePerLifetimeScope();
+            builder.RegisterType<RemovableDrivesProvider>().SingleInstance();
             builder.RegisterType<RLCProjectController>().InstancePerLifetimeScope();
             builder.RegisterType<NetworkController>().InstancePerLifetimeScope();
 

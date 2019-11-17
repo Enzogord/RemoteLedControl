@@ -25,9 +25,10 @@ namespace RLCServerApplication.ViewModels
 
         public event EventHandler<RemoteClientEditorCloseEventArgs> OnClose;
 
-        public RemoteClientViewModel(RemoteClient remoteClient, SaveController saveController, FileHolder fileHolder)
+        public RemoteClientViewModel(RemoteClient remoteClient, RemoteControlProject project, SaveController saveController, FileHolder fileHolder)
         {
             this.RemoteClient = remoteClient ?? throw new ArgumentNullException(nameof(remoteClient));
+            this.project = project ?? throw new ArgumentNullException(nameof(project));
             this.saveController = saveController ?? throw new ArgumentNullException(nameof(saveController));
             this.fileHolder = fileHolder ?? throw new ArgumentNullException(nameof(fileHolder));
             LoadValues();
@@ -37,19 +38,13 @@ namespace RLCServerApplication.ViewModels
         private int number;
         public int Number {
             get => number;
-            set {
-                SetField(ref number, value, () => Number);
-                OnPropertyChanged(nameof(CanCommitChanges));
-            }
+            set => SetField(ref number, value, () => Number);
         }
 
         private string name;
         public string Name {
             get => name;
-            set {
-                SetField(ref name, value, () => Name);
-                OnPropertyChanged(nameof(CanCommitChanges));
-            }
+            set => SetField(ref name, value, () => Name);
         }
 
         private Cyclogramm cyclogramm;
@@ -59,6 +54,7 @@ namespace RLCServerApplication.ViewModels
         }
 
         private CyclogrammViewModel cyclogrammViewModel;
+        private readonly RemoteControlProject project;
         private readonly SaveController saveController;
         private readonly FileHolder fileHolder;
 
@@ -77,25 +73,39 @@ namespace RLCServerApplication.ViewModels
             } else {
                 Cyclogramm = RemoteClient.Cyclogramm;
             }
-            CyclogrammViewModel = new CyclogrammViewModel(Cyclogramm);
+            CyclogrammViewModel = new CyclogrammViewModel(Cyclogramm, RemoteClient, saveController);
         }
-
-        public bool CanCommitChanges => Number >= 0 && !string.IsNullOrWhiteSpace(Name) && !string.IsNullOrWhiteSpace(Cyclogramm.FilePath);
 
         private void CommitChanges()
         {
+            if(string.IsNullOrWhiteSpace(Name)) {
+                return;
+            }
+            string clientWorkPath = saveController.GetClientFolder(RemoteClient.Number, RemoteClient.Name);
+            if(!Directory.Exists(clientWorkPath)) {
+                Directory.CreateDirectory(clientWorkPath);
+            }
+
+            if(Name != RemoteClient.Name) {
+                Directory.Move(clientWorkPath, Path.Combine(Directory.GetParent(clientWorkPath).FullName, $"{Number}_{Name}"));
+            }
+
+            clientWorkPath = saveController.GetClientFolder(Number, Name);
+
             RemoteClient.Number = Number;
             RemoteClient.Name = Name;
             RemoteClient.Cyclogramm = Cyclogramm;
-            string fileName = Path.GetFileNameWithoutExtension(Cyclogramm.FilePath);
-            string workFilePath = saveController.GetClientWorkFullPath($"{Number}_{Name}", fileName + ".cyc");
-            Directory.CreateDirectory(Path.GetDirectoryName(workFilePath));
-            CyclogrammCsvToCycConverter converter = new CyclogrammCsvToCycConverter();
-            using(FileStream sourceStream = new FileStream(Cyclogramm.FilePath, FileMode.Open, FileAccess.Read, FileShare.Read)) {
-                FileStream workedStream = new FileStream(workFilePath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.Read);
-                fileHolder.HoldFile(workedStream);
-                converter.Convert(sourceStream, workedStream);                
+
+            if(!string.IsNullOrWhiteSpace(Cyclogramm.FilePath)) {
+                string fullSavePath = Path.Combine(clientWorkPath, "Data.cyc");
+                CyclogrammCsvToCycConverter converter = new CyclogrammCsvToCycConverter();
+                using(FileStream sourceStream = new FileStream(Cyclogramm.FilePath, FileMode.Open, FileAccess.Read, FileShare.Read))
+                using(FileStream destinationStream = new FileStream(fullSavePath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.Read)) {
+                    converter.Convert(sourceStream, destinationStream);
+                }
+                Cyclogramm.FilePath = null;
             }
+            
             OnClose?.Invoke(this, new RemoteClientEditorCloseEventArgs(true));
         }
 
@@ -115,9 +125,18 @@ namespace RLCServerApplication.ViewModels
                 () => {
                     CommitChanges();
                 },
-                () => !string.IsNullOrWhiteSpace(Cyclogramm.FilePath)
+                () => {
+                    return Number > 0
+                        && !string.IsNullOrWhiteSpace(Name)
+                        && (
+                            (!project.ClientExists(Number, Name) && (RemoteClient.Number != Number || RemoteClient.Name != Name))
+                            || ((RemoteClient.Number == Number || RemoteClient.Name == Name) && !string.IsNullOrWhiteSpace(Cyclogramm.FilePath))
+                        )
+                        && (!string.IsNullOrWhiteSpace(Cyclogramm.FilePath) || CyclogrammViewModel.ConvertedCyclogrammExists);
+                } 
             );
             SaveChangesCommand.CanExecuteChangedWith(Cyclogramm, x => x.FilePath);
+            SaveChangesCommand.CanExecuteChangedWith(this, x => x.Number, x => x.Name);
 
             CloseCommand = new DelegateCommand(
                 () => { Discard(); },
