@@ -16,6 +16,7 @@ namespace Core.IO
         private const string projectFileName = "Project.rlc";
 
         Stream safeStream;
+
         public bool NeedSelectSavePath => safeStream == null;
 
 
@@ -121,6 +122,7 @@ namespace Core.IO
                 projectContent = sr.ReadToEnd();
             }
             RemoteControlProject project = JsonConvert.DeserializeObject<RemoteControlProject>(projectContent);
+            safeStream.Dispose();
             safeStream = loadStream;
             return project;
         }
@@ -142,6 +144,7 @@ namespace Core.IO
             }
             safeStream.SetLength(0);
             ZipUtility.ZipFolder(safeStream, WorkDirectory);
+            this.safeStream.Dispose();
             this.safeStream = safeStream;
         }
 

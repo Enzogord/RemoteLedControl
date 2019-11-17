@@ -455,10 +455,11 @@ namespace RLCServerApplication.ViewModels
                     ProjectController.SaveProject();
                     MessageBox.Show("Сохранено");
                 },
-                () => ProjectController.WorkMode == ProjectWorkModes.Setup && ProjectController.CurrentProject != null
+                () => {
+                   return ProjectController.WorkMode == ProjectWorkModes.Setup && ProjectController.CurrentProject != null;
+                }
             );
-            SaveCommand.CanExecuteChangedWith(ProjectController, x => x.WorkMode);
-            SaveCommand.CanExecuteChangedWith(ProjectController, x => x.CurrentProject);
+            SaveCommand.CanExecuteChangedWith(ProjectController, x => x.WorkMode, x => x.CurrentProject);
         }
 
         #endregion SaveCommand
@@ -483,10 +484,11 @@ namespace RLCServerApplication.ViewModels
                         MessageBox.Show("Сохранено");
                     }
                 },
-                () => ProjectController.WorkMode == ProjectWorkModes.Setup && ProjectController.CurrentProject != null
+                () => {
+                    return ProjectController.WorkMode == ProjectWorkModes.Setup && ProjectController.CurrentProject != null;
+                }
             );
-            SaveAsCommand.CanExecuteChangedWith(ProjectController, x => x.WorkMode);
-            SaveAsCommand.CanExecuteChangedWith(ProjectController, x => x.CurrentProject);
+            SaveAsCommand.CanExecuteChangedWith(ProjectController, x => x.WorkMode, x => x.CurrentProject);
         }
 
         #endregion SaveAsCommand

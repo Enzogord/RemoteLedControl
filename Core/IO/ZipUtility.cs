@@ -10,16 +10,16 @@ namespace Core.IO
         // on disk named as outPathname.
         public static void ZipFolder(Stream outputFile, string folderName)
         {
-            using(var zipStream = new ZipOutputStream(outputFile)) {
-                zipStream.SetLevel(0);
-                // This setting will strip the leading part of the folder path in the entries, 
-                // to make the entries relative to the starting folder.
-                // To include the full path for each entry up to the drive root, assign to 0.
-                int folderOffset = folderName.Length + (folderName.EndsWith("\\") ? 0 : 1);
+            var zipStream = new ZipOutputStream(outputFile);
+            zipStream.SetLevel(0);
+            // This setting will strip the leading part of the folder path in the entries, 
+            // to make the entries relative to the starting folder.
+            // To include the full path for each entry up to the drive root, assign to 0.
+            int folderOffset = folderName.Length + (folderName.EndsWith("\\") ? 0 : 1);
 
-                CompressFolder(folderName, zipStream, folderOffset);
-            }
+            CompressFolder(folderName, zipStream, folderOffset);
         }
+        
 
         // Recursively compresses a folder structure
         private static void CompressFolder(string path, ZipOutputStream zipStream, int folderOffset)
