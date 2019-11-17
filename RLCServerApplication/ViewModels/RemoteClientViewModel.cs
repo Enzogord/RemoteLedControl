@@ -81,16 +81,16 @@ namespace RLCServerApplication.ViewModels
             if(string.IsNullOrWhiteSpace(Name)) {
                 return;
             }
-            string clientWorkPath = saveController.GetClientFolder(RemoteClient.Number, RemoteClient.Name);
+            string clientWorkPath = saveController.GetClientFolder(RemoteClient.Number, RemoteClient.Name);            
+
+            if((Name != RemoteClient.Name || Number != RemoteClient.Number) && Directory.Exists(clientWorkPath)) {
+                Directory.Move(clientWorkPath, Path.Combine(Directory.GetParent(clientWorkPath).FullName, $"{Number}_{Name}"));
+            }
+            
+            clientWorkPath = saveController.GetClientFolder(Number, Name);
             if(!Directory.Exists(clientWorkPath)) {
                 Directory.CreateDirectory(clientWorkPath);
             }
-
-            if(Name != RemoteClient.Name) {
-                Directory.Move(clientWorkPath, Path.Combine(Directory.GetParent(clientWorkPath).FullName, $"{Number}_{Name}"));
-            }
-
-            clientWorkPath = saveController.GetClientFolder(Number, Name);
 
             RemoteClient.Number = Number;
             RemoteClient.Name = Name;
