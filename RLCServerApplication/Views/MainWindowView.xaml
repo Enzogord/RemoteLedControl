@@ -386,7 +386,7 @@
                     <RowDefinition Height="60" MinHeight="40"/>
                 </Grid.RowDefinitions>
                 <player:WaveformTimeline x:Name="Player" Grid.Row="0" HorizontalAlignment="Stretch"/>
-                <Grid Grid.Row="0" Height="20" VerticalAlignment="Top" Margin="3, 0">
+                <Grid Grid.Row="0" Height="20" VerticalAlignment="Top" Margin="3, 40, 3 ,0">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="auto"/>
                         <ColumnDefinition Width="*"/>
