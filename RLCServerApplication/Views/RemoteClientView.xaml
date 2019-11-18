@@ -7,7 +7,7 @@
              xmlns:vm="clr-namespace:RLCServerApplication.ViewModels"
              xmlns:model="clr-namespace:RLCCore;assembly=Core"
              mc:Ignorable="d"
-             d:DataContext="{d:DesignInstance vm:RemoteClientViewModel}" d:DesignWidth="200" d:DesignHeight="150"
+             d:DataContext="{d:DesignInstance vm:RemoteClientViewModel}" d:DesignWidth="271.333" d:DesignHeight="250"
              >
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
@@ -31,6 +31,13 @@
                 <RowDefinition Height="auto"/>
                 <RowDefinition Height="auto"/>
                 <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
             
             <TextBlock Grid.Column="0" Grid.Row="0" Margin="3" VerticalAlignment="Center" HorizontalAlignment="Right">Номер</TextBlock>
@@ -40,22 +47,86 @@
             <TextBox Grid.Column="1" Grid.Row="1" Margin="3" Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}"></TextBox>
 
             <TextBlock Grid.Column="1" Grid.Row="2" Margin="3"
-                   Text="Имеется сконвертированная циклограмма"
-                   TextWrapping="Wrap"
-                   Foreground="ForestGreen"
-                   Visibility="{Binding CyclogrammViewModel.ConvertedCyclogrammExists, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay, UpdateSourceTrigger=LostFocus}"
+                       Text="Имеется сконвертированная циклограмма"
+                       TextWrapping="Wrap"
+                       Foreground="ForestGreen"
+                       Visibility="{Binding CyclogrammViewModel.ConvertedCyclogrammExists, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay, UpdateSourceTrigger=LostFocus}"
             ></TextBlock>
             
             <TextBlock Grid.Column="0" Grid.Row="3" 
                        Margin="3" 
-                       VerticalAlignment="Center" 
+                       VerticalAlignment="Stretch" 
                        HorizontalAlignment="Right"
                        Text="Циклограмма"
             />
-            <ContentControl Grid.Column="1" Grid.Row="3" 
+            <ContentControl Grid.Column="1" Grid.Row="3"
                             Margin="3"
+                            VerticalAlignment="Center" 
                             Content="{Binding CyclogrammViewModel}"
-                            ContentTemplate="{StaticResource CyclogrammView}"></ContentControl>
+                            ContentTemplate="{StaticResource CyclogrammView}"
+            />
+            <Separator Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="4"
+                       Margin="0, 2" 
+                       Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}"/>
+
+            <TextBlock Grid.Column="0" Grid.Row="5" 
+                       Margin="3" 
+                       VerticalAlignment="Center" 
+                       HorizontalAlignment="Right">LED яркость</TextBlock>
+            <Grid Grid.Column="1" Grid.Row="5">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Border Grid.Column="0"
+                        Margin="3"
+                        BorderThickness="1"
+                        BorderBrush="LightGray"
+                        >
+                    <TextBlock 
+                           MinWidth="25"
+                           TextAlignment="Center"
+                           Text="{Binding SPILedGlobalBrightnessPercent, Mode=OneWay}"
+                    />
+                </Border>
+                
+                <Slider Grid.Column="1"
+                        Margin="3"
+                        VerticalAlignment="Center"
+                        Minimum="0"
+                        Maximum="100"
+                        Value="{Binding SPILedGlobalBrightnessPercent, Mode=TwoWay}"
+                        />
+            </Grid>
+            <CheckBox Grid.Column="1" Grid.Row="6"
+                      Margin="3"
+                      VerticalAlignment="Stretch"
+                      IsChecked="{Binding IsDigitalPWMSignal}"
+                      >
+                <CheckBox.Content>
+                    <TextBlock TextWrapping="Wrap">Цифровой PWM сигнал</TextBlock>
+                </CheckBox.Content>
+            </CheckBox>
+            
+            <CheckBox Grid.Column="1" Grid.Row="7"
+                      Margin="3"
+                      VerticalAlignment="Stretch"
+                      IsChecked="{Binding IsInvertedPWMSignal}"
+                      >
+                <CheckBox.Content>
+                    <TextBlock TextWrapping="Wrap">PWM сигнал инвертирован</TextBlock>
+                </CheckBox.Content>
+            </CheckBox>
+            
+            <CheckBox Grid.Column="1" Grid.Row="8"
+                      Margin="3"
+                      VerticalAlignment="Stretch"
+                      IsChecked="{Binding DefaultLight}"
+                      >
+                <CheckBox.Content>
+                    <TextBlock TextWrapping="Wrap">Свечение по умолчанию при включении</TextBlock>
+                </CheckBox.Content>
+            </CheckBox>
         </Grid>
 
         <Grid Grid.Row="1" HorizontalAlignment="Right" Margin="0, 5">

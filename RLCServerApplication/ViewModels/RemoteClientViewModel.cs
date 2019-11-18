@@ -2,7 +2,6 @@
 using System.IO;
 using Core.CyclogrammUtility;
 using Core.IO;
-using RLCCore;
 using RLCCore.Domain;
 using RLCServerApplication.Infrastructure;
 using RLCServerApplication.Infrastructure.Command;
@@ -38,19 +37,79 @@ namespace RLCServerApplication.ViewModels
         private int number;
         public int Number {
             get => number;
-            set => SetField(ref number, value, () => Number);
+            set {
+                SetField(ref number, value);
+                OnPropertyChanged(nameof(HasChanges));
+            }
         }
 
         private string name;
         public string Name {
             get => name;
-            set => SetField(ref name, value, () => Name);
+            set {
+                SetField(ref name, value);
+                OnPropertyChanged(nameof(HasChanges));
+            }
         }
 
         private Cyclogramm cyclogramm;
         public Cyclogramm Cyclogramm {
             get => cyclogramm;
-            set => SetField(ref cyclogramm, value, () => Cyclogramm);
+            set {
+                SetField(ref cyclogramm, value);
+                OnPropertyChanged(nameof(HasChanges));
+            }
+        }
+
+        private bool isDigitalPWMSignal;
+        public bool IsDigitalPWMSignal {
+            get => isDigitalPWMSignal;
+            set {
+                SetField(ref isDigitalPWMSignal, value);
+                OnPropertyChanged(nameof(HasChanges));
+            }
+        }
+
+        private bool isInvertedPWMSignal;
+        public bool IsInvertedPWMSignal {
+            get => isInvertedPWMSignal;
+            set {
+                SetField(ref isInvertedPWMSignal, value);
+                OnPropertyChanged(nameof(HasChanges));
+            }
+        }
+
+        private bool defaultLight;
+        public bool DefaultLight {
+            get => defaultLight;
+            set {
+                SetField(ref defaultLight, value);
+                OnPropertyChanged(nameof(HasChanges));
+            }
+        }
+
+        private byte spiLedGlobalBrightnessPercent;
+        public byte SPILedGlobalBrightnessPercent {
+            get => spiLedGlobalBrightnessPercent;
+            set {
+                if(SetField(ref spiLedGlobalBrightnessPercent, value)) {
+                    spiLedGlobalBrightness = (byte)(Math.Round((float)spiLedGlobalBrightnessPercent / (float)100 * (float)255));
+                    OnPropertyChanged(nameof(SPILedGlobalBrightness));
+                    OnPropertyChanged(nameof(HasChanges));
+                }
+            }
+        }
+
+        private byte spiLedGlobalBrightness;
+        public byte SPILedGlobalBrightness {
+            get => spiLedGlobalBrightness;
+            set {
+                if(SetField(ref spiLedGlobalBrightness, value)) {
+                    spiLedGlobalBrightnessPercent = (byte)(Math.Round((float)spiLedGlobalBrightness / (float)255 * (float)100));
+                    OnPropertyChanged(nameof(SPILedGlobalBrightnessPercent));
+                    OnPropertyChanged(nameof(HasChanges));
+                }
+            }
         }
 
         private CyclogrammViewModel cyclogrammViewModel;
@@ -63,11 +122,14 @@ namespace RLCServerApplication.ViewModels
             set => SetField(ref cyclogrammViewModel, value, () => CyclogrammViewModel);
         }
 
-
         private void LoadValues()
         {
             Number = RemoteClient.Number;
             Name = RemoteClient.Name;
+            IsDigitalPWMSignal = RemoteClient.IsDigitalPWMSignal;
+            IsInvertedPWMSignal = RemoteClient.IsInvertedPWMSignal;
+            DefaultLight = RemoteClient.DefaultLight;
+            SPILedGlobalBrightness = RemoteClient.SPILedGlobalBrightness;
             if(RemoteClient.Cyclogramm == null) {
                 Cyclogramm = new Cyclogramm();
             } else {
@@ -75,6 +137,15 @@ namespace RLCServerApplication.ViewModels
             }
             CyclogrammViewModel = new CyclogrammViewModel(Cyclogramm, RemoteClient, saveController);
         }
+
+        public bool HasClientNameChanged => Number != RemoteClient.Number
+            || Name != RemoteClient.Name;
+
+        public bool HasChanges => HasClientNameChanged
+            || IsDigitalPWMSignal != RemoteClient.IsDigitalPWMSignal
+            || IsInvertedPWMSignal != RemoteClient.IsInvertedPWMSignal
+            || DefaultLight != RemoteClient.DefaultLight
+            || SPILedGlobalBrightness != RemoteClient.SPILedGlobalBrightness;
 
         private void CommitChanges()
         {
@@ -95,6 +166,10 @@ namespace RLCServerApplication.ViewModels
             RemoteClient.Number = Number;
             RemoteClient.Name = Name;
             RemoteClient.Cyclogramm = Cyclogramm;
+            RemoteClient.IsDigitalPWMSignal = IsDigitalPWMSignal;
+            RemoteClient.IsInvertedPWMSignal = IsInvertedPWMSignal;
+            RemoteClient.DefaultLight = DefaultLight;
+            RemoteClient.SPILedGlobalBrightness = SPILedGlobalBrightness;
 
             if(!string.IsNullOrWhiteSpace(Cyclogramm.FilePath)) {
                 string fullSavePath = Path.Combine(clientWorkPath, "Data.cyc");
@@ -129,14 +204,15 @@ namespace RLCServerApplication.ViewModels
                     return Number > 0
                         && !string.IsNullOrWhiteSpace(Name)
                         && (
-                            (!project.ClientExists(Number, Name) && (RemoteClient.Number != Number || RemoteClient.Name != Name))
-                            || ((RemoteClient.Number == Number || RemoteClient.Name == Name) && !string.IsNullOrWhiteSpace(Cyclogramm.FilePath))
+                            (!project.ClientExists(Number, Name) && HasClientNameChanged)
+                            || !string.IsNullOrWhiteSpace(Cyclogramm.FilePath)
+                            || (HasChanges && !HasClientNameChanged)
                         )
                         && (!string.IsNullOrWhiteSpace(Cyclogramm.FilePath) || CyclogrammViewModel.ConvertedCyclogrammExists);
                 } 
             );
             SaveChangesCommand.CanExecuteChangedWith(Cyclogramm, x => x.FilePath);
-            SaveChangesCommand.CanExecuteChangedWith(this, x => x.Number, x => x.Name);
+            SaveChangesCommand.CanExecuteChangedWith(this, x => x.HasChanges);
 
             CloseCommand = new DelegateCommand(
                 () => { Discard(); },

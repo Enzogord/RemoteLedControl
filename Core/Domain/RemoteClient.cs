@@ -28,6 +28,34 @@ namespace RLCCore.Domain
             set => SetField(ref number, value, () => Number);
         }
 
+        private bool isDigitalPWMSignal;
+        [DataMember]
+        public bool IsDigitalPWMSignal {
+            get => isDigitalPWMSignal;
+            set => SetField(ref isDigitalPWMSignal, value, () => IsDigitalPWMSignal);
+        }
+
+        private bool isInvertedPWMSignal;
+        [DataMember]
+        public bool IsInvertedPWMSignal {
+            get => isInvertedPWMSignal;
+            set => SetField(ref isInvertedPWMSignal, value, () => IsInvertedPWMSignal);
+        }
+
+        private bool defaultLight;
+        [DataMember]
+        public bool DefaultLight {
+            get => defaultLight;
+            set => SetField(ref defaultLight, value, () => DefaultLight);
+        }
+
+        private byte spiLedGlobalBrightness;
+        [DataMember]
+        public byte SPILedGlobalBrightness {
+            get => spiLedGlobalBrightness;
+            set => SetField(ref spiLedGlobalBrightness, value, () => SPILedGlobalBrightness);
+        }
+
         private ObservableCollection<Pin> pins;
         [DataMember]
         public ObservableCollection<Pin> Pins {
@@ -109,12 +137,11 @@ namespace RLCCore.Domain
         public IDictionary<string, string> GetSettings()
         {
             Dictionary<string, string> result = new Dictionary<string, string>();
-            result.Add("PlateNumber", Number.ToString());
-            result.Add("IsDigitalPWMSignal", "1");
-            result.Add("InvertedPWMSignal", "1");
-            result.Add("DefaultLightMode", "On");
-            result.Add("SPILedGlobalBrightness", "30");
-            result.Add("LEDCount", "8");
+            result.Add("PlateNumber", $"{Number}");
+            result.Add("IsDigitalPWMSignal", IsDigitalPWMSignal ? "1" : "0");
+            result.Add("InvertedPWMSignal", IsInvertedPWMSignal ? "1" : "0");
+            result.Add("DefaultLightMode", DefaultLight ? "On" : "Off");
+            result.Add("SPILedGlobalBrightness", $"{SPILedGlobalBrightness}");
             result.Add("Pins", "P5-1,P4-1,P0-1,S2-1");
 
             /*string pinsValue = "";
