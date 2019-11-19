@@ -24,13 +24,22 @@ namespace Core.IO
         private string workFilePath;
         
 
-        public void UpdateSoundTrackFile(string oldFileName, string newFilePath)
+        public void UpdateSoundTrackFile(string oldFileName, string newFilePath, SequencePlayer player)
         {
-            File.Copy(newFilePath, Path.Combine(WorkDirectory, Path.GetFileName(newFilePath)), true);
+            string newFileName = Path.GetFileName(newFilePath);
+            string workFilePath = Path.Combine(WorkDirectory, newFileName);
+            if(newFileName == oldFileName) {
+                player.Close();
+            }
+            File.Copy(newFilePath, workFilePath, true);
             if(string.IsNullOrWhiteSpace(oldFileName)) {
                 return;
             }
-            File.Delete(Path.Combine(WorkDirectory, oldFileName));
+            player.Close();
+            player.OpenFile(workFilePath);
+            if(newFileName != oldFileName) {
+                File.Delete(Path.Combine(WorkDirectory, oldFileName));
+            }
         }
 
         public void DeleteClientFolder(RemoteClient client)

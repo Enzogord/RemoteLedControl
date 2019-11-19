@@ -36,7 +36,7 @@ namespace RLCServerApplication.ViewModels
             ProjectController = projectController ?? throw new ArgumentNullException(nameof(projectController));
             Player = player ?? throw new ArgumentNullException(nameof(player));
             this.removableDrivesProvider = removableDrivesProvider ?? throw new ArgumentNullException(nameof(removableDrivesProvider));
-            SettingsViewModel = new SettingsViewModel(ProjectController);
+            SettingsViewModel = new SettingsViewModel(ProjectController, player);
             RemoteClientsViewModel = new RemoteClientsViewModel(ProjectController, removableDrivesProvider);
             ProjectController.TimeProvider = Player;
             Player.ChannelPositionUserChanged += Player_ChannelPositionUserChanged;

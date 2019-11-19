@@ -340,6 +340,12 @@ namespace NAudioPlayer
                 }
             }
         }
+
+        public void Close()
+        {
+            StopAndCloseStream();
+        }
+
         #endregion
 
         #region Public Properties
