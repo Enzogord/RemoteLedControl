@@ -84,9 +84,9 @@
                         BorderBrush="LightGray"
                         >
                     <TextBlock 
-                           MinWidth="25"
+                           MinWidth="30"
                            TextAlignment="Center"
-                           Text="{Binding SPILedGlobalBrightnessPercent, Mode=OneWay}"
+                           Text="{Binding SPILedGlobalBrightnessPercent, Mode=OneWay, StringFormat=0'%'}"
                     />
                 </Border>
                 
