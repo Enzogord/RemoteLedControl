@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using Core.CyclogrammUtility;
 using Core.IO;
 using RLCCore.Domain;
@@ -20,6 +21,7 @@ namespace RLCServerApplication.ViewModels
 
     public class RemoteClientViewModel : ViewModelBase
     {
+        private bool isNewClient;
         public RemoteClient RemoteClient { get; }
 
         public event EventHandler<RemoteClientEditorCloseEventArgs> OnClose;
@@ -29,7 +31,18 @@ namespace RLCServerApplication.ViewModels
             this.RemoteClient = remoteClient ?? throw new ArgumentNullException(nameof(remoteClient));
             this.project = project ?? throw new ArgumentNullException(nameof(project));
             this.saveController = saveController ?? throw new ArgumentNullException(nameof(saveController));
-            this.fileHolder = fileHolder ?? throw new ArgumentNullException(nameof(fileHolder));
+            LoadValues();
+            CreateCommands();
+        }
+
+        public RemoteClientViewModel(RemoteControlProject project, SaveController saveController, FileHolder fileHolder)
+        {
+            this.project = project ?? throw new ArgumentNullException(nameof(project));
+            this.saveController = saveController ?? throw new ArgumentNullException(nameof(saveController));
+
+            int newClientNumber = project.Clients.Count != 0 ? project.Clients.Max(x => x.Number) + 1 : 1;
+            RemoteClient = new RemoteClient("Новый клиент", newClientNumber);
+            isNewClient = true;
             LoadValues();
             CreateCommands();
         }
@@ -40,6 +53,7 @@ namespace RLCServerApplication.ViewModels
             set {
                 SetField(ref number, value);
                 OnPropertyChanged(nameof(HasChanges));
+                OnPropertyChanged(nameof(HasClientNameChanged));
             }
         }
 
@@ -49,6 +63,7 @@ namespace RLCServerApplication.ViewModels
             set {
                 SetField(ref name, value);
                 OnPropertyChanged(nameof(HasChanges));
+                OnPropertyChanged(nameof(HasClientNameChanged));
             }
         }
 
@@ -115,7 +130,6 @@ namespace RLCServerApplication.ViewModels
         private CyclogrammViewModel cyclogrammViewModel;
         private readonly RemoteControlProject project;
         private readonly SaveController saveController;
-        private readonly FileHolder fileHolder;
 
         public CyclogrammViewModel CyclogrammViewModel {
             get => cyclogrammViewModel;
@@ -189,6 +203,22 @@ namespace RLCServerApplication.ViewModels
             OnClose?.Invoke(this, new RemoteClientEditorCloseEventArgs(false));
         }
 
+        public bool CanSaveForNewClient => isNewClient
+            //должна быть выбрана циклограмма
+            && !string.IsNullOrWhiteSpace(Cyclogramm.FilePath)
+            //пара (имя и номер) клиента не должны совпадать с существующими
+            && !project.ClientExists(Number, Name)
+            && Number > 0
+            && !string.IsNullOrWhiteSpace(Name);
+
+        public bool CanSaveForChangeClient => !isNewClient
+            //должна быть выбрана циклограмма или должна быть уже существующая
+            && (!string.IsNullOrWhiteSpace(Cyclogramm.FilePath) || CyclogrammViewModel.ConvertedCyclogrammExists)
+            //пара (имя и номер) клиента не должны совпадать с существующими
+            && ((!project.ClientExists(Number, Name) && (HasChanges || !string.IsNullOrWhiteSpace(Cyclogramm.FilePath))) || ((HasChanges || !string.IsNullOrWhiteSpace(Cyclogramm.FilePath)) && !HasClientNameChanged))
+            && Number > 0
+            && !string.IsNullOrWhiteSpace(Name);
+
         #region Commands
 
         public DelegateCommand SaveChangesCommand { get; private set; }
@@ -201,18 +231,11 @@ namespace RLCServerApplication.ViewModels
                     CommitChanges();
                 },
                 () => {
-                    return Number > 0
-                        && !string.IsNullOrWhiteSpace(Name)
-                        && (
-                            (!project.ClientExists(Number, Name) && HasClientNameChanged)
-                            || !string.IsNullOrWhiteSpace(Cyclogramm.FilePath)
-                            || (HasChanges && !HasClientNameChanged)
-                        )
-                        && (!string.IsNullOrWhiteSpace(Cyclogramm.FilePath) || CyclogrammViewModel.ConvertedCyclogrammExists);
+                    return CanSaveForNewClient || CanSaveForChangeClient;
                 } 
             );
             SaveChangesCommand.CanExecuteChangedWith(Cyclogramm, x => x.FilePath);
-            SaveChangesCommand.CanExecuteChangedWith(this, x => x.HasChanges);
+            SaveChangesCommand.CanExecuteChangedWith(this, x => x.HasChanges, x => x.HasClientNameChanged);
 
             CloseCommand = new DelegateCommand(
                 () => { Discard(); },

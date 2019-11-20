@@ -183,13 +183,11 @@ namespace RLCServerApplication.ViewModels
             get {
                 if(addNewClientCommand == null) {
                     addNewClientCommand = new DelegateCommand(
-                        () => {
-                            int newClientNumber = Clients.Count != 0 ? Clients.Max(x => x.Number) + 1 : 1;
-                            RemoteClient newRemoteClient = new RemoteClient("Новый клиент", newClientNumber);
-                            RemoteClientViewModel = new RemoteClientViewModel(newRemoteClient, remoteControlProject, projectController.SaveController, projectController.FileHolder);
+                        () => {                            
+                            RemoteClientViewModel = new RemoteClientViewModel(remoteControlProject, projectController.SaveController, projectController.FileHolder);
                             RemoteClientViewModel.OnClose += (sender, e) => {
                                 if(e.Commited) {
-                                    remoteControlProject.AddClient(newRemoteClient);
+                                    remoteControlProject.AddClient(RemoteClientViewModel.RemoteClient);
                                 }
                                 RemoteClientViewModel = null;
                             };
