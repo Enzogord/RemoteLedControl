@@ -8,7 +8,6 @@ using NLog;
 using NotifiedObjectsFramework;
 using RLCCore.Domain;
 using RLCCore.Settings;
-using Service;
 
 namespace RLCCore.RemoteOperations
 {

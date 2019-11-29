@@ -1,5 +1,4 @@
 ﻿using NotifiedObjectsFramework;
-using Service;
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
 

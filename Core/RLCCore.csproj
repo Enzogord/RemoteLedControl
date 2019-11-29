@@ -116,10 +116,6 @@
       <Project>{B5672B8B-286B-4C51-8457-3066FBD713A2}</Project>
       <Name>NotifiedObjectsFramework</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Service\Service.csproj">
-      <Project>{e10168f4-2657-4fdf-bf2d-d9dc58ab7e51}</Project>
-      <Name>Service</Name>
-    </ProjectReference>
     <ProjectReference Include="..\SNTPService\SNTPService.csproj">
       <Project>{8C761FC5-4B6F-4FCD-8D9B-FCCF47E8AEB0}</Project>
       <Name>SNTPService</Name>

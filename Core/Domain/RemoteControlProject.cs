@@ -9,7 +9,6 @@ using Core.RemoteOperations;
 using NotifiedObjectsFramework;
 using RLCCore.Exceptions;
 using RLCCore.Serialization;
-using Service;
 
 namespace RLCCore.Domain
 {
