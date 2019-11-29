@@ -86,7 +86,7 @@
                     <TextBlock 
                            MinWidth="30"
                            TextAlignment="Center"
-                           Text="{Binding SPILedGlobalBrightnessPercent, Mode=OneWay, StringFormat=0'%'}"
+                           Text="{Binding SPILedGlobalBrightnessPercent, Mode=OneWay, StringFormat='{}{0}%'}"
                     />
                 </Border>
                 
