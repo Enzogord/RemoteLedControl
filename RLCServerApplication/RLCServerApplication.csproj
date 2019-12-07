@@ -98,6 +98,7 @@
     <Compile Include="Converters\NullVisibilityCollapsedConverter.cs" />
     <Compile Include="Converters\OnlineStatusToColorConverter.cs" />
     <Compile Include="Converters\StringToIntConverter.cs" />
+    <Compile Include="Extensions\InputBindingManager.cs" />
     <Compile Include="Infrastructure\Command\DelegateCommand.cs" />
     <Compile Include="Infrastructure\Command\DelegateCommandGeneric.cs" />
     <Compile Include="Infrastructure\Command\PropertySubscribedCommandBase.cs" />
