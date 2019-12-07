@@ -79,7 +79,7 @@ namespace Core.ClientConnectionService
                 return;
             }
 
-            EventHandler<DataEventArgs> OnReceiveData = (sender, e) => {
+            listener.OnReceiveData += (s, e) => {
                 RLCMessage message = ParseMessage(e.Data);
                 if(message == null) {
                     return;

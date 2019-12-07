@@ -119,6 +119,17 @@ namespace RLCCore.Domain
             }
         }
 
+        public void Receive(RLCMessage message)
+        {
+            RemoteClient foundClient = Clients.FirstOrDefault(x => x.Number == message.ClientNumber);
+            if(foundClient == null) {
+                return;
+            }
+
+            foundClient.ClientState = message.ClientState;
+            foundClient.SetBatteryChargeLevel(message.BatteryCharge);
+        }
+
         #region ISettingsProvider implementation
 
         public IDictionary<string, string> GetSettings()
@@ -133,17 +144,7 @@ namespace RLCCore.Domain
             result.Add("RefreshInterval", "50");
 
             return result;
-        }
-
-        public void Receive(RLCMessage message)
-        {
-            RemoteClient foundClient = Clients.FirstOrDefault(x => x.Number == message.ClientNumber);
-            if(foundClient == null) {
-                return;
-            }
-
-            foundClient.ClientState = message.ClientState;
-        }
+        }        
 
         #endregion
     }
