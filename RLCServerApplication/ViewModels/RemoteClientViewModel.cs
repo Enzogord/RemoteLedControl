@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Core.CyclogrammUtility;
 using Core.Domain;
 using Core.IO;
+using Microcontrollers;
 using RLCCore.Domain;
 using RLCServerApplication.Infrastructure;
 using RLCServerApplication.Infrastructure.Command;
@@ -24,6 +26,7 @@ namespace RLCServerApplication.ViewModels
     {
         private bool isNewClient;
         public RemoteClient RemoteClient { get; }
+        public IEnumerable<IMicrocontroller> AvailableMicrocontrollers { get; }
 
         public event EventHandler<RemoteClientEditorCloseEventArgs> OnClose;
 
@@ -32,6 +35,7 @@ namespace RLCServerApplication.ViewModels
             this.RemoteClient = remoteClient ?? throw new ArgumentNullException(nameof(remoteClient));
             this.project = project ?? throw new ArgumentNullException(nameof(project));
             this.saveController = saveController ?? throw new ArgumentNullException(nameof(saveController));
+            AvailableMicrocontrollers = MicrocontrollersLibrary.GetMicrocontrollers();
             LoadValues();
             CreateCommands();
         }
@@ -44,6 +48,7 @@ namespace RLCServerApplication.ViewModels
             int newClientNumber = project.Clients.Count != 0 ? project.Clients.Max(x => x.Number) + 1 : 1;
             RemoteClient = new RemoteClient("Новый клиент", newClientNumber);
             isNewClient = true;
+            AvailableMicrocontrollers = MicrocontrollersLibrary.GetMicrocontrollers();
             LoadValues();
             CreateCommands();
         }
@@ -136,13 +141,6 @@ namespace RLCServerApplication.ViewModels
             if(RemoteClient.MicrocontrollerUnit == null) {
                 return;
             }
-            MicrocontrollerUnitViewModel = new MicrocontrollerUnitViewModel(RemoteClient.MicrocontrollerUnit);
-        }
-
-        private MicrocontrollerUnitViewModel microcontrollerUnitViewModel;
-        public MicrocontrollerUnitViewModel MicrocontrollerUnitViewModel {
-            get => microcontrollerUnitViewModel;
-            set => SetField(ref microcontrollerUnitViewModel, value, () => MicrocontrollerUnitViewModel);
         }
 
         private CyclogrammViewModel cyclogrammViewModel;

@@ -7,187 +7,285 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:model="clr-namespace:RLCCore;assembly=Core"
     xmlns:vm="clr-namespace:RLCServerApplication.ViewModels"
+    xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+    xmlns:ext="clr-namespace:RLCServerApplication.Extensions"
     d:DataContext="{d:DesignInstance vm:RemoteClientViewModel}"
-    d:DesignHeight="250"
-    d:DesignWidth="271.333"
+    d:DesignHeight="404"
+    d:DesignWidth="412.333"
     mc:Ignorable="d">
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
         <DataTemplate x:Key="CyclogrammView" DataType="{x:Type vm:CyclogrammViewModel}">
             <local:CyclogrammView />
         </DataTemplate>
-        <DataTemplate x:Key="MicrocontrollerUnitView" DataType="{x:Type vm:MicrocontrollerUnitViewModel}">
-            <local:MicrocontrollerUnitView />
-        </DataTemplate>
     </UserControl.Resources>
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="*" />
-            <RowDefinition Height="auto" />
-        </Grid.RowDefinitions>
 
-        <!--  Данные  -->
-        <Grid Grid.Row="0">
+    <StackPanel>
+        <!--Номер и имя-->
+        <Grid Margin="3">
             <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto" />
+                <ColumnDefinition Width="auto" />
                 <ColumnDefinition Width="auto" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="auto" />
-                <RowDefinition Height="auto" />
-                <RowDefinition Height="auto" />
-                <RowDefinition Height="auto" />
-                <RowDefinition Height="auto" />
-                <RowDefinition Height="auto" />
-                <RowDefinition Height="auto" />
-                <RowDefinition Height="auto" />
-                <RowDefinition Height="auto" />
-                <RowDefinition Height="auto" />
-                <RowDefinition Height="auto" />
-                <RowDefinition Height="*" />
-            </Grid.RowDefinitions>
 
+            <!--Номер-->
             <TextBlock
-                Grid.Row="0"
-                Grid.Column="0"
-                Margin="3"
-                HorizontalAlignment="Right"
-                VerticalAlignment="Center">
-                Номер
-            </TextBlock>
-            <TextBox
-                Grid.Row="0"
-                Grid.Column="1"
-                Margin="3"
-                Text="{Binding Number, UpdateSourceTrigger=PropertyChanged}" />
-
-            <TextBlock
-                Grid.Row="1"
-                Grid.Column="0"
-                Margin="3"
-                HorizontalAlignment="Right"
-                VerticalAlignment="Center">
-                Имя
-            </TextBlock>
-            <TextBox
-                Grid.Row="1"
-                Grid.Column="1"
-                Margin="3"
-                Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" />
-
-            <TextBlock
-                Grid.Row="2"
-                Grid.Column="1"
-                Margin="3"
-                Foreground="ForestGreen"
-                Text="Имеется сконвертированная циклограмма"
-                TextWrapping="Wrap"
-                Visibility="{Binding CyclogrammViewModel.ConvertedCyclogrammExists, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay, UpdateSourceTrigger=LostFocus}" />
-
-            <TextBlock
-                Grid.Row="3"
-                Grid.Column="0"
-                Margin="3"
-                HorizontalAlignment="Right"
-                VerticalAlignment="Stretch"
-                Text="Циклограмма" />
-            <ContentControl
-                Grid.Row="3"
-                Grid.Column="1"
-                Margin="3"
-                VerticalAlignment="Center"
-                Content="{Binding CyclogrammViewModel}"
-                ContentTemplate="{StaticResource CyclogrammView}" />
-
-            <!--  Микроконтроллер  -->
-
-            <ContentControl
-                Grid.Row="4"
-                Grid.Column="1"
-                Margin="3"
-                VerticalAlignment="Center"
-                Content="{Binding MicrocontrollerUnitViewModel}"
-                ContentTemplate="{StaticResource MicrocontrollerUnitView}" />
-
-            <!--  Дополнительные параметры  -->
-
-            <Separator
-                Grid.Row="5"
-                Grid.Column="0"
-                Grid.ColumnSpan="2"
-                Margin="0,2"
-                Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" />
-
-            <TextBlock
-                Grid.Row="6"
-                Grid.Column="0"
-                Margin="3"
-                HorizontalAlignment="Right"
-                VerticalAlignment="Center">
-                LED яркость
-            </TextBlock>
-
-            <Grid Grid.Row="6" Grid.Column="1">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="auto" />
-                    <ColumnDefinition Width="*" />
-                </Grid.ColumnDefinitions>
-                <Border
+                    Grid.Row="0"
                     Grid.Column="0"
                     Margin="3"
-                    BorderBrush="LightGray"
-                    BorderThickness="1">
-                    <TextBlock
-                        MinWidth="30"
-                        Text="{Binding SPILedGlobalBrightnessPercent, Mode=OneWay, StringFormat='{}{0}%'}"
-                        TextAlignment="Center" />
-                </Border>
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Center"
+                    Text="Номер"/>
+            <TextBox
+                    Grid.Row="0"
+                    Grid.Column="1"
+                    Margin="3"
+                    MinWidth="30"
+                    VerticalAlignment="Center"
+                    Text="{Binding Number, UpdateSourceTrigger=PropertyChanged}"/>
 
-                <Slider
+            <!--Имя-->
+            <TextBlock
+                    Grid.Row="0"
+                    Grid.Column="2"
+                    Margin="3"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Center"
+                    Text="Имя"/>
+            <TextBox
+                    Grid.Row="0"
+                    Grid.Column="3"
+                    Margin="3"
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Center"
+                    Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}"/>
+        </Grid>
+
+        <!--Микроконтроллер-->
+        <Grid Margin="3">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock
+                    Grid.Row="0"
+                    Grid.Column="0"
+                    Margin="3"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Center"
+                    Text="Микроконтроллер"/>
+            <xctk:WatermarkComboBox
+                        Grid.Row="0"
+                        Grid.Column="1"
+                        Grid.ColumnSpan="3"
+                        HorizontalAlignment="Stretch"
+                        Margin="3"
+                        VerticalAlignment="Center"
+                        ItemsSource="{Binding MicrocontrollerUnitViewModel.AvailableMicrocontrollers, Mode=OneWay}"
+                        SelectedItem="{Binding MicrocontrollerUnitViewModel.MicrocontrollerUnit.Microcontroller}"
+                        Watermark="Выбрать микроконтроллер"
+                        DisplayMemberPath="Name"/>
+        </Grid>
+
+        <!--Циклограмма-->
+        <GroupBox Header="Циклограмма" Margin="3">
+            <StackPanel>
+                <TextBlock
+                    Grid.Row="2"
+                    Grid.Column="1"
+                    Margin="3"
+                    Foreground="ForestGreen"
+                    Text="Имеется сконвертированная циклограмма"
+                    TextWrapping="Wrap"
+                    Visibility="{Binding CyclogrammViewModel.ConvertedCyclogrammExists, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay, UpdateSourceTrigger=LostFocus}" />
+
+                <ContentControl
+                    Grid.Row="3"
                     Grid.Column="1"
                     Margin="3"
                     VerticalAlignment="Center"
-                    Maximum="100"
-                    Minimum="0"
-                    Value="{Binding SPILedGlobalBrightnessPercent, Mode=TwoWay}" />
+                    Content="{Binding CyclogrammViewModel}"
+                    ContentTemplate="{StaticResource CyclogrammView}" />
+            </StackPanel>
+        </GroupBox>
+
+        <!--Выходы-->
+        <GroupBox Header="Выходы" Margin="3" Visibility="Collapsed">
+            <TextBlock>[Holder] Для настройки выходов</TextBlock>
+        </GroupBox>
+            
+        <!--Заряд аккумулятора-->
+        <GroupBox Header="Заряд аккумулятора" Margin="3">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <!--Zero charge-->
+                <TextBlock
+                    Grid.Row="0"
+                    Grid.Column="0"
+                    Margin="3"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Center"
+                    Text="0%"
+                    TextAlignment="Right" />
+                <Grid
+                    Grid.Row="0"
+                    Grid.Column="1"
+                    Width="auto">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="auto" />
+                        <ColumnDefinition Width="auto" />
+                        <ColumnDefinition Width="auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBox
+                        Grid.Column="0"
+                        MinWidth="40"
+                        Margin="3"
+                        ext:InputBindingsManager.UpdatePropertySourceWhenEnterPressed="TextBox.Text"
+                        Text="{Binding RemoteClient.MicrocontrollerUnit.ZeroCharge}" />
+                    <TextBlock 
+                        Grid.Column="1" 
+                        Margin="3"
+                        Text="{Binding RemoteClient.MicrocontrollerUnit.FullCharge, Mode=OneWay, StringFormat='{}0 ... {0}'}" />
+                </Grid>
+
+                <!--Full charge-->
+                <TextBlock
+                    Grid.Row="1"
+                    Grid.Column="0"
+                    Margin="3"                        
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Center"
+                    Text="100%"
+                    TextAlignment="Right" />
+                <Grid
+                    Grid.Row="1"
+                    Grid.Column="1"
+                    Width="auto">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="auto" />
+                        <ColumnDefinition Width="auto" />
+                        <ColumnDefinition Width="auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBox
+                        Grid.Column="0"
+                        MinWidth="40"
+                        Margin="3"
+                        ext:InputBindingsManager.UpdatePropertySourceWhenEnterPressed="TextBox.Text"
+                        Text="{Binding RemoteClient.MicrocontrollerUnit.FullCharge}" />
+                    <TextBlock
+                        Grid.Column="1" 
+                        Margin="3"
+                        Text="{Binding RemoteClient.MicrocontrollerUnit.ZeroCharge, Mode=OneWay, StringFormat='{}{0} ... 1024'}" />
+                </Grid>
             </Grid>
-            <CheckBox
-                Grid.Row="7"
-                Grid.Column="1"
-                Margin="3"
-                VerticalAlignment="Stretch"
-                IsChecked="{Binding IsDigitalPWMSignal}">
-                <CheckBox.Content>
-                    <TextBlock TextWrapping="Wrap">Цифровой PWM сигнал</TextBlock>
-                </CheckBox.Content>
-            </CheckBox>
+        </GroupBox>
 
-            <CheckBox
-                Grid.Row="8"
-                Grid.Column="1"
-                Margin="3"
-                VerticalAlignment="Stretch"
-                IsChecked="{Binding IsInvertedPWMSignal}">
-                <CheckBox.Content>
-                    <TextBlock TextWrapping="Wrap">PWM сигнал инвертирован</TextBlock>
-                </CheckBox.Content>
-            </CheckBox>
+        <!--Дополнительные параметры-->
+        <GroupBox Header="Дополнительные настройки" Margin="3">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
 
-            <CheckBox
-                Grid.Row="9"
-                Grid.Column="1"
-                Margin="3"
-                VerticalAlignment="Stretch"
-                IsChecked="{Binding DefaultLight}">
-                <CheckBox.Content>
-                    <TextBlock TextWrapping="Wrap">Свечение по умолчанию при включении</TextBlock>
-                </CheckBox.Content>
-            </CheckBox>
-        </Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
 
-        <!--  Кнопки  -->
+                <!--LED яркость-->
+                <TextBlock
+                    Grid.Row="0"
+                    Grid.Column="0"
+                    Margin="3"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Center"
+                    Text="LED яркость"/>
+
+                <Grid Grid.Row="0" Grid.Column="1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Border
+                        Grid.Column="0"
+                        Margin="3"
+                        BorderBrush="DarkGray"
+                        BorderThickness="1"
+                        RenderOptions.EdgeMode="Aliased">
+                        <TextBlock
+                            MinWidth="30"
+                            Text="{Binding SPILedGlobalBrightnessPercent, Mode=OneWay, StringFormat='{}{0}%'}"
+                            TextAlignment="Center" />
+                    </Border>
+
+                    <Slider
+                        Grid.Column="1"
+                        Margin="3"
+                        VerticalAlignment="Center"
+                        Maximum="100"
+                        Minimum="0"
+                        Value="{Binding SPILedGlobalBrightnessPercent, Mode=TwoWay}" />
+                </Grid>
+
+                <!--Цифровой сигнал-->
+                <CheckBox
+                    Grid.Row="1"
+                    Grid.Column="0"
+                    Grid.ColumnSpan="2"
+                    Margin="3"
+                    VerticalAlignment="Stretch"
+                    IsChecked="{Binding IsDigitalPWMSignal}">
+                    <CheckBox.Content>
+                        <TextBlock TextWrapping="Wrap">Цифровой PWM сигнал</TextBlock>
+                    </CheckBox.Content>
+                </CheckBox>
+
+                <!--Инвернтированный сигнал-->
+                <CheckBox
+                    Grid.Row="2"
+                    Grid.Column="0"
+                    Grid.ColumnSpan="2"
+                    Margin="3"
+                    VerticalAlignment="Stretch"
+                    IsChecked="{Binding IsInvertedPWMSignal}">
+                    <CheckBox.Content>
+                        <TextBlock TextWrapping="Wrap">PWM сигнал инвертирован</TextBlock>
+                    </CheckBox.Content>
+                </CheckBox>
+
+                <!--Свечение по умолчанию-->
+                <CheckBox
+                    Grid.Row="3"
+                    Grid.Column="0"
+                    Grid.ColumnSpan="2"
+                    Margin="3"
+                    VerticalAlignment="Stretch"
+                    IsChecked="{Binding DefaultLight}">
+                    <CheckBox.Content>
+                        <TextBlock TextWrapping="Wrap">Свечение по умолчанию при включении</TextBlock>
+                    </CheckBox.Content>
+                </CheckBox>
+            </Grid>
+        </GroupBox>
+
+        <!--Кнопки-->
         <Grid
-            Grid.Row="1"
             Margin="0,5"
             HorizontalAlignment="Right">
             <Grid.ColumnDefinitions>
@@ -207,5 +305,5 @@
                 Command="{Binding CloseCommand}"
                 Content="Отмена" />
         </Grid>
-    </Grid>
+    </StackPanel>
 </UserControl>

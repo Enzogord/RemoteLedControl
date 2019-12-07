@@ -106,7 +106,6 @@
     <Compile Include="Services\TempService.cs" />
     <Compile Include="ViewModels\CyclogrammViewModel.cs" />
     <Compile Include="ViewModels\MainWindowViewModel.cs" />
-    <Compile Include="ViewModels\MicrocontrollerUnitViewModel.cs" />
     <Compile Include="ViewModels\RemoteClientsViewModel.cs" />
     <Compile Include="ViewModels\RemoteClientViewModel.cs" />
     <Compile Include="ViewModels\SettingsViewModel.cs" />
@@ -115,9 +114,6 @@
     </Compile>
     <Compile Include="Views\MainWindowView.xaml.cs">
       <DependentUpon>MainWindowView.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\MicrocontrollerUnitView.xaml.cs">
-      <DependentUpon>MicrocontrollerUnitView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\RemoteClientsView.xaml.cs">
       <DependentUpon>RemoteClientsView.xaml</DependentUpon>
@@ -194,10 +190,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\MainWindowView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\MicrocontrollerUnitView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
