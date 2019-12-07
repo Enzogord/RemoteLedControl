@@ -71,16 +71,6 @@
                           SelectedItem="{Binding RLCProjectController.NetworkController.CurrentAddressSetting}"
                           IsEnabled ="{Binding RLCProjectController.NetworkController.Editable}"
                 />
-
-                <TextBlock Grid.Column="0" Grid.Row="1" 
-                           Margin="0, 2, 5, 2"
-                           HorizontalAlignment="Right" 
-                           VerticalAlignment="Center"
-                           TextAlignment="Right"
-                           TextWrapping="Wrap"
-                           Text="Заряд аккумулятора"
-                />
-
             </Grid>
         </GroupBox>
         
