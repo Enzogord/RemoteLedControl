@@ -82,6 +82,19 @@ namespace RLCCore.Domain
             set => SetField(ref clientState, value, () => ClientState);
         }
 
+        private byte batteryChargeLevel;
+        public byte BatteryChargeLevel {
+            get => batteryChargeLevel;
+            set => SetField(ref batteryChargeLevel, value, () => BatteryChargeLevel);
+        }
+
+        public void SetBatteryChargeLevel(ushort batteryChargeValue)
+        {
+            float batteryLevel = ((float)batteryChargeValue / (float)1023) * (float)(MicrocontrollerUnit.FullCharge / 1000);
+            logger.Info($"Battery charge: {batteryLevel}. Analog value: {batteryChargeValue}");
+            BatteryChargeLevel = (byte)(((batteryLevel * 1000) - (float)MicrocontrollerUnit.ZeroCharge) / (float)(MicrocontrollerUnit.FullCharge - MicrocontrollerUnit.ZeroCharge) * 100f);
+        }
+
         private IClientConnection connection;
         public IClientConnection Connection {
             get => connection;

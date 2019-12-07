@@ -14,7 +14,7 @@
 
         //to server
         ClientInfo = 100,
-        RequestServerIp = 101
-
+        RequestServerIp = 101,
+        BatteryCharge = 102
     }
 }

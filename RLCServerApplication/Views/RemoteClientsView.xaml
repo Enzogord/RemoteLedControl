@@ -104,6 +104,7 @@
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="22"/>
                                     <ColumnDefinition Width="auto"/>
+                                    <ColumnDefinition Width="auto"/>
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="auto"/>
                                 </Grid.ColumnDefinitions>
@@ -134,6 +135,15 @@
                                     Padding="4, 0"
                                     FontSize="14"
                                     Text="{Binding Name}" TextAlignment="Left"
+                                />
+
+                                <TextBlock Grid.Column="3"
+                                    VerticalAlignment="Center" 
+                                    HorizontalAlignment="Left"
+                                    Margin="3, 0"
+                                    Padding="4, 0"
+                                    FontSize="14"
+                                    Text="{Binding BatteryChargeLevel, Mode=OneWay, StringFormat='{}{0}%'}" TextAlignment="Left"
                                 />
                             </Grid>
                         </DataTemplate>

@@ -24,6 +24,8 @@ namespace Core.Messages
         private byte[] playFromTimeData = new byte[8];
         //byte 21-28
         private byte[] sendTimeData = new byte[8];
+        //byte 6-7
+        private byte[] batteryChargeData = new byte[2];
 
         //Текущая длина сообщения, при изменение полей пересчитать
         private int Length => 21;
@@ -68,6 +70,9 @@ namespace Core.Messages
             result[27] = sendTimeData[6];
             result[28] = sendTimeData[7];
 
+            result[29] = batteryChargeData[0];
+            result[30] = batteryChargeData[1];
+
             return result;
         }
 
@@ -98,6 +103,8 @@ namespace Core.Messages
             Array.Copy(bytes, 9, ipAddressData, 0, 4);
             Array.Copy(bytes, 13, playFromTimeData, 0, 8);
             Array.Copy(bytes, 21, sendTimeData, 0, 8);
+            batteryChargeData[0] = bytes[29];
+            batteryChargeData[1] = bytes[30];
         }
 
         public RLCMessage()
@@ -149,6 +156,11 @@ namespace Core.Messages
         public DateTime SendTime {
             get { return DateTimeSerializator.TimestampToDateTime(sendTimeData); }
             set { DateTimeSerializator.DateTimeToTimestamp(value, sendTimeData); }
+        }
+
+        public ushort BatteryCharge {
+            get { return BytesToUShort(batteryChargeData); }
+            set { batteryChargeData = UShortToBytes(value); }
         }
 
         #region methods
