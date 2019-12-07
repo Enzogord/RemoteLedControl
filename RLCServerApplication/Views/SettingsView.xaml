@@ -42,8 +42,12 @@
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="auto"/>
+            <ColumnDefinition Width="auto"/>
         </Grid.ColumnDefinitions>
-        <GroupBox Grid.Row="0" Header="Системные" Width="auto" Padding="5">
+        <GroupBox Grid.Row="0" 
+                  Header="Системные" 
+                  Width="auto" 
+                  Padding="5">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="100"/>
@@ -51,16 +55,39 @@
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto"/>
                 </Grid.RowDefinitions>
 
-                <TextBlock Grid.Column="0" Grid.Row="0" HorizontalAlignment="Right" Margin="0, 2, 5, 2">IP адрес</TextBlock>
-                <ComboBox x:Name="comboIpAdresses" Grid.Column="1" Grid.Row="0" Margin="0, 2" 
+                <TextBlock Grid.Column="0" Grid.Row="0" 
+                           Margin="0, 2, 5, 2"
+                           HorizontalAlignment="Right" 
+                           VerticalAlignment="Center"
+                           TextAlignment="Right"
+                           Text="IP адрес"
+                />
+                <ComboBox x:Name="comboIpAdresses" Grid.Column="1" Grid.Row="0" 
+                          Margin="0, 2"
                           ItemsSource="{Binding RLCProjectController.NetworkController.AddressSettings}" 
                           SelectedItem="{Binding RLCProjectController.NetworkController.CurrentAddressSetting}"
-                          IsEnabled ="{Binding RLCProjectController.NetworkController.Editable}"/>
+                          IsEnabled ="{Binding RLCProjectController.NetworkController.Editable}"
+                />
+
+                <TextBlock Grid.Column="0" Grid.Row="1" 
+                           Margin="0, 2, 5, 2"
+                           HorizontalAlignment="Right" 
+                           VerticalAlignment="Center"
+                           TextAlignment="Right"
+                           TextWrapping="Wrap"
+                           Text="Заряд аккумулятора"
+                />
+
             </Grid>
         </GroupBox>
-        <GroupBox Grid.Row="1" Header="Проект" Width="auto" Padding="5">
+        
+        <GroupBox Grid.Row="1" 
+                  Header="Проект" 
+                  Width="auto" 
+                  Padding="5">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="100"/>

@@ -5,7 +5,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{F0E721CB-D5F4-4A61-8E71-EF07009949C0}</ProjectGuid>
-    <OutputType>WinExe</OutputType>
+    <OutputType>Exe</OutputType>
     <RootNamespace>RLCServerApplication</RootNamespace>
     <AssemblyName>RLCServerApplication</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
@@ -106,6 +106,7 @@
     <Compile Include="Services\TempService.cs" />
     <Compile Include="ViewModels\CyclogrammViewModel.cs" />
     <Compile Include="ViewModels\MainWindowViewModel.cs" />
+    <Compile Include="ViewModels\MicrocontrollerUnitViewModel.cs" />
     <Compile Include="ViewModels\RemoteClientsViewModel.cs" />
     <Compile Include="ViewModels\RemoteClientViewModel.cs" />
     <Compile Include="ViewModels\SettingsViewModel.cs" />
@@ -114,6 +115,9 @@
     </Compile>
     <Compile Include="Views\MainWindowView.xaml.cs">
       <DependentUpon>MainWindowView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\MicrocontrollerUnitView.xaml.cs">
+      <DependentUpon>MicrocontrollerUnitView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\RemoteClientsView.xaml.cs">
       <DependentUpon>RemoteClientsView.xaml</DependentUpon>
@@ -167,6 +171,10 @@
       <Project>{202F2159-593B-4E89-AFDF-FB3DAF2D9EA6}</Project>
       <Name>RLCCore</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Microcontrollers\Microcontrollers.csproj">
+      <Project>{858D95C7-0B7A-4128-95D5-8ACFB6378720}</Project>
+      <Name>Microcontrollers</Name>
+    </ProjectReference>
     <ProjectReference Include="..\NAudioPlayer\NAudioPlayer.csproj">
       <Project>{293bbd8e-7ec8-49ed-a0c7-7124405c2242}</Project>
       <Name>NAudioPlayer</Name>
@@ -186,6 +194,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\MainWindowView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\MicrocontrollerUnitView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

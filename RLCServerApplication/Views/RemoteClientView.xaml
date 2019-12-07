@@ -1,143 +1,211 @@
-﻿<UserControl x:Class="RLCServerApplication.Views.RemoteClientView"
-             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:RLCServerApplication.Views"
-             xmlns:vm="clr-namespace:RLCServerApplication.ViewModels"
-             xmlns:model="clr-namespace:RLCCore;assembly=Core"
-             mc:Ignorable="d"
-             d:DataContext="{d:DesignInstance vm:RemoteClientViewModel}" d:DesignWidth="271.333" d:DesignHeight="250"
-             >
+﻿<UserControl
+    x:Class="RLCServerApplication.Views.RemoteClientView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:RLCServerApplication.Views"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:model="clr-namespace:RLCCore;assembly=Core"
+    xmlns:vm="clr-namespace:RLCServerApplication.ViewModels"
+    d:DataContext="{d:DesignInstance vm:RemoteClientViewModel}"
+    d:DesignHeight="250"
+    d:DesignWidth="271.333"
+    mc:Ignorable="d">
     <UserControl.Resources>
-        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
         <DataTemplate x:Key="CyclogrammView" DataType="{x:Type vm:CyclogrammViewModel}">
-            <local:CyclogrammView/>
+            <local:CyclogrammView />
+        </DataTemplate>
+        <DataTemplate x:Key="MicrocontrollerUnitView" DataType="{x:Type vm:MicrocontrollerUnitViewModel}">
+            <local:MicrocontrollerUnitView />
         </DataTemplate>
     </UserControl.Resources>
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="auto"/>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="auto" />
         </Grid.RowDefinitions>
 
+        <!--  Данные  -->
         <Grid Grid.Row="0">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="auto"/>
-                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="auto" />
+                <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
-                <RowDefinition Height="auto"/>
-                <RowDefinition Height="auto"/>
-                <RowDefinition Height="auto"/>
-                <RowDefinition Height="auto"/>
-                <RowDefinition Height="auto"/>
-                <RowDefinition Height="auto"/>
-                <RowDefinition Height="auto"/>
-                <RowDefinition Height="auto"/>
-                <RowDefinition Height="auto"/>
-                <RowDefinition Height="auto"/>
-                <RowDefinition Height="*"/>
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="*" />
             </Grid.RowDefinitions>
-            
-            <TextBlock Grid.Column="0" Grid.Row="0" Margin="3" VerticalAlignment="Center" HorizontalAlignment="Right">Номер</TextBlock>
-            <TextBox Grid.Column="1" Grid.Row="0" Margin="3" Text="{Binding Number, UpdateSourceTrigger=PropertyChanged}"></TextBox>
 
-            <TextBlock Grid.Column="0" Grid.Row="1" Margin="3" VerticalAlignment="Center" HorizontalAlignment="Right">Имя</TextBlock>
-            <TextBox Grid.Column="1" Grid.Row="1" Margin="3" Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}"></TextBox>
+            <TextBlock
+                Grid.Row="0"
+                Grid.Column="0"
+                Margin="3"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Center">
+                Номер
+            </TextBlock>
+            <TextBox
+                Grid.Row="0"
+                Grid.Column="1"
+                Margin="3"
+                Text="{Binding Number, UpdateSourceTrigger=PropertyChanged}" />
 
-            <TextBlock Grid.Column="1" Grid.Row="2" Margin="3"
-                       Text="Имеется сконвертированная циклограмма"
-                       TextWrapping="Wrap"
-                       Foreground="ForestGreen"
-                       Visibility="{Binding CyclogrammViewModel.ConvertedCyclogrammExists, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay, UpdateSourceTrigger=LostFocus}"
-            ></TextBlock>
-            
-            <TextBlock Grid.Column="0" Grid.Row="3" 
-                       Margin="3" 
-                       VerticalAlignment="Stretch" 
-                       HorizontalAlignment="Right"
-                       Text="Циклограмма"
-            />
-            <ContentControl Grid.Column="1" Grid.Row="3"
-                            Margin="3"
-                            VerticalAlignment="Center" 
-                            Content="{Binding CyclogrammViewModel}"
-                            ContentTemplate="{StaticResource CyclogrammView}"
-            />
-            <Separator Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="4"
-                       Margin="0, 2" 
-                       Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}"/>
+            <TextBlock
+                Grid.Row="1"
+                Grid.Column="0"
+                Margin="3"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Center">
+                Имя
+            </TextBlock>
+            <TextBox
+                Grid.Row="1"
+                Grid.Column="1"
+                Margin="3"
+                Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" />
 
-            <TextBlock Grid.Column="0" Grid.Row="5" 
-                       Margin="3" 
-                       VerticalAlignment="Center" 
-                       HorizontalAlignment="Right">LED яркость</TextBlock>
-            <Grid Grid.Column="1" Grid.Row="5">
+            <TextBlock
+                Grid.Row="2"
+                Grid.Column="1"
+                Margin="3"
+                Foreground="ForestGreen"
+                Text="Имеется сконвертированная циклограмма"
+                TextWrapping="Wrap"
+                Visibility="{Binding CyclogrammViewModel.ConvertedCyclogrammExists, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay, UpdateSourceTrigger=LostFocus}" />
+
+            <TextBlock
+                Grid.Row="3"
+                Grid.Column="0"
+                Margin="3"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Stretch"
+                Text="Циклограмма" />
+            <ContentControl
+                Grid.Row="3"
+                Grid.Column="1"
+                Margin="3"
+                VerticalAlignment="Center"
+                Content="{Binding CyclogrammViewModel}"
+                ContentTemplate="{StaticResource CyclogrammView}" />
+
+            <!--  Микроконтроллер  -->
+
+            <ContentControl
+                Grid.Row="4"
+                Grid.Column="1"
+                Margin="3"
+                VerticalAlignment="Center"
+                Content="{Binding MicrocontrollerUnitViewModel}"
+                ContentTemplate="{StaticResource MicrocontrollerUnitView}" />
+
+            <!--  Дополнительные параметры  -->
+
+            <Separator
+                Grid.Row="5"
+                Grid.Column="0"
+                Grid.ColumnSpan="2"
+                Margin="0,2"
+                Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" />
+
+            <TextBlock
+                Grid.Row="6"
+                Grid.Column="0"
+                Margin="3"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Center">
+                LED яркость
+            </TextBlock>
+
+            <Grid Grid.Row="6" Grid.Column="1">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="auto"/>
-                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="auto" />
+                    <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
-                <Border Grid.Column="0"
-                        Margin="3"
-                        BorderThickness="1"
-                        BorderBrush="LightGray"
-                        >
-                    <TextBlock 
-                           MinWidth="30"
-                           TextAlignment="Center"
-                           Text="{Binding SPILedGlobalBrightnessPercent, Mode=OneWay, StringFormat='{}{0}%'}"
-                    />
+                <Border
+                    Grid.Column="0"
+                    Margin="3"
+                    BorderBrush="LightGray"
+                    BorderThickness="1">
+                    <TextBlock
+                        MinWidth="30"
+                        Text="{Binding SPILedGlobalBrightnessPercent, Mode=OneWay, StringFormat='{}{0}%'}"
+                        TextAlignment="Center" />
                 </Border>
-                
-                <Slider Grid.Column="1"
-                        Margin="3"
-                        VerticalAlignment="Center"
-                        Minimum="0"
-                        Maximum="100"
-                        Value="{Binding SPILedGlobalBrightnessPercent, Mode=TwoWay}"
-                        />
+
+                <Slider
+                    Grid.Column="1"
+                    Margin="3"
+                    VerticalAlignment="Center"
+                    Maximum="100"
+                    Minimum="0"
+                    Value="{Binding SPILedGlobalBrightnessPercent, Mode=TwoWay}" />
             </Grid>
-            <CheckBox Grid.Column="1" Grid.Row="6"
-                      Margin="3"
-                      VerticalAlignment="Stretch"
-                      IsChecked="{Binding IsDigitalPWMSignal}"
-                      >
+            <CheckBox
+                Grid.Row="7"
+                Grid.Column="1"
+                Margin="3"
+                VerticalAlignment="Stretch"
+                IsChecked="{Binding IsDigitalPWMSignal}">
                 <CheckBox.Content>
                     <TextBlock TextWrapping="Wrap">Цифровой PWM сигнал</TextBlock>
                 </CheckBox.Content>
             </CheckBox>
-            
-            <CheckBox Grid.Column="1" Grid.Row="7"
-                      Margin="3"
-                      VerticalAlignment="Stretch"
-                      IsChecked="{Binding IsInvertedPWMSignal}"
-                      >
+
+            <CheckBox
+                Grid.Row="8"
+                Grid.Column="1"
+                Margin="3"
+                VerticalAlignment="Stretch"
+                IsChecked="{Binding IsInvertedPWMSignal}">
                 <CheckBox.Content>
                     <TextBlock TextWrapping="Wrap">PWM сигнал инвертирован</TextBlock>
                 </CheckBox.Content>
             </CheckBox>
-            
-            <CheckBox Grid.Column="1" Grid.Row="8"
-                      Margin="3"
-                      VerticalAlignment="Stretch"
-                      IsChecked="{Binding DefaultLight}"
-                      >
+
+            <CheckBox
+                Grid.Row="9"
+                Grid.Column="1"
+                Margin="3"
+                VerticalAlignment="Stretch"
+                IsChecked="{Binding DefaultLight}">
                 <CheckBox.Content>
                     <TextBlock TextWrapping="Wrap">Свечение по умолчанию при включении</TextBlock>
                 </CheckBox.Content>
             </CheckBox>
         </Grid>
 
-        <Grid Grid.Row="1" HorizontalAlignment="Right" Margin="0, 5">
+        <!--  Кнопки  -->
+        <Grid
+            Grid.Row="1"
+            Margin="0,5"
+            HorizontalAlignment="Right">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition/>
-                <ColumnDefinition/>
+                <ColumnDefinition />
+                <ColumnDefinition />
             </Grid.ColumnDefinitions>
-            <Button Grid.Column="0" Padding="10, 2, 10, 2" Margin="5, 0, 3, 0" 
-                    Content="Ок" Command="{Binding SaveChangesCommand}"/>
-            <Button Grid.Column="1" Padding="10, 2, 10, 2" Margin="2, 0, 3, 0"
-                    Content="Отмена" Command="{Binding CloseCommand}"/>
+            <Button
+                Grid.Column="0"
+                Margin="5,0,3,0"
+                Padding="10,2,10,2"
+                Command="{Binding SaveChangesCommand}"
+                Content="Ок" />
+            <Button
+                Grid.Column="1"
+                Margin="2,0,3,0"
+                Padding="10,2,10,2"
+                Command="{Binding CloseCommand}"
+                Content="Отмена" />
         </Grid>
     </Grid>
 </UserControl>

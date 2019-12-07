@@ -27,6 +27,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NotifiedObjectsFramework", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CyclogrammConverter", "CyclogrammConverter\CyclogrammConverter.csproj", "{10D5E64F-2D86-4703-989B-BD3DDC70475D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microcontrollers", "Microcontrollers\Microcontrollers.csproj", "{858D95C7-0B7A-4128-95D5-8ACFB6378720}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -77,6 +79,10 @@ Global
 		{10D5E64F-2D86-4703-989B-BD3DDC70475D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{10D5E64F-2D86-4703-989B-BD3DDC70475D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{10D5E64F-2D86-4703-989B-BD3DDC70475D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{858D95C7-0B7A-4128-95D5-8ACFB6378720}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{858D95C7-0B7A-4128-95D5-8ACFB6378720}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{858D95C7-0B7A-4128-95D5-8ACFB6378720}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{858D95C7-0B7A-4128-95D5-8ACFB6378720}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

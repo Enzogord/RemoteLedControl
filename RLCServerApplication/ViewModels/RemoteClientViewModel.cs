@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using Core.CyclogrammUtility;
+using Core.Domain;
 using Core.IO;
 using RLCCore.Domain;
 using RLCServerApplication.Infrastructure;
@@ -127,10 +128,24 @@ namespace RLCServerApplication.ViewModels
             }
         }
 
-        private CyclogrammViewModel cyclogrammViewModel;
         private readonly RemoteControlProject project;
         private readonly SaveController saveController;
 
+        private void UpdateMicrocontrollerViewModel()
+        {
+            if(RemoteClient.MicrocontrollerUnit == null) {
+                return;
+            }
+            MicrocontrollerUnitViewModel = new MicrocontrollerUnitViewModel(RemoteClient.MicrocontrollerUnit);
+        }
+
+        private MicrocontrollerUnitViewModel microcontrollerUnitViewModel;
+        public MicrocontrollerUnitViewModel MicrocontrollerUnitViewModel {
+            get => microcontrollerUnitViewModel;
+            set => SetField(ref microcontrollerUnitViewModel, value, () => MicrocontrollerUnitViewModel);
+        }
+
+        private CyclogrammViewModel cyclogrammViewModel;
         public CyclogrammViewModel CyclogrammViewModel {
             get => cyclogrammViewModel;
             set => SetField(ref cyclogrammViewModel, value, () => CyclogrammViewModel);
@@ -150,6 +165,7 @@ namespace RLCServerApplication.ViewModels
                 Cyclogramm = RemoteClient.Cyclogramm;
             }
             CyclogrammViewModel = new CyclogrammViewModel(Cyclogramm, RemoteClient, saveController);
+            UpdateMicrocontrollerViewModel();
         }
 
         public bool HasClientNameChanged => Number != RemoteClient.Number

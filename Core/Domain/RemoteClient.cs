@@ -5,7 +5,9 @@ using System.Linq;
 using System.Net;
 using System.Runtime.Serialization;
 using Core.ClientConnectionService;
+using Core.Domain;
 using Core.Messages;
+using NLog;
 using NotifiedObjectsFramework;
 using RLCCore.Serialization;
 
@@ -14,6 +16,8 @@ namespace RLCCore.Domain
     [DataContract]
     public class RemoteClient : NotifyPropertyChangedBase, ISettingsProvider, INumeredClient, IConnectableClient
     {
+        Logger logger = LogManager.GetCurrentClassLogger();
+
         private string name;
         [DataMember]
         public string Name {
@@ -56,13 +60,6 @@ namespace RLCCore.Domain
             set => SetField(ref spiLedGlobalBrightness, value, () => SPILedGlobalBrightness);
         }
 
-        private ObservableCollection<Pin> pins;
-        [DataMember]
-        public ObservableCollection<Pin> Pins {
-            get => pins;
-            set => SetField(ref pins, value, () => Pins);
-        }
-
         public bool WaitPlayingStatus { get; set; }    
 
         private Cyclogramm cyclogramm;
@@ -70,6 +67,13 @@ namespace RLCCore.Domain
         public Cyclogramm Cyclogramm {
             get => cyclogramm;
             set => SetField(ref cyclogramm, value, () => Cyclogramm);
+        }
+
+        private MicrocontrollerUnit microcontrollerUnit;
+        [DataMember]
+        public MicrocontrollerUnit MicrocontrollerUnit {
+            get => microcontrollerUnit;
+            set => SetField(ref microcontrollerUnit, value, () => MicrocontrollerUnit);
         }
 
         private ClientState clientState;        
@@ -110,12 +114,6 @@ namespace RLCCore.Domain
             OnPropertyChanged(() => IPAddress);
         }
 
-        #region Calculated properties
-
-        public int LEDCount => Pins.Sum(x => x.LEDCount);
-
-        #endregion
-
         public RemoteClient(string name, int number)
         {
             if(string.IsNullOrWhiteSpace(name)){
@@ -126,10 +124,10 @@ namespace RLCCore.Domain
                 throw new ArgumentException($"Аргумент {nameof(number)} не должен быть равен нулю");
             }
 
-            Pins = new ObservableCollection<Pin>();
             Name = name;
             Number = number;
             Connection = new DefaultClientConnection();
+            MicrocontrollerUnit = new MicrocontrollerUnit();
         }
 
         #region ISettingsProvider implementation
@@ -158,7 +156,7 @@ namespace RLCCore.Domain
 
         #endregion
 
-        public void AddPin(byte pinNumber, ushort ledCount)
+        /*public void AddPin(byte pinNumber, ushort ledCount)
         {
             if(ledCount == 0){
                 return;
@@ -180,7 +178,7 @@ namespace RLCCore.Domain
             if(Pins.Contains(pin)) {
                 Pins.Remove(pin);
             }
-        }
+        }*/
 
         public override int GetHashCode()
         {
