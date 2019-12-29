@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using Core;
 using Core.IO;
+using Core.Model;
 using RLCCore;
 using RLCCore.Domain;
 using RLCCore.Serialization;
@@ -44,8 +45,8 @@ namespace RLCServerApplication.ViewModels
             }
         }
 
-        private RemoteClientViewModel remoteClientViewModel;
-        public RemoteClientViewModel RemoteClientViewModel {
+        private RemoteClientEditViewModel remoteClientViewModel;
+        public RemoteClientEditViewModel RemoteClientViewModel {
             get => remoteClientViewModel;
             set => SetField(ref remoteClientViewModel, value, () => RemoteClientViewModel);
         }
@@ -163,7 +164,8 @@ namespace RLCServerApplication.ViewModels
                     openClientEditorCommand = new DelegateCommand(
                         () => {
                             if(SelectedClient != null) {
-                                RemoteClientViewModel = new RemoteClientViewModel(SelectedClient, remoteControlProject, projectController.SaveController, projectController.FileHolder);
+                                var clientModel = new RemoteClientEditModel(SelectedClient, remoteControlProject, projectController.SaveController);
+                                RemoteClientViewModel = new RemoteClientEditViewModel(clientModel, projectController.SaveController);
                                 RemoteClientViewModel.OnClose += (sender, e) => { RemoteClientViewModel = null; };
                             }
                         },
@@ -183,11 +185,12 @@ namespace RLCServerApplication.ViewModels
             get {
                 if(addNewClientCommand == null) {
                     addNewClientCommand = new DelegateCommand(
-                        () => {                            
-                            RemoteClientViewModel = new RemoteClientViewModel(remoteControlProject, projectController.SaveController, projectController.FileHolder);
+                        () => {
+                            var clientModel = new RemoteClientEditModel(remoteControlProject, projectController.SaveController);
+                            RemoteClientViewModel = new RemoteClientEditViewModel(clientModel, projectController.SaveController);
                             RemoteClientViewModel.OnClose += (sender, e) => {
                                 if(e.Commited) {
-                                    remoteControlProject.AddClient(RemoteClientViewModel.RemoteClient);
+                                    remoteControlProject.AddClient(RemoteClientViewModel.RemoteClientEditModel.RemoteClient);
                                 }
                                 RemoteClientViewModel = null;
                             };

@@ -221,7 +221,7 @@ namespace RLCServerApplication.ViewModels
             //должна быть выбрана циклограмма
             && !string.IsNullOrWhiteSpace(Cyclogramm.FilePath)
             //пара (имя и номер) клиента не должны совпадать с существующими
-            && !project.ClientExists(Number, Name)
+            && !project.ClientExists(Number)
             && Number > 0
             && !string.IsNullOrWhiteSpace(Name);
 
@@ -229,7 +229,7 @@ namespace RLCServerApplication.ViewModels
             //должна быть выбрана циклограмма или должна быть уже существующая
             && (!string.IsNullOrWhiteSpace(Cyclogramm.FilePath) || CyclogrammViewModel.ConvertedCyclogrammExists)
             //пара (имя и номер) клиента не должны совпадать с существующими
-            && ((!project.ClientExists(Number, Name) && (HasChanges || !string.IsNullOrWhiteSpace(Cyclogramm.FilePath))) || ((HasChanges || !string.IsNullOrWhiteSpace(Cyclogramm.FilePath)) && !HasClientNameChanged))
+            && ((!project.ClientExists(Number) && (HasChanges || !string.IsNullOrWhiteSpace(Cyclogramm.FilePath))) || ((HasChanges || !string.IsNullOrWhiteSpace(Cyclogramm.FilePath)) && !HasClientNameChanged))
             && Number > 0
             && !string.IsNullOrWhiteSpace(Name);
 

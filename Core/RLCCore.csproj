@@ -74,10 +74,14 @@
     <Compile Include="CyclogrammUtility\CyclogrammCsvToCycConverter.cs" />
     <Compile Include="CyclogrammUtility\LinearCyclogrammConverter.cs" />
     <Compile Include="Domain\MicrocontrollerUnit.cs" />
+    <Compile Include="Infrastructure\PropertyValidationResult.cs" />
+    <Compile Include="Infrastructure\ValidatableNotifierObjectBase.cs" />
     <Compile Include="IO\RemovableDrivesProvider.cs" />
     <Compile Include="IO\FileHolder.cs" />
     <Compile Include="IO\SaveController.cs" />
     <Compile Include="IO\ZipUtility.cs" />
+    <Compile Include="Model\IUniqueClientProvider.cs" />
+    <Compile Include="Model\RemoteClientEditModel.cs" />
     <Compile Include="RemoteOperations\ISequenceTimeProvider.cs" />
     <Compile Include="Sequence\ISequenceController.cs" />
     <Compile Include="Messages\ClientState.cs" />

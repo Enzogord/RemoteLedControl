@@ -1,18 +1,20 @@
-﻿using Microcontrollers;
-using NotifiedObjectsFramework;
+﻿using Core.Infrastructure;
+using Microcontrollers;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
 
 namespace Core.Domain
 {
     [DataContract]
-    public class MicrocontrollerUnit : NotifyPropertyChangedBase
+    public class MicrocontrollerUnit : ValidatableNotifierObjectBase
     {
         private string microcontrollerId;
         [DataMember]
         public string MicrocontrollerId {
             get => microcontrollerId;
             set {
-                if(SetField(ref microcontrollerId, value, () => MicrocontrollerId)) {
+                if(SetField(ref microcontrollerId, value)) {
                     if(MicrocontrollersLibrary.TryGetMicrocontroller(microcontrollerId, out IMicrocontroller mc)) {
                         Microcontroller = mc;
                     }
@@ -24,7 +26,7 @@ namespace Core.Domain
         public IMicrocontroller Microcontroller {
             get => microcontroller;
             set {
-                if(SetField(ref microcontroller, value, () => Microcontroller)) {
+                if(ValidatableSetField(ref microcontroller, value)) {
                     if(microcontroller != null) {
                         microcontrollerId = microcontroller.Id;
                     }
@@ -74,6 +76,13 @@ namespace Core.Domain
         {
             zeroCharge = 0;
             fullCharge = 4290;
+        }
+
+        protected override IEnumerable<ValidationResult> ValidateWithDataErrorNotification(ValidationContext validationContext)
+        {
+            if(Microcontroller == null) {
+                yield return new PropertyValidationResult("Необходимо выбрать микроконтроллер", nameof(Microcontroller));
+            }
         }
     }
 }

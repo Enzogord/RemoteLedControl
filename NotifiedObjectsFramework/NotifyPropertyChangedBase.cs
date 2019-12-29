@@ -21,16 +21,21 @@ namespace NotifiedObjectsFramework
         /// Raise PropertyChanged event for property with this name (<paramref name="propertyName"/>)
         /// IMPORTANT: Call without <paramref name="propertyName"/> only in property
         /// </summary>
-        protected void OnPropertyChanged([CallerMemberName]string propertyName = "")
+        protected virtual void OnPropertyChanged([CallerMemberName]string propertyName = "")
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            OnAnyPropertyChanged();
+        }
+
+        protected virtual void OnAnyPropertyChanged()
+        {
         }
 
         /// <summary>
         /// Set <paramref name="value"/> to <paramref name="field"/> and raise PropertyChanged event for property with this name (<paramref name="propertyName"/>)
         /// IMPORTANT: Call without <paramref name="propertyName"/> only in property
         /// </summary>
-        protected bool SetField<T>(ref T field, T value, [CallerMemberName]string propertyName = "")
+        protected virtual bool SetField<T>(ref T field, T value, [CallerMemberName]string propertyName = "")
         {
             if(EqualityComparer<T>.Default.Equals(field, value)) {
                 return false;
@@ -44,7 +49,8 @@ namespace NotifiedObjectsFramework
 
         #region With expression property selector
 
-        protected void OnPropertyChanged<T>(Expression<Func<T>> selectorExpression)
+        [Obsolete("Устаревший вызов")]
+        protected virtual void OnPropertyChanged<T>(Expression<Func<T>> selectorExpression)
         {
             if(selectorExpression == null) {
                 throw new ArgumentNullException("selectorExpression");
@@ -56,7 +62,8 @@ namespace NotifiedObjectsFramework
             OnPropertyChanged(body.Member.Name);
         }
 
-        protected bool SetField<T>(ref T field, T value, Expression<Func<T>> selectorExpression)
+        [Obsolete("Устаревший вызов")]
+        protected virtual bool SetField<T>(ref T field, T value, Expression<Func<T>> selectorExpression)
         {
             if(EqualityComparer<T>.Default.Equals(field, value)) {
                 return false;

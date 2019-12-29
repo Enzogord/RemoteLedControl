@@ -5,6 +5,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Runtime.Serialization;
 using Core.Messages;
+using Core.Model;
 using Core.RemoteOperations;
 using NotifiedObjectsFramework;
 using RLCCore.Exceptions;
@@ -13,7 +14,7 @@ using RLCCore.Serialization;
 namespace RLCCore.Domain
 {
     [DataContract]
-    public class RemoteControlProject : NotifyPropertyChangedBase, ISettingsProvider, IMessageReceiver
+    public class RemoteControlProject : NotifyPropertyChangedBase, ISettingsProvider, IMessageReceiver, IUniqueClientProvider
     {
         private const int defaultRlcPort = 11010;
         private const int defaultSntpPort = 11011;
@@ -99,9 +100,17 @@ namespace RLCCore.Domain
             Key = ProjectKey;
         }
 
-        public bool ClientExists(int number, string name)
+        public int GenerateClientNumber()
+        {
+            if(Clients.Any()) {
+                return Clients.Max(x => x.Number) + 1;
+            }
+            return 1;
+        }
+
+        public bool ClientExists(int number)
         {            
-            return Clients.Any(x => x.Number == number && x.Name == name);
+            return Clients.Any(x => x.Number == number);
         }
 
         public void AddClient(RemoteClient client)

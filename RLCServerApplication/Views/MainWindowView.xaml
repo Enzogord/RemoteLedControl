@@ -16,7 +16,6 @@
     MinWidth="700"
     MinHeight="450"
     d:DataContext="{d:DesignInstance {x:Type vm:MainWindowViewModel}}"
-    Topmost="True"
     mc:Ignorable="d">
 
     <Window.Resources>

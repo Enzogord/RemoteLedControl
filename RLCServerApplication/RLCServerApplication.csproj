@@ -46,6 +46,7 @@
       <HintPath>..\packages\NLog.4.6.3\lib\net45\NLog.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
@@ -97,7 +98,9 @@
     <Compile Include="Bootstrapper.cs" />
     <Compile Include="Converters\NullVisibilityCollapsedConverter.cs" />
     <Compile Include="Converters\OnlineStatusToColorConverter.cs" />
+    <Compile Include="Converters\StringListToStringConverter.cs" />
     <Compile Include="Converters\StringToIntConverter.cs" />
+    <Compile Include="Converters\ValidationErrorsToStringConverter.cs" />
     <Compile Include="Extensions\InputBindingManager.cs" />
     <Compile Include="Infrastructure\Command\DelegateCommand.cs" />
     <Compile Include="Infrastructure\Command\DelegateCommandGeneric.cs" />
@@ -106,6 +109,7 @@
     <Compile Include="Services\TempService.cs" />
     <Compile Include="ViewModels\CyclogrammViewModel.cs" />
     <Compile Include="ViewModels\MainWindowViewModel.cs" />
+    <Compile Include="ViewModels\RemoteClientEditViewModel.cs" />
     <Compile Include="ViewModels\RemoteClientsViewModel.cs" />
     <Compile Include="ViewModels\RemoteClientViewModel.cs" />
     <Compile Include="ViewModels\SettingsViewModel.cs" />
@@ -184,6 +188,14 @@
     <Page Include="Resources\ExpressionDark.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Resources\GlobalConverters.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Resources\ValidationErrorResources.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\CyclogrammView.xaml">
       <SubType>Designer</SubType>

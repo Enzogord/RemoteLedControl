@@ -25,7 +25,5 @@ namespace RLCServerApplication.Views
         {
             InitializeComponent();
         }
-
-        public RemoteClientViewModel RemoteClientViewModel => DataContext as RemoteClientViewModel;
     }
 }

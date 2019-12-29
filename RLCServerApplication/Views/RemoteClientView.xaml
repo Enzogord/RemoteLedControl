@@ -9,15 +9,23 @@
     xmlns:vm="clr-namespace:RLCServerApplication.ViewModels"
     xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
     xmlns:ext="clr-namespace:RLCServerApplication.Extensions"
-    d:DataContext="{d:DesignInstance vm:RemoteClientViewModel}"
-    d:DesignHeight="404"
-    d:DesignWidth="412.333"
+    d:DataContext="{d:DesignInstance vm:RemoteClientEditViewModel}"
+    d:DesignHeight="400"
+    d:DesignWidth="410"
     mc:Ignorable="d">
     <UserControl.Resources>
-        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
         <DataTemplate x:Key="CyclogrammView" DataType="{x:Type vm:CyclogrammViewModel}">
             <local:CyclogrammView />
         </DataTemplate>
+
+        <ControlTemplate x:Key="validationFailed">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Foreground="Red" FontWeight="Bold" VerticalAlignment="Center">!</TextBlock>
+                <Border BorderBrush="Violet" BorderThickness="2">
+                    <AdornedElementPlaceholder />
+                </Border>
+            </StackPanel>
+        </ControlTemplate>
     </UserControl.Resources>
 
     <StackPanel>
@@ -44,7 +52,9 @@
                     Margin="3"
                     MinWidth="30"
                     VerticalAlignment="Center"
-                    Text="{Binding Number, UpdateSourceTrigger=PropertyChanged}"/>
+                    Text="{Binding RemoteClientEditModel.Number, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}"
+                    Style="{StaticResource errorToolTipStyle}"
+                />
 
             <!--Имя-->
             <TextBlock
@@ -60,7 +70,9 @@
                     Margin="3"
                     HorizontalAlignment="Stretch"
                     VerticalAlignment="Center"
-                    Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}"/>
+                    Text="{Binding RemoteClientEditModel.Name, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}"
+                    Style="{StaticResource errorToolTipStyle}"
+                />
         </Grid>
 
         <!--Микроконтроллер-->
@@ -76,17 +88,19 @@
                     HorizontalAlignment="Right"
                     VerticalAlignment="Center"
                     Text="Микроконтроллер"/>
-            <xctk:WatermarkComboBox
-                        Grid.Row="0"
-                        Grid.Column="1"
-                        Grid.ColumnSpan="3"
-                        HorizontalAlignment="Stretch"
-                        Margin="3"
-                        VerticalAlignment="Center"
-                        ItemsSource="{Binding MicrocontrollerUnitViewModel.AvailableMicrocontrollers, Mode=OneWay}"
-                        SelectedItem="{Binding MicrocontrollerUnitViewModel.MicrocontrollerUnit.Microcontroller}"
-                        Watermark="Выбрать микроконтроллер"
-                        DisplayMemberPath="Name"/>
+
+            <xctk:WatermarkComboBox x:Name="ComboBox" 
+                      Grid.Row="0"
+                      Grid.Column="1" 
+                      Width="250" 
+                      ItemsSource="{Binding RemoteClientEditModel.AvailableMicrocontrollers, Mode=OneWay}"
+                      DisplayMemberPath="Name"
+                      Watermark="Выбрать микроконтроллер"
+                      SelectedItem="{Binding
+                RemoteClientEditModel.MicrocontrollerUnit.Microcontroller,
+                Mode=TwoWay, 
+                ValidatesOnNotifyDataErrors=True}"
+                      Style="{StaticResource errorToolTipStyle}"/>
         </Grid>
 
         <!--Циклограмма-->
@@ -99,15 +113,28 @@
                     Foreground="ForestGreen"
                     Text="Имеется сконвертированная циклограмма"
                     TextWrapping="Wrap"
-                    Visibility="{Binding CyclogrammViewModel.ConvertedCyclogrammExists, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay, UpdateSourceTrigger=LostFocus}" />
+                    Visibility="{Binding CyclogrammViewModel.ConvertedCyclogrammExists, Converter={StaticResource booleanToVisibilityConverter}, Mode=OneWay, UpdateSourceTrigger=LostFocus}" 
+                />
 
-                <ContentControl
-                    Grid.Row="3"
-                    Grid.Column="1"
-                    Margin="3"
-                    VerticalAlignment="Center"
-                    Content="{Binding CyclogrammViewModel}"
-                    ContentTemplate="{StaticResource CyclogrammView}" />
+                <Grid Grid.Row="0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBox Grid.Column="0"
+                             HorizontalAlignment="Stretch"
+                             IsReadOnly="True"
+                             Text="{Binding RemoteClientEditModel.UnconvertedCyclogrammFile, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}"
+                             Style="{StaticResource errorToolTipStyle}"
+                    />
+                    <Button 
+                        Grid.Column="1" 
+                        Margin="2, 0, 0, 0" 
+                        Padding="5, 0, 5, 0"
+                        Content="..."
+                        Command="{Binding SelectCyclogrammFileCommand}"
+                    />
+                </Grid>
             </StackPanel>
         </GroupBox>
 
@@ -153,11 +180,11 @@
                         MinWidth="40"
                         Margin="3"
                         ext:InputBindingsManager.UpdatePropertySourceWhenEnterPressed="TextBox.Text"
-                        Text="{Binding RemoteClient.MicrocontrollerUnit.ZeroCharge}" />
+                        Text="{Binding RemoteClientEditModel.MicrocontrollerUnit.ZeroCharge}" />
                     <TextBlock 
                         Grid.Column="1" 
                         Margin="3"
-                        Text="{Binding RemoteClient.MicrocontrollerUnit.FullCharge, Mode=OneWay, StringFormat='{}0 ... {0}'}" />
+                        Text="{Binding RemoteClientEditModel.MicrocontrollerUnit.FullCharge, Mode=OneWay, StringFormat='{}0 ... {0}'}" />
                 </Grid>
 
                 <!--Full charge-->
@@ -183,11 +210,11 @@
                         MinWidth="40"
                         Margin="3"
                         ext:InputBindingsManager.UpdatePropertySourceWhenEnterPressed="TextBox.Text"
-                        Text="{Binding RemoteClient.MicrocontrollerUnit.FullCharge}" />
+                        Text="{Binding RemoteClientEditModel.MicrocontrollerUnit.FullCharge}" />
                     <TextBlock
                         Grid.Column="1" 
                         Margin="3"
-                        Text="{Binding RemoteClient.MicrocontrollerUnit.ZeroCharge, Mode=OneWay, StringFormat='{}{0} ... 1024'}" />
+                        Text="{Binding RemoteClientEditModel.MicrocontrollerUnit.ZeroCharge, Mode=OneWay, StringFormat='{}{0} ... 1024'}" />
                 </Grid>
             </Grid>
         </GroupBox>
@@ -230,7 +257,7 @@
                         RenderOptions.EdgeMode="Aliased">
                         <TextBlock
                             MinWidth="30"
-                            Text="{Binding SPILedGlobalBrightnessPercent, Mode=OneWay, StringFormat='{}{0}%'}"
+                            Text="{Binding RemoteClientEditModel.SPILedGlobalBrightnessPercent, Mode=OneWay, StringFormat='{}{0}%'}"
                             TextAlignment="Center" />
                     </Border>
 
@@ -240,7 +267,7 @@
                         VerticalAlignment="Center"
                         Maximum="100"
                         Minimum="0"
-                        Value="{Binding SPILedGlobalBrightnessPercent, Mode=TwoWay}" />
+                        Value="{Binding RemoteClientEditModel.SPILedGlobalBrightnessPercent, Mode=TwoWay}" />
                 </Grid>
 
                 <!--Цифровой сигнал-->
@@ -250,7 +277,7 @@
                     Grid.ColumnSpan="2"
                     Margin="3"
                     VerticalAlignment="Stretch"
-                    IsChecked="{Binding IsDigitalPWMSignal}">
+                    IsChecked="{Binding RemoteClientEditModel.IsDigitalPWMSignal}">
                     <CheckBox.Content>
                         <TextBlock TextWrapping="Wrap">Цифровой PWM сигнал</TextBlock>
                     </CheckBox.Content>
@@ -263,7 +290,7 @@
                     Grid.ColumnSpan="2"
                     Margin="3"
                     VerticalAlignment="Stretch"
-                    IsChecked="{Binding IsInvertedPWMSignal}">
+                    IsChecked="{Binding RemoteClientEditModel.IsInvertedPWMSignal}">
                     <CheckBox.Content>
                         <TextBlock TextWrapping="Wrap">PWM сигнал инвертирован</TextBlock>
                     </CheckBox.Content>
@@ -276,7 +303,7 @@
                     Grid.ColumnSpan="2"
                     Margin="3"
                     VerticalAlignment="Stretch"
-                    IsChecked="{Binding DefaultLight}">
+                    IsChecked="{Binding RemoteClientEditModel.DefaultLight}">
                     <CheckBox.Content>
                         <TextBlock TextWrapping="Wrap">Свечение по умолчанию при включении</TextBlock>
                     </CheckBox.Content>
@@ -296,7 +323,7 @@
                 Grid.Column="0"
                 Margin="5,0,3,0"
                 Padding="10,2,10,2"
-                Command="{Binding SaveChangesCommand}"
+                Command="{Binding SaveCommand}"
                 Content="Ок" />
             <Button
                 Grid.Column="1"
