@@ -82,23 +82,24 @@ namespace Core.IO
             if(!Directory.Exists(tmpPath)) {
                 WorkDirectory = Path.Combine(tmpPath, "1");
                 Directory.CreateDirectory(Path.Combine(WorkDirectory, "Clients"));
-                return;
             }
+            else {
+                var subDirectories = Directory.GetDirectories(tmpPath);
+                int maxWorkDirectory = 0;
+                if(subDirectories.Any()) {
+                    maxWorkDirectory = subDirectories.Select(x => {
+                        string name = new DirectoryInfo(x).Name;
+                        if(int.TryParse(name, out int result)) {
+                            return result;
+                        }
+                        return 0;
+                    }).Max();
+                }
 
-            var subDirectories = Directory.GetDirectories(tmpPath);
-            int maxWorkDirectory = 0;
-            if(subDirectories.Any()) {
-                maxWorkDirectory = subDirectories.Select(x => {
-                    string name = new DirectoryInfo(x).Name;
-                    if(int.TryParse(name, out int result)) {
-                        return result;
-                    }
-                    return 0;
-                }).Max();
-            }
+                WorkDirectory = Path.Combine(tmpPath, (maxWorkDirectory + 1).ToString());
+                Directory.CreateDirectory(Path.Combine(WorkDirectory, "Clients"));
+            }           
 
-            WorkDirectory = Path.Combine(tmpPath, (maxWorkDirectory + 1).ToString());
-            Directory.CreateDirectory(Path.Combine(WorkDirectory, "Clients"));
             workFilePath = Path.Combine(WorkDirectory, projectFileName);
         }
 
