@@ -1,127 +1,212 @@
-﻿<UserControl x:Class="RLCServerApplication.Views.SettingsView"
-             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:RLCServerApplication.Views"
-             xmlns:vm="clr-namespace:RLCServerApplication.ViewModels"
-             xmlns:converters="clr-namespace:RLCServerApplication.Converters"
-             xmlns:model="clr-namespace:RLCCore;assembly=Core"
-             mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800"
-             d:DataContext="{d:DesignInstance vm:SettingsViewModel}"
-             IsEnabled="{Binding CanEdit}">
-    
+﻿<UserControl
+    x:Class="RLCServerApplication.Views.SettingsView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:converters="clr-namespace:RLCServerApplication.Converters"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:RLCServerApplication.Views"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:model="clr-namespace:RLCCore;assembly=Core"
+    xmlns:vm="clr-namespace:RLCServerApplication.ViewModels"
+    d:DataContext="{d:DesignInstance vm:SettingsViewModel}"
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    IsEnabled="{Binding CanEdit}"
+    mc:Ignorable="d">
+
     <UserControl.Resources>
-        <BooleanToVisibilityConverter x:Key="VisibilityConverter"/>
-        <converters:UIntToStringConverter x:Key="StringToIntConverter"/>
+        <BooleanToVisibilityConverter x:Key="VisibilityConverter" />
+        <converters:UIntToStringConverter x:Key="StringToIntConverter" />
         <DataTemplate x:Key="SettingsTemplate" DataType="{x:Type model:RLCProjectController}">
             <Grid>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="auto"/>
-                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto" />
+                    <RowDefinition Height="auto" />
                 </Grid.RowDefinitions>
-                <StackPanel Grid.Row="0" Margin="6,4,0,0" Orientation="Horizontal" VerticalAlignment="Top" Height="auto">
-                    <TextBlock Text="IP адресс:" FontSize="18" Margin="0, 0, 5, 0"/>
-                    <ComboBox ItemsSource="{Binding NetworkController.AddressSettings}" 
-                              SelectedItem="{Binding NetworkController.CurrentAddressSetting}"
-                              IsEnabled ="{Binding NetworkController.Editable}"/>
+                <StackPanel
+                    Grid.Row="0"
+                    Height="auto"
+                    Margin="6,4,0,0"
+                    VerticalAlignment="Top"
+                    Orientation="Horizontal">
+                    <TextBlock
+                        Margin="0,0,5,0"
+                        FontSize="18"
+                        Text="IP адресс:" />
+                    <ComboBox
+                        IsEnabled="{Binding NetworkController.Editable}"
+                        ItemsSource="{Binding NetworkController.AddressSettings}"
+                        SelectedItem="{Binding NetworkController.CurrentAddressSetting}" />
                 </StackPanel>
-                <StackPanel Grid.Row="1" Margin="6,4,0,0" Orientation="Horizontal" VerticalAlignment="Top" Height="auto">
-                    <TextBlock Text="Ключ проекта:" FontSize="18" Margin="0, 0, 5, 0"/>
-                    <TextBox Text ="{Binding CurrentProject.Key, Converter={StaticResource StringToIntConverter}}"/>
-                </StackPanel>                
-            </Grid>            
+                <StackPanel
+                    Grid.Row="1"
+                    Height="auto"
+                    Margin="6,4,0,0"
+                    VerticalAlignment="Top"
+                    Orientation="Horizontal">
+                    <TextBlock
+                        Margin="0,0,5,0"
+                        FontSize="18"
+                        Text="Ключ проекта:" />
+                    <TextBox Text="{Binding CurrentProject.Key, Converter={StaticResource StringToIntConverter}}" />
+                </StackPanel>
+            </Grid>
         </DataTemplate>
     </UserControl.Resources>
-    
+
     <Grid Width="auto">
         <Grid.RowDefinitions>
-            <RowDefinition Height="auto"/>
-            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="auto"/>
-            <ColumnDefinition Width="auto"/>
+            <ColumnDefinition Width="auto" />
+            <ColumnDefinition Width="auto" />
         </Grid.ColumnDefinitions>
-        <GroupBox Grid.Row="0" 
-                  Header="Системные" 
-                  Width="auto" 
-                  Padding="5">
+        <GroupBox
+            Grid.Row="0"
+            Width="auto"
+            Padding="5"
+            Header="Системные">
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="100"/>
-                    <ColumnDefinition Width="150"/>
+                    <ColumnDefinition Width="100" />
+                    <ColumnDefinition Width="150" />
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="auto"/>
-                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto" />
+                    <RowDefinition Height="auto" />
                 </Grid.RowDefinitions>
 
-                <TextBlock Grid.Column="0" Grid.Row="0" 
-                           Margin="0, 2, 5, 2"
-                           HorizontalAlignment="Right" 
-                           VerticalAlignment="Center"
-                           TextAlignment="Right"
-                           Text="IP адрес"
-                />
-                <ComboBox x:Name="comboIpAdresses" Grid.Column="1" Grid.Row="0" 
-                          Margin="0, 2"
-                          ItemsSource="{Binding RLCProjectController.NetworkController.AddressSettings}" 
-                          SelectedItem="{Binding RLCProjectController.NetworkController.CurrentAddressSetting}"
-                          IsEnabled ="{Binding RLCProjectController.NetworkController.Editable}"
-                />
+                <TextBlock
+                    Grid.Row="0"
+                    Grid.Column="0"
+                    Margin="0,2,5,2"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Center"
+                    Text="IP адрес"
+                    TextAlignment="Right" />
+                <ComboBox
+                    x:Name="comboIpAdresses"
+                    Grid.Row="0"
+                    Grid.Column="1"
+                    Margin="0,2"
+                    IsEnabled="{Binding RLCProjectController.NetworkController.Editable}"
+                    ItemsSource="{Binding RLCProjectController.NetworkController.AddressSettings}"
+                    SelectedItem="{Binding RLCProjectController.NetworkController.CurrentAddressSetting}" />
             </Grid>
         </GroupBox>
-        
-        <GroupBox Grid.Row="1" 
-                  Header="Проект" 
-                  Width="auto" 
-                  Padding="5">
+
+        <GroupBox
+            Grid.Row="1"
+            Width="auto"
+            Padding="5"
+            Header="Проект">
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="100"/>
-                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="100" />
+                    <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="auto"/>
-                    <RowDefinition Height="auto"/>
-                    <RowDefinition Height="auto"/>
-                    <RowDefinition Height="auto"/>
-                    <RowDefinition Height="auto"/>
-                    <RowDefinition Height="auto"/>
-                </Grid.RowDefinitions> 
-                
-                <TextBlock Grid.Column="0" Grid.Row="0" HorizontalAlignment="Right" Margin="0, 2, 5, 2">Ключ проекта</TextBlock>
-                <TextBox Grid.Column="1" Grid.Row="0" Margin="0, 2" Text="{Binding RLCProjectController.CurrentProject.Key}"></TextBox>
+                    <RowDefinition Height="auto" />
+                    <RowDefinition Height="auto" />
+                    <RowDefinition Height="auto" />
+                    <RowDefinition Height="auto" />
+                    <RowDefinition Height="auto" />
+                    <RowDefinition Height="auto" />
+                </Grid.RowDefinitions>
 
-                <TextBlock Grid.Column="0" Grid.Row="1" HorizontalAlignment="Right" Margin="0, 2, 5, 2">Wifi SSID</TextBlock>
-                <TextBox Grid.Column="1" Grid.Row="1" Margin="0, 2" Text="{Binding RLCProjectController.CurrentProject.WifiSSID}"></TextBox>
+                <TextBlock
+                    Grid.Row="0"
+                    Grid.Column="0"
+                    Margin="0,2,5,2"
+                    HorizontalAlignment="Right">
+                    Ключ проекта
+                </TextBlock>
+                <TextBox
+                    Grid.Row="0"
+                    Grid.Column="1"
+                    Margin="0,2"
+                    Text="{Binding RLCProjectController.CurrentProject.Key}" />
 
-                <TextBlock Grid.Column="0" Grid.Row="2" HorizontalAlignment="Right" Margin="0, 2, 5, 2">Wifi password</TextBlock>
-                <TextBox Grid.Column="1" Grid.Row="2" Margin="0, 2" Text="{Binding RLCProjectController.CurrentProject.WifiPassword}"></TextBox>
+                <TextBlock
+                    Grid.Row="1"
+                    Grid.Column="0"
+                    Margin="0,2,5,2"
+                    HorizontalAlignment="Right">
+                    Wifi SSID
+                </TextBlock>
+                <TextBox
+                    Grid.Row="1"
+                    Grid.Column="1"
+                    Margin="0,2"
+                    Text="{Binding RLCProjectController.CurrentProject.WifiSSID}" />
 
-                <TextBlock Grid.Column="0" Grid.Row="3" HorizontalAlignment="Right" Margin="0, 2, 5, 2">RLC порт</TextBlock>
-                <TextBox Grid.Column="1" Grid.Row="3" Margin="0, 2" Text="{Binding RLCProjectController.CurrentProject.RlcPort}"></TextBox>
+                <TextBlock
+                    Grid.Row="2"
+                    Grid.Column="0"
+                    Margin="0,2,5,2"
+                    HorizontalAlignment="Right">
+                    Wifi password
+                </TextBlock>
+                <TextBox
+                    Grid.Row="2"
+                    Grid.Column="1"
+                    Margin="0,2"
+                    Text="{Binding RLCProjectController.CurrentProject.WifiPassword}" />
 
-                <TextBlock Grid.Column="0" Grid.Row="4" HorizontalAlignment="Right" Margin="0, 2, 5, 2">SNTP порт</TextBlock>
-                <TextBox Grid.Column="1" Grid.Row="4" Margin="0, 2" Text="{Binding RLCProjectController.CurrentProject.SntpPort}"></TextBox>
+                <TextBlock
+                    Grid.Row="3"
+                    Grid.Column="0"
+                    Margin="0,2,5,2"
+                    HorizontalAlignment="Right">
+                    RLC порт
+                </TextBlock>
+                <TextBox
+                    Grid.Row="3"
+                    Grid.Column="1"
+                    Margin="0,2"
+                    Text="{Binding RLCProjectController.CurrentProject.RlcPort}" />
 
-                <TextBlock Grid.Column="0" Grid.Row="5" HorizontalAlignment="Right" Margin="0, 2, 5, 2">Саундтрек</TextBlock>
-                <Grid Grid.Column="1" Grid.Row="5" Margin="0, 2">
+                <TextBlock
+                    Grid.Row="4"
+                    Grid.Column="0"
+                    Margin="0,2,5,2"
+                    HorizontalAlignment="Right">
+                    SNTP порт
+                </TextBlock>
+                <TextBox
+                    Grid.Row="4"
+                    Grid.Column="1"
+                    Margin="0,2"
+                    Text="{Binding RLCProjectController.CurrentProject.SntpPort}" />
+
+                <TextBlock
+                    Grid.Row="5"
+                    Grid.Column="0"
+                    Margin="0,2,5,2"
+                    HorizontalAlignment="Right">
+                    Саундтрек
+                </TextBlock>
+                <Grid
+                    Grid.Row="5"
+                    Grid.Column="1"
+                    Margin="0,2">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="auto"/>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="auto" />
                     </Grid.ColumnDefinitions>
-                    <TextBox Grid.Column="0" 
+                    <TextBox
+                        Grid.Column="0"
                         HorizontalAlignment="Stretch"
                         IsReadOnly="True"
-                        Text="{Binding RLCProjectController.CurrentProject.SoundtrackFileName}"/>
-                    <Button Grid.Column="1"                            
-                            Margin="2, 0, 0, 0" 
-                            Padding="5, 0, 5, 0"
-                            Content="..."
-                            Command="{Binding AddAudioTrackCommand}"/>
+                        Text="{Binding RLCProjectController.CurrentProject.SoundtrackFileName}" />
+                    <Button
+                        Grid.Column="1"
+                        Margin="2,0,0,0"
+                        Padding="5,0,5,0"
+                        Command="{Binding AddAudioTrackCommand}"
+                        Content="..." />
                 </Grid>
             </Grid>
         </GroupBox>

@@ -3,12 +3,12 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:ext="clr-namespace:RLCServerApplication.Extensions"
     xmlns:local="clr-namespace:RLCServerApplication.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:model="clr-namespace:RLCCore;assembly=Core"
     xmlns:vm="clr-namespace:RLCServerApplication.ViewModels"
     xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
-    xmlns:ext="clr-namespace:RLCServerApplication.Extensions"
     d:DataContext="{d:DesignInstance vm:RemoteClientEditViewModel}"
     d:DesignHeight="400"
     d:DesignWidth="410"
@@ -20,7 +20,12 @@
 
         <ControlTemplate x:Key="validationFailed">
             <StackPanel Orientation="Horizontal">
-                <TextBlock Foreground="Red" FontWeight="Bold" VerticalAlignment="Center">!</TextBlock>
+                <TextBlock
+                    VerticalAlignment="Center"
+                    FontWeight="Bold"
+                    Foreground="Red">
+                    !
+                </TextBlock>
                 <Border BorderBrush="Violet" BorderThickness="2">
                     <AdornedElementPlaceholder />
                 </Border>
@@ -29,7 +34,7 @@
     </UserControl.Resources>
 
     <StackPanel>
-        <!--Номер и имя-->
+        <!--  Номер и имя  -->
         <Grid Margin="3">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="auto" />
@@ -38,73 +43,69 @@
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
 
-            <!--Номер-->
+            <!--  Номер  -->
             <TextBlock
-                    Grid.Row="0"
-                    Grid.Column="0"
-                    Margin="3"
-                    HorizontalAlignment="Right"
-                    VerticalAlignment="Center"
-                    Text="Номер"/>
+                Grid.Row="0"
+                Grid.Column="0"
+                Margin="3"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Center"
+                Text="Номер" />
             <TextBox
-                    Grid.Row="0"
-                    Grid.Column="1"
-                    Margin="3"
-                    MinWidth="30"
-                    VerticalAlignment="Center"
-                    Text="{Binding RemoteClientEditModel.Number, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}"
-                    Style="{StaticResource errorToolTipStyle}"
-                />
+                Grid.Row="0"
+                Grid.Column="1"
+                MinWidth="30"
+                Margin="3"
+                VerticalAlignment="Center"
+                Style="{StaticResource errorToolTipStyle}"
+                Text="{Binding RemoteClientEditModel.Number, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}" />
 
-            <!--Имя-->
+            <!--  Имя  -->
             <TextBlock
-                    Grid.Row="0"
-                    Grid.Column="2"
-                    Margin="3"
-                    HorizontalAlignment="Right"
-                    VerticalAlignment="Center"
-                    Text="Имя"/>
+                Grid.Row="0"
+                Grid.Column="2"
+                Margin="3"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Center"
+                Text="Имя" />
             <TextBox
-                    Grid.Row="0"
-                    Grid.Column="3"
-                    Margin="3"
-                    HorizontalAlignment="Stretch"
-                    VerticalAlignment="Center"
-                    Text="{Binding RemoteClientEditModel.Name, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}"
-                    Style="{StaticResource errorToolTipStyle}"
-                />
+                Grid.Row="0"
+                Grid.Column="3"
+                Margin="3"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Center"
+                Style="{StaticResource errorToolTipStyle}"
+                Text="{Binding RemoteClientEditModel.Name, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}" />
         </Grid>
 
-        <!--Микроконтроллер-->
+        <!--  Микроконтроллер  -->
         <Grid Margin="3">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="auto"/>
-                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="auto" />
+                <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
             <TextBlock
-                    Grid.Row="0"
-                    Grid.Column="0"
-                    Margin="3"
-                    HorizontalAlignment="Right"
-                    VerticalAlignment="Center"
-                    Text="Микроконтроллер"/>
+                Grid.Row="0"
+                Grid.Column="0"
+                Margin="3"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Center"
+                Text="Микроконтроллер" />
 
-            <xctk:WatermarkComboBox x:Name="ComboBox" 
-                      Grid.Row="0"
-                      Grid.Column="1" 
-                      Width="250" 
-                      ItemsSource="{Binding RemoteClientEditModel.AvailableMicrocontrollers, Mode=OneWay}"
-                      DisplayMemberPath="Name"
-                      Watermark="Выбрать микроконтроллер"
-                      SelectedItem="{Binding
-                RemoteClientEditModel.MicrocontrollerUnit.Microcontroller,
-                Mode=TwoWay, 
-                ValidatesOnNotifyDataErrors=True}"
-                      Style="{StaticResource errorToolTipStyle}"/>
+            <xctk:WatermarkComboBox
+                x:Name="ComboBox"
+                Grid.Row="0"
+                Grid.Column="1"
+                Width="250"
+                DisplayMemberPath="Name"
+                ItemsSource="{Binding RemoteClientEditModel.AvailableMicrocontrollers, Mode=OneWay}"
+                SelectedItem="{Binding RemoteClientEditModel.MicrocontrollerUnit.Microcontroller, Mode=TwoWay, ValidatesOnNotifyDataErrors=True}"
+                Style="{StaticResource errorToolTipStyle}"
+                Watermark="Выбрать микроконтроллер" />
         </Grid>
 
-        <!--Циклограмма-->
-        <GroupBox Header="Циклограмма" Margin="3">
+        <!--  Циклограмма  -->
+        <GroupBox Margin="3" Header="Циклограмма">
             <StackPanel>
                 <TextBlock
                     Grid.Row="2"
@@ -113,51 +114,52 @@
                     Foreground="ForestGreen"
                     Text="Имеется сконвертированная циклограмма"
                     TextWrapping="Wrap"
-                    Visibility="{Binding CyclogrammViewModel.ConvertedCyclogrammExists, Converter={StaticResource booleanToVisibilityConverter}, Mode=OneWay, UpdateSourceTrigger=LostFocus}" 
-                />
+                    Visibility="{Binding CyclogrammViewModel.ConvertedCyclogrammExists, Converter={StaticResource booleanToVisibilityConverter}, Mode=OneWay, UpdateSourceTrigger=LostFocus}" />
 
                 <Grid Grid.Row="0">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="auto"/>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="auto" />
                     </Grid.ColumnDefinitions>
-                    <TextBox Grid.Column="0"
-                             HorizontalAlignment="Stretch"
-                             IsReadOnly="True"
-                             Text="{Binding RemoteClientEditModel.UnconvertedCyclogrammFile, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}"
-                             Style="{StaticResource errorToolTipStyle}"
-                    />
-                    <Button 
-                        Grid.Column="1" 
-                        Margin="2, 0, 0, 0" 
-                        Padding="5, 0, 5, 0"
-                        Content="..."
+                    <TextBox
+                        Grid.Column="0"
+                        HorizontalAlignment="Stretch"
+                        IsReadOnly="True"
+                        Style="{StaticResource errorToolTipStyle}"
+                        Text="{Binding RemoteClientEditModel.UnconvertedCyclogrammFile, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}" />
+                    <Button
+                        Grid.Column="1"
+                        Margin="2,0,0,0"
+                        Padding="5,0,5,0"
                         Command="{Binding SelectCyclogrammFileCommand}"
-                    />
+                        Content="..." />
                 </Grid>
             </StackPanel>
         </GroupBox>
 
-        <!--Выходы-->
-        <GroupBox Header="Выходы" Margin="3" Visibility="Collapsed">
+        <!--  Выходы  -->
+        <GroupBox
+            Margin="3"
+            Header="Выходы"
+            Visibility="Collapsed">
             <TextBlock>[Holder] Для настройки выходов</TextBlock>
         </GroupBox>
-            
-        <!--Заряд аккумулятора-->
-        <GroupBox Header="Заряд аккумулятора" Margin="3">
+
+        <!--  Заряд аккумулятора  -->
+        <GroupBox Margin="3" Header="Заряд аккумулятора">
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="auto"/>
-                    <ColumnDefinition Width="auto"/>
-                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="auto" />
+                    <ColumnDefinition Width="auto" />
+                    <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="auto"/>
-                    <RowDefinition Height="auto"/>
-                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="auto" />
+                    <RowDefinition Height="auto" />
+                    <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
 
-                <!--Zero charge-->
+                <!--  Zero charge  -->
                 <TextBlock
                     Grid.Row="0"
                     Grid.Column="0"
@@ -181,17 +183,17 @@
                         Margin="3"
                         ext:InputBindingsManager.UpdatePropertySourceWhenEnterPressed="TextBox.Text"
                         Text="{Binding RemoteClientEditModel.MicrocontrollerUnit.ZeroCharge}" />
-                    <TextBlock 
-                        Grid.Column="1" 
+                    <TextBlock
+                        Grid.Column="1"
                         Margin="3"
                         Text="{Binding RemoteClientEditModel.MicrocontrollerUnit.FullCharge, Mode=OneWay, StringFormat='{}0 ... {0}'}" />
                 </Grid>
 
-                <!--Full charge-->
+                <!--  Full charge  -->
                 <TextBlock
                     Grid.Row="1"
                     Grid.Column="0"
-                    Margin="3"                        
+                    Margin="3"
                     HorizontalAlignment="Right"
                     VerticalAlignment="Center"
                     Text="100%"
@@ -212,37 +214,37 @@
                         ext:InputBindingsManager.UpdatePropertySourceWhenEnterPressed="TextBox.Text"
                         Text="{Binding RemoteClientEditModel.MicrocontrollerUnit.FullCharge}" />
                     <TextBlock
-                        Grid.Column="1" 
+                        Grid.Column="1"
                         Margin="3"
                         Text="{Binding RemoteClientEditModel.MicrocontrollerUnit.ZeroCharge, Mode=OneWay, StringFormat='{}{0} ... 1024'}" />
                 </Grid>
             </Grid>
         </GroupBox>
 
-        <!--Дополнительные параметры-->
-        <GroupBox Header="Дополнительные настройки" Margin="3">
+        <!--  Дополнительные параметры  -->
+        <GroupBox Margin="3" Header="Дополнительные настройки">
             <Grid>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="auto"/>
-                    <RowDefinition Height="auto"/>
-                    <RowDefinition Height="auto"/>
-                    <RowDefinition Height="auto"/>
-                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="auto" />
+                    <RowDefinition Height="auto" />
+                    <RowDefinition Height="auto" />
+                    <RowDefinition Height="auto" />
+                    <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
 
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="auto"/>
-                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="auto" />
+                    <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
 
-                <!--LED яркость-->
+                <!--  LED яркость  -->
                 <TextBlock
                     Grid.Row="0"
                     Grid.Column="0"
                     Margin="3"
                     HorizontalAlignment="Right"
                     VerticalAlignment="Center"
-                    Text="LED яркость"/>
+                    Text="LED яркость" />
 
                 <Grid Grid.Row="0" Grid.Column="1">
                     <Grid.ColumnDefinitions>
@@ -270,7 +272,7 @@
                         Value="{Binding RemoteClientEditModel.SPILedGlobalBrightnessPercent, Mode=TwoWay}" />
                 </Grid>
 
-                <!--Цифровой сигнал-->
+                <!--  Цифровой сигнал  -->
                 <CheckBox
                     Grid.Row="1"
                     Grid.Column="0"
@@ -283,7 +285,7 @@
                     </CheckBox.Content>
                 </CheckBox>
 
-                <!--Инвернтированный сигнал-->
+                <!--  Инвернтированный сигнал  -->
                 <CheckBox
                     Grid.Row="2"
                     Grid.Column="0"
@@ -296,7 +298,7 @@
                     </CheckBox.Content>
                 </CheckBox>
 
-                <!--Свечение по умолчанию-->
+                <!--  Свечение по умолчанию  -->
                 <CheckBox
                     Grid.Row="3"
                     Grid.Column="0"
@@ -311,10 +313,8 @@
             </Grid>
         </GroupBox>
 
-        <!--Кнопки-->
-        <Grid
-            Margin="0,5"
-            HorizontalAlignment="Right">
+        <!--  Кнопки  -->
+        <Grid Margin="0,5" HorizontalAlignment="Right">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition />
                 <ColumnDefinition />
