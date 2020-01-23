@@ -231,13 +231,13 @@ namespace RLCCore
             SaveController.Create();
         }
 
-        public void LoadProject(Stream loadStream)
+        public void LoadProject(string loadFilePath)
         {
-            if(loadStream is null) {
-                throw new ArgumentNullException(nameof(loadStream));
+            if(string.IsNullOrWhiteSpace(loadFilePath)) {
+                throw new ArgumentNullException(nameof(loadFilePath));
             }
 
-            RemoteControlProject project = SaveController.Load(loadStream);
+            RemoteControlProject project = SaveController.Load(loadFilePath);
             CurrentProject = project;
         }
 
@@ -247,9 +247,9 @@ namespace RLCCore
             SaveController.Save(CurrentProject);
         }
 
-        public void SaveProjectAs(Stream saveStream)
+        public void SaveProjectAs(string saveFile)
         {
-            SaveController.SaveAs(saveStream, CurrentProject);
+            SaveController.SaveAs(saveFile, CurrentProject);
         }
 
         public void Dispose()

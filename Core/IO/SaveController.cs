@@ -15,10 +15,9 @@ namespace Core.IO
 
         private const string projectFileName = "Project.rlc";
 
-        Stream safeStream;
+        private string currentSaveFile = "";
 
-        public bool NeedSelectSavePath => safeStream == null;
-
+        public bool NeedSelectSavePath => string.IsNullOrWhiteSpace(currentSaveFile) || !File.Exists(currentSaveFile);
 
         public string WorkDirectory { get; private set; }
         private string workFilePath;
@@ -114,16 +113,22 @@ namespace Core.IO
                 }
                 fileStream.SetLength(0);
             }
-            if(safeStream != null) {
-                safeStream.Dispose();
-                safeStream = null;
-            }
+            currentSaveFile = null;
         }
 
-        public RemoteControlProject Load(Stream loadStream)
+        public RemoteControlProject Load(string loadFilePath)
         {
+            if(string.IsNullOrWhiteSpace(loadFilePath)) {
+                throw new ArgumentNullException(nameof(loadFilePath));
+            }
+            if(!File.Exists(loadFilePath)) {
+                throw new ArgumentException($"Такого файла не существует: {loadFilePath}");
+            }
+
+            currentSaveFile = loadFilePath;
+
             CreateWorkDirectory();
-            ZipUtility.ExtractZipFile(loadStream, WorkDirectory);
+            ZipUtility.ExtractZipFile(currentSaveFile, WorkDirectory);
 
             string projectFilePath = Path.Combine(WorkDirectory, projectFileName);
             string projectContent;
@@ -131,18 +136,14 @@ namespace Core.IO
             using(StreamReader sr = new StreamReader(stream)) { 
                 projectContent = sr.ReadToEnd();
             }
-            RemoteControlProject project = JsonConvert.DeserializeObject<RemoteControlProject>(projectContent);
-            if(safeStream != null) {
-                safeStream.Dispose();
-            }
-            safeStream = loadStream;
+            RemoteControlProject project = JsonConvert.DeserializeObject<RemoteControlProject>(projectContent);            
             return project;
         }
 
-        public void SaveAs(Stream safeStream, RemoteControlProject project)
+        public void SaveAs(string saveFilePath, RemoteControlProject project)
         {
-            if(safeStream is null) {
-                throw new ArgumentNullException(nameof(safeStream));
+            if(string.IsNullOrWhiteSpace(saveFilePath)) {
+                throw new ArgumentNullException(nameof(saveFilePath));
             }
 
             if(project is null) {
@@ -154,19 +155,18 @@ namespace Core.IO
                 stream.SetLength(0);
                 sw.Write(JsonConvert.SerializeObject(project));
             }
-            safeStream.SetLength(0);
-            ZipUtility.ZipFolder(safeStream, WorkDirectory);
-            if(this.safeStream != null && this.safeStream != safeStream) {
-                this.safeStream.Dispose();
-            }
-            this.safeStream = safeStream;
+
+            ZipUtility.ZipFolder(saveFilePath, WorkDirectory);
+
+            currentSaveFile = saveFilePath;
         }
 
         public void Save(RemoteControlProject project)
         {
-            if(safeStream != null) {
-                SaveAs(safeStream, project);
+            if(string.IsNullOrWhiteSpace(currentSaveFile)) {
+                throw new InvalidOperationException($"Не выбран файл сохранения");
             }
+            SaveAs(currentSaveFile, project);
         }
     }
 }

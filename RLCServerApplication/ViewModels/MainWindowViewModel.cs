@@ -480,7 +480,7 @@ namespace RLCServerApplication.ViewModels
                     dlg.CreatePrompt = true;
                     if(dlg.ShowDialog() == true) {
                         //Stream сохраняется, не закрывать
-                        ProjectController.SaveProjectAs(new FileStream(dlg.FileName, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.Read));
+                        ProjectController.SaveProjectAs(dlg.FileName);
                         MessageBox.Show("Сохранено");
                     }
                 },
@@ -510,8 +510,7 @@ namespace RLCServerApplication.ViewModels
                     dlg.CheckPathExists = true;
                     dlg.Multiselect = false;
                     if(dlg.ShowDialog() == true) {
-                        //Stream сохраняется, не закрывать
-                        ProjectController.LoadProject(new FileStream(dlg.FileName, FileMode.Open, FileAccess.ReadWrite, FileShare.Read));
+                        ProjectController.LoadProject(dlg.FileName);
                         ReloadAudioTrack();
                     }
                 },

@@ -1,6 +1,6 @@
-﻿using System.IO;
-using ICSharpCode.SharpZipLib.Core;
+﻿using ICSharpCode.SharpZipLib.Core;
 using ICSharpCode.SharpZipLib.Zip;
+using System.IO;
 
 namespace Core.IO
 {
@@ -8,19 +8,22 @@ namespace Core.IO
     {
         // Compresses the files in the nominated folder, and creates a zip file 
         // on disk named as outPathname.
-        public static void ZipFolder(Stream outputFile, string folderName)
+        public static void ZipFolder(string filePath, string folderName)
         {
-            var zipStream = new ZipOutputStream(outputFile);
-            zipStream.SetLevel(0);
-            // This setting will strip the leading part of the folder path in the entries, 
-            // to make the entries relative to the starting folder.
-            // To include the full path for each entry up to the drive root, assign to 0.
-            int folderOffset = folderName.Length + (folderName.EndsWith("\\") ? 0 : 1);
+            using(var zipFile = new FileStream(filePath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None))
+            using(var zipStream = new ZipOutputStream(zipFile)) {
+                zipFile.SetLength(0);
+                zipStream.SetLevel(0);
+                // This setting will strip the leading part of the folder path in the entries, 
+                // to make the entries relative to the starting folder.
+                // To include the full path for each entry up to the drive root, assign to 0.
+                int folderOffset = folderName.Length + (folderName.EndsWith("\\") ? 0 : 1);
 
-            CompressFolder(folderName, zipStream, folderOffset);
-            zipStream.Finish();
+                CompressFolder(folderName, zipStream, folderOffset);
+                zipStream.Finish();
+            }
         }
-        
+
 
         // Recursively compresses a folder structure
         private static void CompressFolder(string path, ZipOutputStream zipStream, int folderOffset)
@@ -74,9 +77,9 @@ namespace Core.IO
             }
         }
 
-        public static void ExtractZipFile(Stream archiveStream, string outFolder)
+        public static void ExtractZipFile(string filePath, string outFolder)
         {
-            using(ZipFile zf = new ZipFile(archiveStream, true)) {
+            using(ZipFile zf = new ZipFile(filePath)) {
                 foreach(ZipEntry zipEntry in zf) {
                     if(!zipEntry.IsFile) {
                         // Ignore directories
