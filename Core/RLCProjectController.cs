@@ -71,7 +71,6 @@ namespace RLCCore
         {
             WorkMode = ProjectWorkModes.Setup;
             NetworkController = networkController ?? throw new ArgumentNullException(nameof(networkController));
-
             FileHolder = new FileHolder();
             SaveController = new SaveController();
             SaveController.ClearTempFolder();

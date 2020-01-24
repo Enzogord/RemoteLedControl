@@ -2,8 +2,10 @@
 using Autofac;
 using Core;
 using Core.IO;
+using Core.Services.UserDialog;
 using RLCCore;
 using RLCCore.Settings;
+using RLCServerApplication.Services;
 using RLCServerApplication.ViewModels;
 
 namespace RLCServerApplication
@@ -34,6 +36,7 @@ namespace RLCServerApplication
             builder.RegisterType<MainWindowViewModel>().InstancePerLifetimeScope();
             builder.RegisterType<SequencePlayer>().InstancePerLifetimeScope();
             builder.RegisterType<RemovableDrivesProvider>().SingleInstance();
+            builder.RegisterType<UserDialogService>().As<IUserDialogService>().SingleInstance();
             builder.RegisterType<RLCProjectController>().InstancePerLifetimeScope();
             builder.RegisterType<NetworkController>().InstancePerLifetimeScope();
 
