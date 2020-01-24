@@ -92,6 +92,8 @@
     <Compile Include="Domain\Cyclogramm.cs" />
     <Compile Include="Exceptions\ExceptionsHelper.cs" />
     <Compile Include="Serialization\ISettingsProvider.cs" />
+    <Compile Include="Services\FileDialog\IOpenFileService.cs" />
+    <Compile Include="Services\FileDialog\ISaveFileService.cs" />
     <Compile Include="Services\UserDialog\IUserDialogService.cs" />
     <Compile Include="Services\UserDialog\UserDialogActions.cs" />
     <Compile Include="Services\UserDialog\UserDialogInformationLevel.cs" />

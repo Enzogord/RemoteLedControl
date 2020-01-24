@@ -1,5 +1,6 @@
 ﻿using Core;
 using Core.IO;
+using Core.Services.FileDialog;
 using RLCCore;
 using RLCCore.RemoteOperations;
 using RLCServerApplication.Infrastructure;
@@ -31,11 +32,12 @@ namespace RLCServerApplication.ViewModels
 
         public bool CanEdit => ProjectController.WorkMode == ProjectWorkModes.Setup;
 
-        public MainWindowViewModel(RLCProjectController projectController, SequencePlayer player, RemovableDrivesProvider removableDrivesProvider)
+        public MainWindowViewModel(RLCProjectController projectController, SequencePlayer player, RemovableDrivesProvider removableDrivesProvider, ISaveFileService saveFileService)
         {
             ProjectController = projectController ?? throw new ArgumentNullException(nameof(projectController));
             Player = player ?? throw new ArgumentNullException(nameof(player));
             this.removableDrivesProvider = removableDrivesProvider ?? throw new ArgumentNullException(nameof(removableDrivesProvider));
+            this.saveFileService = saveFileService ?? throw new ArgumentNullException(nameof(saveFileService));
             SettingsViewModel = new SettingsViewModel(ProjectController, player);
             RemoteClientsViewModel = new RemoteClientsViewModel(ProjectController, removableDrivesProvider);
             ProjectController.TimeProvider = Player;
@@ -172,6 +174,7 @@ namespace RLCServerApplication.ViewModels
 
         private TimeSpan playFromTime;
         private readonly RemovableDrivesProvider removableDrivesProvider;
+        private readonly ISaveFileService saveFileService;
 
         public TimeSpan PlayFromTime {
             get => playFromTime;
@@ -472,17 +475,14 @@ namespace RLCServerApplication.ViewModels
         {
             SaveAsCommand = new DelegateCommand(
                 () => {
-                    //FIXME убрать зависимоть от диалога
-                    
-                    Microsoft.Win32.SaveFileDialog dlg = new Microsoft.Win32.SaveFileDialog();
-                    dlg.DefaultExt = ".rlcsave";
-                    dlg.Filter = "RemoteLedControl save file|*.rlcsave";
-                    dlg.CreatePrompt = true;
-                    if(dlg.ShowDialog() == true) {
-                        //Stream сохраняется, не закрывать
-                        ProjectController.SaveProjectAs(dlg.FileName);
-                        MessageBox.Show("Сохранено");
+                    string filter = "RemoteLedControl save file|*.rlcsave";
+                    string filePath = saveFileService.SaveFile(filter, "Сохранение проекта", ".rlcsave", true, true, true);
+                    if(string.IsNullOrWhiteSpace(filePath)) {
+                        return;
                     }
+
+                    ProjectController.SaveProjectAs(filePath);
+                    MessageBox.Show("Сохранено");
                 },
                 () => {
                     return ProjectController.WorkMode == ProjectWorkModes.Setup && ProjectController.CurrentProject != null;

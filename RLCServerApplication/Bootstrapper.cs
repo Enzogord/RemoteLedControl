@@ -2,6 +2,7 @@
 using Autofac;
 using Core;
 using Core.IO;
+using Core.Services.FileDialog;
 using Core.Services.UserDialog;
 using RLCCore;
 using RLCCore.Settings;
@@ -37,6 +38,10 @@ namespace RLCServerApplication
             builder.RegisterType<SequencePlayer>().InstancePerLifetimeScope();
             builder.RegisterType<RemovableDrivesProvider>().SingleInstance();
             builder.RegisterType<UserDialogService>().As<IUserDialogService>().SingleInstance();
+            builder.RegisterType<FileDialogService>()
+                .As<IOpenFileService>()
+                .As<ISaveFileService>()
+                .SingleInstance();
             builder.RegisterType<RLCProjectController>().InstancePerLifetimeScope();
             builder.RegisterType<NetworkController>().InstancePerLifetimeScope();
 

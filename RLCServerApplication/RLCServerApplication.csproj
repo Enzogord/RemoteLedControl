@@ -106,6 +106,7 @@
     <Compile Include="Infrastructure\Command\DelegateCommandGeneric.cs" />
     <Compile Include="Infrastructure\Command\PropertySubscribedCommandBase.cs" />
     <Compile Include="Infrastructure\ViewModelBase.cs" />
+    <Compile Include="Services\FileDialogService.cs" />
     <Compile Include="Services\UserDialogService.cs" />
     <Compile Include="ViewModels\CyclogrammViewModel.cs" />
     <Compile Include="ViewModels\MainWindowViewModel.cs" />
