@@ -212,8 +212,8 @@ namespace RLCCore
         {
             byte[] bytes = new byte[4];
 
-            Random Rand = new Random();
-            Rand.NextBytes(bytes);
+            Random rand = new Random();
+            rand.NextBytes(bytes);
 
             return (uint)((bytes[0] << 24) + (bytes[1] << 16) + (bytes[2] << 8) + (bytes[3] << 0));
         }
