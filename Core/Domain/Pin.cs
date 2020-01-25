@@ -12,7 +12,7 @@ namespace RLCCore.Domain
         [Display(Name = "Номер пина")]
         public byte PinNumber {
             get => pinNumber;
-            set => SetField(ref pinNumber, value, () => PinNumber);
+            set => SetField(ref pinNumber, value);
         }
 
         private int ledCount;
@@ -20,7 +20,7 @@ namespace RLCCore.Domain
         [Display(Name = "Количество светодиодов")]
         public int LEDCount {
             get => ledCount;
-            set => SetField(ref ledCount, value, () => LEDCount);
+            set => SetField(ref ledCount, value);
         }
 
         public Pin(byte pin, ushort ledCount)

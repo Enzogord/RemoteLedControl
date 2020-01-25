@@ -25,7 +25,7 @@ namespace RLCServerApplication.ViewModels
         private bool editable;
         public bool Editable {
             get => editable;
-            private set => SetField(ref editable, value, () => Editable);
+            private set => SetField(ref editable, value);
         }
 
         public bool ConvertedCyclogrammExists {

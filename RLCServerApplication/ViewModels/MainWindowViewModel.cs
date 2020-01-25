@@ -21,13 +21,13 @@ namespace RLCServerApplication.ViewModels
         private SettingsViewModel settingsViewModel;
         public SettingsViewModel SettingsViewModel {
             get => settingsViewModel;
-            set => SetField(ref settingsViewModel, value, () => SettingsViewModel);
+            set => SetField(ref settingsViewModel, value);
         }
 
         private RemoteClientsViewModel remoteClientsViewModel;
         public RemoteClientsViewModel RemoteClientsViewModel {
             get => remoteClientsViewModel;
-            set => SetField(ref remoteClientsViewModel, value, () => RemoteClientsViewModel);
+            set => SetField(ref remoteClientsViewModel, value);
         }
 
         public bool CanEdit => ProjectController.WorkMode == ProjectWorkModes.Setup;
@@ -178,7 +178,7 @@ namespace RLCServerApplication.ViewModels
 
         public TimeSpan PlayFromTime {
             get => playFromTime;
-            set => SetField(ref playFromTime, value, () => PlayFromTime);
+            set => SetField(ref playFromTime, value);
         }
 
         public DelegateCommand PlayFromButtonCommand { get; private set; }
@@ -538,9 +538,9 @@ namespace RLCServerApplication.ViewModels
 
         private void UpdateWorkModeProperties()
         {
-            OnPropertyChanged(() => IsSetupMode);
-            OnPropertyChanged(() => IsTestMode);
-            OnPropertyChanged(() => IsWorkMode);
+            OnPropertyChanged(nameof(IsSetupMode));
+            OnPropertyChanged(nameof(IsTestMode));
+            OnPropertyChanged(nameof(IsWorkMode));
         }
 
         private void UpdatePlayerCommands()

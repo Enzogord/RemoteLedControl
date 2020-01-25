@@ -13,7 +13,7 @@ namespace CyclogrammConverter
         public string InputCyclogrammFileName {
             get => inputCyclogrammFileName;
             set {
-                SetField(ref inputCyclogrammFileName, value, () => InputCyclogrammFileName);
+                SetField(ref inputCyclogrammFileName, value);
                 ConvertCommand.RaiseCanExecuteChanged();
             }
         }
@@ -22,7 +22,7 @@ namespace CyclogrammConverter
         public string OutputCyclogrammFileName {
             get => outputCyclogrammFileName;
             set {
-                SetField(ref outputCyclogrammFileName, value, () => OutputCyclogrammFileName);
+                SetField(ref outputCyclogrammFileName, value);
                 ConvertCommand.RaiseCanExecuteChanged();
             }
         }
@@ -31,7 +31,7 @@ namespace CyclogrammConverter
         public bool InProgress {
             get => inProgress;
             set {
-                SetField(ref inProgress, value, () => InProgress);
+                SetField(ref inProgress, value);
                 ConvertCommand.RaiseCanExecuteChanged();
             }
         }
@@ -39,7 +39,7 @@ namespace CyclogrammConverter
         private byte percent;
         public byte Percent {
             get => percent;
-            set => SetField(ref percent, value, () => Percent);
+            set => SetField(ref percent, value);
         }
 
 

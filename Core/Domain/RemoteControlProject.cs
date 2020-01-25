@@ -24,7 +24,7 @@ namespace RLCCore.Domain
         [Display(Name = "Ключ")]
         public uint Key {
             get => key;
-            set => SetField(ref key, value, () => Key);
+            set => SetField(ref key, value);
         }
 
         private string wifiSSID;
@@ -32,7 +32,7 @@ namespace RLCCore.Domain
         [Display(Name = "Wifi SSID")]
         public string WifiSSID {
             get => wifiSSID;
-            set => SetField(ref wifiSSID, value, () => WifiSSID);
+            set => SetField(ref wifiSSID, value);
         }
 
         private string wifiPassword;
@@ -40,7 +40,7 @@ namespace RLCCore.Domain
         [Display(Name = "Wifi password")]
         public string WifiPassword {
             get => wifiPassword;
-            set => SetField(ref wifiPassword, value, () => WifiPassword);
+            set => SetField(ref wifiPassword, value);
         }
 
         private int rlcPort = defaultRlcPort;
@@ -48,7 +48,7 @@ namespace RLCCore.Domain
         [Display(Name = "RLC Port")]
         public int RlcPort {
             get => rlcPort;
-            set => SetField(ref rlcPort, value, () => RlcPort);
+            set => SetField(ref rlcPort, value);
         }
 
         private int sntpPort = defaultSntpPort;
@@ -56,7 +56,7 @@ namespace RLCCore.Domain
         [Display(Name = "SNTP Port")]
         public int SntpPort {
             get => sntpPort;
-            set => SetField(ref sntpPort, value, () => SntpPort);
+            set => SetField(ref sntpPort, value);
         }
 
         private string clientsConfigFileName;
@@ -64,7 +64,7 @@ namespace RLCCore.Domain
         [Display(Name = "Имя файла конфигурации")]
         public string ClientsConfigFileName {
             get => clientsConfigFileName;
-            set => SetField(ref clientsConfigFileName, value, () => ClientsConfigFileName);
+            set => SetField(ref clientsConfigFileName, value);
         }
 
         private ObservableCollection<RemoteClient> clients;
@@ -72,7 +72,7 @@ namespace RLCCore.Domain
         [Display(Name = "Клиенты")]
         public ObservableCollection<RemoteClient> Clients {
             get => clients;
-            set => SetField(ref clients, value, () => Clients);
+            set => SetField(ref clients, value);
         }
 
         private byte[] audioFile;
@@ -80,14 +80,14 @@ namespace RLCCore.Domain
         [Display(Name = "Аудиофайл")]
         public byte[] AudioFile {
             get => audioFile;
-            set => SetField(ref audioFile, value, () => AudioFile);
+            set => SetField(ref audioFile, value);
         }
 
         private string soundtrackFileName;
         [DataMember]
         public string SoundtrackFileName {
             get => soundtrackFileName;
-            set => SetField(ref soundtrackFileName, value, () => SoundtrackFileName);
+            set => SetField(ref soundtrackFileName, value);
         }
 
         [Obsolete("Для поддержки на момент перехода к новой версии")]

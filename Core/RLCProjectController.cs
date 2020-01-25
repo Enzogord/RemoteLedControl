@@ -28,7 +28,7 @@ namespace RLCCore
         public ProjectWorkModes WorkMode {
             get => workMode;
             set {
-                SetField(ref workMode, value, () => WorkMode);
+                SetField(ref workMode, value);
                 OnPropertyChanged(nameof(CanCreateNewProject));
             }
         }
@@ -36,31 +36,31 @@ namespace RLCCore
         private NetworkController networkController;
         public NetworkController NetworkController {
             get => networkController;
-            private set => SetField(ref networkController, value, () => NetworkController);
+            private set => SetField(ref networkController, value);
         }
         
         private RemoteControlProject currentProject;
         public RemoteControlProject CurrentProject {
             get => currentProject;
-            set => SetField(ref currentProject, value, () => CurrentProject);
+            set => SetField(ref currentProject, value);
         }
 
         private bool servicesIsReady;
         public bool ServicesIsReady {
             get => servicesIsReady;
-            set => SetField(ref servicesIsReady, value, () => ServicesIsReady);
+            set => SetField(ref servicesIsReady, value);
         }
 
         private RemoteClientsOperator remoteClientsOperator;
         public RemoteClientsOperator RemoteClientsOperator {
             get => remoteClientsOperator;
-            private set => SetField(ref remoteClientsOperator, value, () => RemoteClientsOperator);
+            private set => SetField(ref remoteClientsOperator, value);
         }
 
         private ISequenceTimeProvider timeProvider;
         public ISequenceTimeProvider TimeProvider {
             get => timeProvider;
-            set => SetField(ref timeProvider, value, () => TimeProvider);
+            set => SetField(ref timeProvider, value);
         }
 
         private SntpService sntpService;

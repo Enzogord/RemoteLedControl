@@ -22,42 +22,42 @@ namespace RLCCore.Domain
         [DataMember]
         public string Name {
             get => name;
-            set => SetField(ref name, value, () => Name);
+            set => SetField(ref name, value);
         }
 
         private int number;
         [DataMember]
         public int Number {
             get => number;
-            set => SetField(ref number, value, () => Number);
+            set => SetField(ref number, value);
         }
 
         private bool isDigitalPWMSignal;
         [DataMember]
         public bool IsDigitalPWMSignal {
             get => isDigitalPWMSignal;
-            set => SetField(ref isDigitalPWMSignal, value, () => IsDigitalPWMSignal);
+            set => SetField(ref isDigitalPWMSignal, value);
         }
 
         private bool isInvertedPWMSignal;
         [DataMember]
         public bool IsInvertedPWMSignal {
             get => isInvertedPWMSignal;
-            set => SetField(ref isInvertedPWMSignal, value, () => IsInvertedPWMSignal);
+            set => SetField(ref isInvertedPWMSignal, value);
         }
 
         private bool defaultLight;
         [DataMember]
         public bool DefaultLight {
             get => defaultLight;
-            set => SetField(ref defaultLight, value, () => DefaultLight);
+            set => SetField(ref defaultLight, value);
         }
 
         private byte spiLedGlobalBrightness;
         [DataMember]
         public byte SPILedGlobalBrightness {
             get => spiLedGlobalBrightness;
-            set => SetField(ref spiLedGlobalBrightness, value, () => SPILedGlobalBrightness);
+            set => SetField(ref spiLedGlobalBrightness, value);
         }
 
         public bool WaitPlayingStatus { get; set; }    
@@ -66,26 +66,26 @@ namespace RLCCore.Domain
         [DataMember]
         public Cyclogramm Cyclogramm {
             get => cyclogramm;
-            set => SetField(ref cyclogramm, value, () => Cyclogramm);
+            set => SetField(ref cyclogramm, value);
         }
 
         private MicrocontrollerUnit microcontrollerUnit;
         [DataMember]
         public MicrocontrollerUnit MicrocontrollerUnit {
             get => microcontrollerUnit;
-            set => SetField(ref microcontrollerUnit, value, () => MicrocontrollerUnit);
+            set => SetField(ref microcontrollerUnit, value);
         }
 
         private ClientState clientState;        
         public ClientState ClientState {
             get => clientState;
-            set => SetField(ref clientState, value, () => ClientState);
+            set => SetField(ref clientState, value);
         }
 
         private byte batteryChargeLevel;
         public byte BatteryChargeLevel {
             get => batteryChargeLevel;
-            set => SetField(ref batteryChargeLevel, value, () => BatteryChargeLevel);
+            set => SetField(ref batteryChargeLevel, value);
         }
 
         public void SetBatteryChargeLevel(ushort batteryChargeValue)
@@ -100,7 +100,7 @@ namespace RLCCore.Domain
             get => connection;
             set {
                 var oldConnection = connection;
-                if(SetField(ref connection, value, () => Connection)) {
+                if(SetField(ref connection, value)) {
                     if(oldConnection != null) {
                         oldConnection.OnChanged -= OldConnection_OnChanged;
                     }
@@ -123,8 +123,8 @@ namespace RLCCore.Domain
 
         private void UpdateConnectionsInfo()
         {
-            OnPropertyChanged(() => Connected);
-            OnPropertyChanged(() => IPAddress);
+            OnPropertyChanged(nameof(Connected));
+            OnPropertyChanged(nameof(IPAddress));
         }
 
         public RemoteClient(string name, int number)

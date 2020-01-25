@@ -146,7 +146,7 @@ namespace RLCServerApplication.ViewModels
         private CyclogrammViewModel cyclogrammViewModel;
         public CyclogrammViewModel CyclogrammViewModel {
             get => cyclogrammViewModel;
-            set => SetField(ref cyclogrammViewModel, value, () => CyclogrammViewModel);
+            set => SetField(ref cyclogrammViewModel, value);
         }
 
         private void LoadValues()

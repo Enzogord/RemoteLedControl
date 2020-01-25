@@ -24,13 +24,13 @@ namespace RLCCore.RemoteOperations
         private OperatorStates state;
         public OperatorStates State {
             get => state;
-            private set => SetField(ref state, value, () => State);
+            private set => SetField(ref state, value);
         }
 
         private ISequenceTimeProvider timeProvider;
         public ISequenceTimeProvider TimeProvider {
             get => timeProvider;
-            set => SetField(ref timeProvider, value, () => TimeProvider);
+            set => SetField(ref timeProvider, value);
         }
 
 

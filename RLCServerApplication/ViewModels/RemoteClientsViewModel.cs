@@ -36,7 +36,7 @@ namespace RLCServerApplication.ViewModels
         public RemoteClient SelectedClient {
             get => selectedClient;
             set {
-                if(SetField(ref selectedClient, value, () => SelectedClient)) {
+                if(SetField(ref selectedClient, value)) {
                     if(selectedClient == null) {
                         RemoteClientViewModel = null;
                     }
@@ -48,7 +48,7 @@ namespace RLCServerApplication.ViewModels
         private RemoteClientEditViewModel remoteClientViewModel;
         public RemoteClientEditViewModel RemoteClientViewModel {
             get => remoteClientViewModel;
-            set => SetField(ref remoteClientViewModel, value, () => RemoteClientViewModel);
+            set => SetField(ref remoteClientViewModel, value);
         }
 
         public IEnumerable<string> RemovableDrives => removableDrivesProvider.GetRemovebleDrives();
@@ -62,7 +62,7 @@ namespace RLCServerApplication.ViewModels
         public string SelectedRemovableDrive {
             get => selectedRemovableDrive;
             set {
-                SetField(ref selectedRemovableDrive, value, () => SelectedRemovableDrive);
+                SetField(ref selectedRemovableDrive, value);
                 ExportClientDataToSDCommand.RaiseCanExecuteChanged();
             }
         }

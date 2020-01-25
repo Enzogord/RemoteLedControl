@@ -17,7 +17,7 @@ namespace RLCCore.Domain
         private string filePath;
         public string FilePath {
             get => filePath;
-            set => SetField(ref filePath, value, () => FilePath);
+            set => SetField(ref filePath, value);
         }
     }
 }

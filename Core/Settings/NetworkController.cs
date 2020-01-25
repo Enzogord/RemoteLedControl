@@ -13,7 +13,7 @@ namespace RLCCore.Settings
         private bool editable;
         public bool Editable {
             get => editable;
-            set => SetField(ref editable, value, () => Editable);
+            set => SetField(ref editable, value);
         }
 
         private NetworkAddressSetting currentAddressSetting;
@@ -23,14 +23,14 @@ namespace RLCCore.Settings
                 if(!Editable) {
                     return;
                 }
-                SetField(ref currentAddressSetting, value, () => CurrentAddressSetting);
+                SetField(ref currentAddressSetting, value);
             }
         }
 
         private int port;
         public int Port {
             get => port;
-            set => SetField(ref port, value, () => Port);
+            set => SetField(ref port, value);
         }
 
         public IPAddress BroadcastIPAddress => IPAddress.Broadcast;
