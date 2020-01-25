@@ -476,7 +476,7 @@ namespace RLCServerApplication.ViewModels
             SaveAsCommand = new DelegateCommand(
                 () => {
                     string filter = "RemoteLedControl save file|*.rlcsave";
-                    string filePath = saveFileService.SaveFile(filter, "Сохранение проекта", ".rlcsave", true, true, true);
+                    string filePath = saveFileService.SaveFile(filter, "Сохранение проекта", ".rlcsave", true, false, false);
                     if(string.IsNullOrWhiteSpace(filePath)) {
                         return;
                     }
