@@ -100,18 +100,7 @@ namespace RLCCore.RemoteOperations
 
         public void Play()
         {
-            var stateBackup = State;
-            try {
-                var message = RLCMessageFactory.Play(key);
-                remoteClientCommunication.SendToAll(message);
-                State = OperatorStates.Play;
-            }
-            catch(Exception ex) {
-                logger.Error(ex, $"Не удалось отправить команду {MessageType.Play}");
-                //восстановление состояния
-                State = stateBackup;
-                throw;
-            }
+            PlayFrom(TimeSpan.FromMilliseconds(0));
         }
 
         public void Stop()
