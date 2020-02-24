@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Core.ClientConnectionService;
 using Core.Messages;
 using Core.RemoteOperations;
@@ -73,7 +75,10 @@ namespace RLCCore.RemoteOperations
                     default:
                         return;
                 }
-                remoteClientCommunication.Send(client, RLCMessageFactory.Rewind(key, TimeProvider.CurrentTime, clientState));
+                Task.Run(() => {
+                    Thread.Sleep(500);
+                    remoteClientCommunication.Send(client, RLCMessageFactory.Rewind(key, TimeProvider.CurrentTime, clientState));
+                });
             }
         }
 
@@ -100,6 +105,21 @@ namespace RLCCore.RemoteOperations
 
         public void Play()
         {
+            if(State == OperatorStates.Pause) {
+                var stateBackup = State;
+                try {
+                    var message = RLCMessageFactory.Play(key);
+                    remoteClientCommunication.SendToAll(message);
+                    State = OperatorStates.Play;
+                }
+                catch(Exception ex) {
+                    logger.Error(ex, $"Не удалось отправить команду {MessageType.Play}");
+                    //восстановление состояния
+                    State = stateBackup;
+                    throw;
+                }
+                return;
+            }
             PlayFrom(TimeSpan.FromMilliseconds(0));
         }
 
