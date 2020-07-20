@@ -141,7 +141,7 @@ namespace RLCServerApplication.ViewModels
                             using(var fbd = new System.Windows.Forms.FolderBrowserDialog()) {
                                 System.Windows.Forms.DialogResult result = fbd.ShowDialog();
                                 if(result == System.Windows.Forms.DialogResult.OK && !string.IsNullOrWhiteSpace(fbd.SelectedPath)) {
-                                    ExportClientData(fbd.SelectedPath);                            
+                                    ExportClientData(fbd.SelectedPath);
                                 }
                             }
                         },
