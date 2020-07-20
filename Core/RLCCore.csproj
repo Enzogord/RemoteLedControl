@@ -17,6 +17,8 @@
     <ProjectReference Include="..\NotifiedObjectsFramework\NotifiedObjectsFramework.csproj" />
     <ProjectReference Include="..\SNTPService\SNTPService.csproj" />
     <ProjectReference Include="..\TCPCommunicationService\TCPCommunicationService.csproj" />
+    <ProjectReference Include="..\UDPCommunication\UDPCommunication.csproj" />
+    <ProjectReference Include="..\UDPTransmission\UDPTransmission.csproj" />
   </ItemGroup>
 
 </Project>
