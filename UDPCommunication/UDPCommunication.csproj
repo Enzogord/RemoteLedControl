@@ -53,12 +53,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\UDPTransmiter\UDPTransmission.csproj">
-      <Project>{3F9FA9C5-50C2-4373-9DAB-5DE66BCD3192}</Project>
-      <Name>UDPTransmission</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <PackageReference Include="NLog">
       <Version>4.7.2</Version>
     </PackageReference>

@@ -133,10 +133,6 @@
       <Project>{6E7B46B5-C335-41C5-B600-D144F165789C}</Project>
       <Name>UDPCommunication</Name>
     </ProjectReference>
-    <ProjectReference Include="..\UDPTransmiter\UDPTransmission.csproj">
-      <Project>{3F9FA9C5-50C2-4373-9DAB-5DE66BCD3192}</Project>
-      <Name>UDPTransmission</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json">

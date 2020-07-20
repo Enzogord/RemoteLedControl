@@ -5,8 +5,6 @@ VisualStudioVersion = 16.0.29409.12
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RLCCore", "Core\RLCCore.csproj", "{202F2159-593B-4E89-AFDF-FB3DAF2D9EA6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UDPTransmission", "UDPTransmiter\UDPTransmission.csproj", "{3F9FA9C5-50C2-4373-9DAB-5DE66BCD3192}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UDPCommunication", "UDPCommunication\UDPCommunication.csproj", "{6E7B46B5-C335-41C5-B600-D144F165789C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TCPCommunicationService", "TCPCommunicationService\TCPCommunicationService.csproj", "{C6716668-56C7-4EF1-AEE1-BCFD70DFA467}"
@@ -27,6 +25,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CyclogrammConverter", "Cycl
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microcontrollers", "Microcontrollers\Microcontrollers.csproj", "{858D95C7-0B7A-4128-95D5-8ACFB6378720}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UDPTransmission", "UDPTransmission\UDPTransmission.csproj", "{18190EE0-780B-4692-96DB-702447281AE7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -37,10 +37,6 @@ Global
 		{202F2159-593B-4E89-AFDF-FB3DAF2D9EA6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{202F2159-593B-4E89-AFDF-FB3DAF2D9EA6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{202F2159-593B-4E89-AFDF-FB3DAF2D9EA6}.Release|Any CPU.Build.0 = Release|Any CPU
-		{3F9FA9C5-50C2-4373-9DAB-5DE66BCD3192}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{3F9FA9C5-50C2-4373-9DAB-5DE66BCD3192}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{3F9FA9C5-50C2-4373-9DAB-5DE66BCD3192}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{3F9FA9C5-50C2-4373-9DAB-5DE66BCD3192}.Release|Any CPU.Build.0 = Release|Any CPU
 		{6E7B46B5-C335-41C5-B600-D144F165789C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{6E7B46B5-C335-41C5-B600-D144F165789C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6E7B46B5-C335-41C5-B600-D144F165789C}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -77,6 +73,10 @@ Global
 		{858D95C7-0B7A-4128-95D5-8ACFB6378720}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{858D95C7-0B7A-4128-95D5-8ACFB6378720}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{858D95C7-0B7A-4128-95D5-8ACFB6378720}.Release|Any CPU.Build.0 = Release|Any CPU
+		{18190EE0-780B-4692-96DB-702447281AE7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{18190EE0-780B-4692-96DB-702447281AE7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{18190EE0-780B-4692-96DB-702447281AE7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{18190EE0-780B-4692-96DB-702447281AE7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
