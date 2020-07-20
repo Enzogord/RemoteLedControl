@@ -6,7 +6,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="clr-namespace:RLCServerApplication.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:model="clr-namespace:RLCCore;assembly=Core"
+    xmlns:model="clr-namespace:RLCCore;assembly=RLCCore"
     xmlns:vm="clr-namespace:RLCServerApplication.ViewModels"
     d:DataContext="{d:DesignInstance vm:SettingsViewModel}"
     d:DesignHeight="450"

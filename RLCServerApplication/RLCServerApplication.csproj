@@ -1,216 +1,24 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{F0E721CB-D5F4-4A61-8E71-EF07009949C0}</ProjectGuid>
-    <OutputType>Exe</OutputType>
-    <RootNamespace>RLCServerApplication</RootNamespace>
-    <AssemblyName>RLCServerApplication</AssemblyName>
-    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
-    <WarningLevel>4</WarningLevel>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-    <Deterministic>true</Deterministic>
-    <TargetFrameworkProfile />
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+	<RootNamespace>RLCServerApplication</RootNamespace>	
+    <UseWPF>true</UseWPF>	
+    <UseWindowsForms>true</UseWindowsForms>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup>
-    <StartupObject />
-  </PropertyGroup>
+
   <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.ComponentModel.Composition" />
-    <Reference Include="System.ComponentModel.DataAnnotations" />
-    <Reference Include="System.Configuration" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.IO.Compression" />
-    <Reference Include="System.Runtime.Serialization" />
-    <Reference Include="System.ServiceModel" />
-    <Reference Include="System.Transactions" />
-    <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Xml" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="System.Net.Http" />
-    <Reference Include="System.Xaml">
-      <RequiredTargetFramework>4.0</RequiredTargetFramework>
-    </Reference>
-    <Reference Include="WindowsBase" />
-    <Reference Include="PresentationCore" />
-    <Reference Include="PresentationFramework" />
+    <PackageReference Include="Autofac" Version="5.2.0" />
+	<PackageReference Include="Expression.Blend.Sdk" Version="1.0.2" />
+	<PackageReference Include="Extended.Wpf.Toolkit" Version="4.0.1" />
+	<PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="1.1.1" />
+	<PackageReference Include="NLog.Config" Version="4.7.2" />
+	<PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="4.7.1" />
   </ItemGroup>
+
   <ItemGroup>
-    <ApplicationDefinition Include="App.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </ApplicationDefinition>
-    <Compile Include="App.xaml.cs">
-      <DependentUpon>App.xaml</DependentUpon>
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Bootstrapper.cs" />
-    <Compile Include="Converters\NullVisibilityCollapsedConverter.cs" />
-    <Compile Include="Converters\OnlineStatusToColorConverter.cs" />
-    <Compile Include="Converters\StringListToStringConverter.cs" />
-    <Compile Include="Converters\StringToIntConverter.cs" />
-    <Compile Include="Converters\ValidationErrorsToStringConverter.cs" />
-    <Compile Include="Extensions\InputBindingManager.cs" />
-    <Compile Include="Infrastructure\Command\DelegateCommand.cs" />
-    <Compile Include="Infrastructure\Command\DelegateCommandGeneric.cs" />
-    <Compile Include="Infrastructure\Command\PropertySubscribedCommandBase.cs" />
-    <Compile Include="Infrastructure\ViewModelBase.cs" />
-    <Compile Include="Services\FileDialogService.cs" />
-    <Compile Include="Services\UserDialogService.cs" />
-    <Compile Include="ViewModels\CyclogrammViewModel.cs" />
-    <Compile Include="ViewModels\MainWindowViewModel.cs" />
-    <Compile Include="ViewModels\RemoteClientEditViewModel.cs" />
-    <Compile Include="ViewModels\RemoteClientsViewModel.cs" />
-    <Compile Include="ViewModels\RemoteClientViewModel.cs" />
-    <Compile Include="ViewModels\SettingsViewModel.cs" />
-    <Compile Include="Views\CyclogrammView.xaml.cs">
-      <DependentUpon>CyclogrammView.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\MainWindowView.xaml.cs">
-      <DependentUpon>MainWindowView.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\RemoteClientsView.xaml.cs">
-      <DependentUpon>RemoteClientsView.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\RemoteClientView.xaml.cs">
-      <DependentUpon>RemoteClientView.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\SettingsView.xaml.cs">
-      <DependentUpon>SettingsView.xaml</DependentUpon>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Properties\AssemblyInfo.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
-    <Compile Include="Properties\Settings.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Settings.settings</DependentUpon>
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
-    </Compile>
-    <EmbeddedResource Include="Properties\Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-    <Content Include="NLog.config">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <None Include="Properties\Settings.settings">
-      <Generator>SettingsSingleFileGenerator</Generator>
-      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="App.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\AudioPlayerControl\AudioPlayerControl.csproj">
-      <Project>{8d6d59ca-baae-4d1f-be74-8793fb07dfa8}</Project>
-      <Name>AudioPlayerControl</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Core\RLCCore.csproj">
-      <Project>{202F2159-593B-4E89-AFDF-FB3DAF2D9EA6}</Project>
-      <Name>RLCCore</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Microcontrollers\Microcontrollers.csproj">
-      <Project>{858D95C7-0B7A-4128-95D5-8ACFB6378720}</Project>
-      <Name>Microcontrollers</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\NAudioPlayer\NAudioPlayer.csproj">
-      <Project>{293bbd8e-7ec8-49ed-a0c7-7124405c2242}</Project>
-      <Name>NAudioPlayer</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\NotifiedObjectsFramework\NotifiedObjectsFramework.csproj">
-      <Project>{b5672b8b-286b-4c51-8457-3066fbd713a2}</Project>
-      <Name>NotifiedObjectsFramework</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Page Include="Resources\ExpressionDark.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Resources\GlobalConverters.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Resources\ValidationErrorResources.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\CyclogrammView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\MainWindowView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\RemoteClientsView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\RemoteClientView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\SettingsView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="Autofac">
-      <Version>5.2.0</Version>
-    </PackageReference>
-    <PackageReference Include="Expression.Blend.Sdk">
-      <Version>1.0.2</Version>
-    </PackageReference>
-    <PackageReference Include="Extended.Wpf.Toolkit">
-      <Version>4.0.1</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces">
-      <Version>1.1.1</Version>
-    </PackageReference>
-    <PackageReference Include="NLog.Config">
-      <Version>4.7.2</Version>
-    </PackageReference>
-    <PackageReference Include="System.Runtime.CompilerServices.Unsafe">
-      <Version>4.7.1</Version>
-    </PackageReference>
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+    <ProjectReference Include="..\AudioPlayerControl\AudioPlayerControl.csproj" />
+    <ProjectReference Include="..\Core\RLCCore.csproj" />
+  </ItemGroup>  
 </Project>
