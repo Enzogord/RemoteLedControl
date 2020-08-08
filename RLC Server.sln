@@ -31,6 +31,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Application", "Application"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Libraries", "Libraries", "{2FEF3BCF-7D4B-4224-A2D5-169A78ABB257}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UdpServer", "UdpServer\UdpServer.csproj", "{FE4495E1-0433-4820-9034-9269879D4E96}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -81,6 +83,10 @@ Global
 		{18190EE0-780B-4692-96DB-702447281AE7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{18190EE0-780B-4692-96DB-702447281AE7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{18190EE0-780B-4692-96DB-702447281AE7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FE4495E1-0433-4820-9034-9269879D4E96}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FE4495E1-0433-4820-9034-9269879D4E96}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FE4495E1-0433-4820-9034-9269879D4E96}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FE4495E1-0433-4820-9034-9269879D4E96}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -98,6 +104,7 @@ Global
 		{10D5E64F-2D86-4703-989B-BD3DDC70475D} = {19AEAD4C-415A-4B8A-B92E-F51A708CDED1}
 		{858D95C7-0B7A-4128-95D5-8ACFB6378720} = {2FEF3BCF-7D4B-4224-A2D5-169A78ABB257}
 		{18190EE0-780B-4692-96DB-702447281AE7} = {2FEF3BCF-7D4B-4224-A2D5-169A78ABB257}
+		{FE4495E1-0433-4820-9034-9269879D4E96} = {2FEF3BCF-7D4B-4224-A2D5-169A78ABB257}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {839E5F95-40CC-4940-8FAC-A80FF4008CF8}
