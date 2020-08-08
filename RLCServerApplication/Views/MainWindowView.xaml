@@ -7,7 +7,6 @@
     xmlns:local="clr-namespace:RLCServerApplication.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:player="clr-namespace:AudioPlayer.TimeLine;assembly=AudioPlayerControl"
-    xmlns:rlcCore="clr-namespace:RLCCore;assembly=Core"
     xmlns:vm="clr-namespace:RLCServerApplication.ViewModels"
     xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
     Title="RemoteLedControl"
