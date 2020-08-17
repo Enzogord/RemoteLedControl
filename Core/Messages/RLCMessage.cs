@@ -8,6 +8,8 @@ namespace Core.Messages
 {
     public class RLCMessage : IUdpMessage, ITcpMessage
     {
+        public const int MaxMessageLength = 200;
+
         //byte 0
         private byte sourceTypeData;
         //byte 1-4
@@ -32,7 +34,7 @@ namespace Core.Messages
 
         public byte[] ToArray()
         {
-            byte[] result = new byte[200];
+            byte[] result = new byte[MaxMessageLength];
             result[0] = sourceTypeData;
 
             result[1] = keyData[0];
@@ -78,7 +80,7 @@ namespace Core.Messages
 
         public void FromBytes(byte[] bytes)
         {
-            if(!(bytes.Length >= Length && bytes.Length <= 200)) {
+            if(!(bytes.Length >= Length && bytes.Length <= MaxMessageLength)) {
                 throw new ArgumentException("Длина пакета должна быть не меньше минимально возможно длины сообщения, и не больше максимальной длины сообщения");
             }
 
