@@ -31,7 +31,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Application", "Application"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Libraries", "Libraries", "{2FEF3BCF-7D4B-4224-A2D5-169A78ABB257}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UdpServer", "UdpServer\UdpServer.csproj", "{FE4495E1-0433-4820-9034-9269879D4E96}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NetworkServer", "UdpServer\NetworkServer.csproj", "{FE4495E1-0433-4820-9034-9269879D4E96}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UdpServerTestConsoleApp", "TestConsoleApp\UdpServerTestConsoleApp.csproj", "{3C3E32C6-E3F0-4F14-8A31-DF1096A533E4}"
 EndProject

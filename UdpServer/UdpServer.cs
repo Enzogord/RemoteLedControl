@@ -5,7 +5,7 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace UdpServer
+namespace NetworkServer.UDP
 {
     public class UdpServer
     {
@@ -77,7 +77,18 @@ namespace UdpServer
             }
         }
 
-        public bool IsActive { get; private set; }
+        private bool isActive;
+        public bool IsActive {
+            get => isActive;
+            set {
+                if(isActive != value) {
+                    isActive = value;
+                    StatusChanged?.Invoke(this, EventArgs.Empty);
+                }
+            }
+        }
+
+        public event EventHandler StatusChanged;
 
         #endregion Statuses
 

@@ -10,7 +10,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\UdpServer\UdpServer.csproj" />
+    <ProjectReference Include="..\UdpServer\NetworkServer.csproj" />
   </ItemGroup>
 
 </Project>
