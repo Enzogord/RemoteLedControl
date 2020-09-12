@@ -9,7 +9,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Autofac" Version="5.2.0" />
 	<PackageReference Include="Extended.Wpf.Toolkit" Version="4.0.1" />
 	<PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="1.1.1" />
 	<PackageReference Include="NLog.Config" Version="4.7.2" />

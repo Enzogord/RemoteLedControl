@@ -2,10 +2,7 @@
 
 namespace Core
 {
-    /// <summary>
-    /// Режим работы проекта
-    /// </summary>
-    public enum ProjectWorkModes
+    public enum SessionState
     {
         [Display(Name = "Настройка")]
         Setup,

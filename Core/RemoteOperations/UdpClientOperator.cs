@@ -8,6 +8,7 @@ using System.Net;
 using NotifiedObjectsFramework;
 using RLCCore.RemoteOperations;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace Core.RemoteOperations
 {
@@ -19,42 +20,61 @@ namespace Core.RemoteOperations
         private readonly RemoteControlProject project;
         private readonly IClientConnectionsController connectionsController;
         private readonly INetworkSettingProvider networkSettingProvider;
-        private readonly ISequenceTimeProvider sequenceTimeProvider;
+        private readonly SequencePlayer player;
 
         public UdpClientOperator(
             UdpServer udpServer, 
             RemoteControlProject project,
             IClientConnectionsController connectionsController,
             INetworkSettingProvider networkSettingProvider,
-            ISequenceTimeProvider sequenceTimeProvider
+            SequencePlayer player
             )
         {
             this.udpServer = udpServer ?? throw new ArgumentNullException(nameof(udpServer));
             this.project = project ?? throw new ArgumentNullException(nameof(project));
             this.connectionsController = connectionsController ?? throw new ArgumentNullException(nameof(connectionsController));
             this.networkSettingProvider = networkSettingProvider ?? throw new ArgumentNullException(nameof(networkSettingProvider));
-            this.sequenceTimeProvider = sequenceTimeProvider ?? throw new ArgumentNullException(nameof(sequenceTimeProvider));
-            udpServer.DataReceived += UdpServer_DataReceived;
-            udpServer.StatusChanged += UdpServer_StatusChanged;
-        }
-
-        private void UdpServer_StatusChanged(object sender, EventArgs e)
-        {
-            if(udpServer.IsActive) {
-                State = OperatorStates.Ready;
-            }
-            else {
-                State = OperatorStates.Configure;
-            }
+            this.player = player ?? throw new ArgumentNullException(nameof(player));
         }
 
         private OperatorStates state;
         public OperatorStates State {
             get => state;
-            private set => SetField(ref state, value);
+            private set {
+                if(SetField(ref state, value)) {
+                    OnPropertyChanged(nameof(CanPlay));
+                    OnPropertyChanged(nameof(CanPause));
+                    OnPropertyChanged(nameof(CanStop));
+                }
+            }
         }
 
-        #region Restore
+        #region Control
+
+        public void StartOperator()
+        {
+            try {
+                connectionsController.CreateConnections(project.Clients);
+                udpServer.Start(networkSettingProvider.GetServerIPAddress(), project.RlcPort);
+                udpServer.DataReceived += UdpServer_DataReceived;
+                State = OperatorStates.Ready;
+            }
+            catch(Exception ex) {
+                logger.Error(ex, "Не получилось запустить оператор клиентов");
+                StopOperator();
+            }
+        }
+
+        public void StopOperator()
+        {
+            udpServer.Stop();
+            connectionsController.ClearConnections();
+            State = OperatorStates.Configure;
+        }
+
+        #endregion Control
+
+        #region Client restore
 
         private void CheckFirstTimeConnection(RLCMessage message)
         {
@@ -82,32 +102,36 @@ namespace Core.RemoteOperations
                 default:
                     return;
             }
-            var message = RLCMessageFactory.Rewind(project.Key, sequenceTimeProvider.CurrentTime, clientState);
+            var message = RLCMessageFactory.Rewind(project.Key, player.CurrentTime, clientState);
             Send(clientNumber, message);
         }
 
-        #endregion Restore
+        #endregion Client restore
 
-        #region Control
+        #region Play control
+
+        public bool CanPlay => player.CanPlay && new[] { OperatorStates.Ready, OperatorStates.Pause, OperatorStates.Stop }.Contains(State);
 
         public void Play()
         {
-            if(State == OperatorStates.Pause) {
-                var stateBackup = State;
-                try {
-                    var message = RLCMessageFactory.Play(project.Key);
-                    SendToAll(message);
-                    State = OperatorStates.Play;
+            var stateBackup = State;
+            try {
+                if(State != OperatorStates.Pause) {
+                    player.CurrentTime = TimeSpan.FromMilliseconds(0);
                 }
-                catch(Exception ex) {
-                    logger.Error(ex, $"Не удалось отправить команду {MessageType.Play}");
-                    State = stateBackup;
-                    throw;
-                }
-                return;
+                var message = RLCMessageFactory.Play(project.Key);
+                SendToAll(message);
+                player.Play();
+                State = OperatorStates.Play;
             }
-            PlayFrom(TimeSpan.FromMilliseconds(0));
+            catch(Exception ex) {
+                logger.Error(ex, $"Не удалось отправить команду {MessageType.Play}");
+                State = stateBackup;
+                throw;
+            }
         }
+
+        public bool CanStop => player.CanStop && new[] { OperatorStates.Play, OperatorStates.Pause }.Contains(State);
 
         public void Stop()
         {
@@ -115,6 +139,7 @@ namespace Core.RemoteOperations
             try {
                 var message = RLCMessageFactory.Stop(project.Key);
                 SendToAll(message);
+                player.Stop();
                 State = OperatorStates.Stop;
             }
             catch(Exception ex) {
@@ -124,12 +149,15 @@ namespace Core.RemoteOperations
             }
         }
 
+        public bool CanPause => player.CanPause && State == OperatorStates.Pause;
+
         public void Pause()
         {
             var stateBackup = State;
             try {
                 var message = RLCMessageFactory.Pause(project.Key);
                 SendToAll(message);
+                player.Pause();
                 State = OperatorStates.Pause;
             }
             catch(Exception ex) {
@@ -139,12 +167,13 @@ namespace Core.RemoteOperations
             }
         }
 
-        public void PlayFrom(TimeSpan time)
+        public void PlayFrom()
         {
             var stateBackup = State;
             try {
-                var message = RLCMessageFactory.PlayFrom(project.Key, time);
+                var message = RLCMessageFactory.PlayFrom(project.Key, player.CurrentTime);
                 SendToAll(message);
+                player.Play();
                 State = OperatorStates.Play;
             }
             catch(Exception ex) {
@@ -154,7 +183,7 @@ namespace Core.RemoteOperations
             }
         }
 
-        #endregion Control
+        #endregion Play control
 
         #region Receiving
 
@@ -212,6 +241,12 @@ namespace Core.RemoteOperations
             if(message.MessageType == MessageType.ClientInfo) {
                 return;
             }
+
+            if(message.MessageType == MessageType.RequestServerIp) {
+                var response = RLCMessageFactory.SendServerIP(project.Key, networkSettingProvider.GetServerIPAddress());
+                Send(message.ClientNumber, response);
+            }
+
             project.Receive(message);
         }
 

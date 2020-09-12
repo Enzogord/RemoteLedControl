@@ -9,12 +9,21 @@ namespace Core.RemoteOperations
     {
         private Dictionary<RemoteClient, ClientConnection> connections;
 
-        public ClientConnectionsController(IEnumerable<RemoteClient> clients)
+        public ClientConnectionsController()
+        {
+        }
+
+        public void CreateConnections(IEnumerable<RemoteClient> clients)
         {
             connections = new Dictionary<RemoteClient, ClientConnection>();
             foreach(var client in clients) {
                 connections.Add(client, new ClientConnection());
             }
+        }
+
+        public void ClearConnections()
+        {
+            connections.Clear();
         }
 
         public IClientConnection GetClientConnection(RemoteClient client)
@@ -66,6 +75,6 @@ namespace Core.RemoteOperations
                 return null;
             }
             return connection;
-        }        
+        }
     }
 }

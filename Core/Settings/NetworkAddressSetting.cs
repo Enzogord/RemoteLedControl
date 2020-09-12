@@ -7,13 +7,13 @@ namespace RLCCore.Settings
     {
         public IPAddress IPAddress { get; }
         public IPAddress SubNetMask { get; }
-        public IPAddress BroadCastAddress { get; }
+        public IPAddress BroadcastAddress { get; }
 
         public NetworkAddressSetting(IPAddress ipAddress, IPAddress subNetMask)
         {
             this.IPAddress = ipAddress;
             this.SubNetMask = subNetMask;
-            this.BroadCastAddress = GetBroadcastAddress(ipAddress, subNetMask);
+            this.BroadcastAddress = GetBroadcastAddress(ipAddress, subNetMask);
         }
 
         /// <summary>

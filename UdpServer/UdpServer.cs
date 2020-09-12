@@ -15,10 +15,8 @@ namespace NetworkServer.UDP
         private Task task;
         private CancellationTokenSource cts;
 
-        public UdpServer(IPAddress address, int port, int bufferSize = 1460)
-        {
-            Address = address;
-            Port = port;
+        public UdpServer(int bufferSize = 1460)
+        {            
             BufferSize = bufferSize;
         }
 
@@ -113,12 +111,22 @@ namespace NetworkServer.UDP
             socket = null;
         }
 
-        public void Start()
+        public void Start(IPAddress address, int port)
         {
+            if(address is null) {
+                throw new ArgumentNullException(nameof(address));
+            }
+
+            if(port <= 0 || port > 65535) {
+                throw new ArgumentException("Некорректный порт", nameof(port));
+            }
+
             if(IsActive) {
                 throw new InvalidOperationException("Udp server is already active now");
             }
             try {
+                Address = address;
+                Port = port;
                 CreateSocket();
                 StartListening();
                 IsActive = true;
