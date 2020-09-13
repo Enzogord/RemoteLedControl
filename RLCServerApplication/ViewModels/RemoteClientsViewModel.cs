@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using Core;
@@ -29,6 +30,9 @@ namespace RLCServerApplication.ViewModels
         }
 
         public bool CanEdit => workSession.State == SessionState.Setup;
+
+        public ObservableCollection<RemoteClient> Clients => project.Clients;
+
 
         private RemoteClient selectedClient;
         public RemoteClient SelectedClient {
@@ -70,6 +74,11 @@ namespace RLCServerApplication.ViewModels
             CreateNotificationBinding().AddProperty(nameof(CanEdit))
                 .SetNotifier(workSession)
                 .BindToProperty(x => x.State)
+                .End();
+
+            CreateNotificationBinding().AddProperty(nameof(Clients))
+                .SetNotifier(project)
+                .BindToProperty(x => x.Clients)
                 .End();
         }
 
