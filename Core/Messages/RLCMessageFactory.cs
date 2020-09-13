@@ -27,7 +27,6 @@ namespace Core.Messages
         {
             var message = new RLCMessage(SourceType.Server, key, MessageType.PlayFrom);
             message.PlayFromTime = time;
-            message.SendTime = DateTime.Now;
             return message;
         }
 
@@ -35,7 +34,6 @@ namespace Core.Messages
         {
             var message = new RLCMessage(SourceType.Server, key, MessageType.Rewind);
             message.PlayFromTime = time;
-            message.SendTime = DateTime.Now;
             message.ClientState = state;
             return message;
         }

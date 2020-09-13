@@ -277,6 +277,7 @@ namespace Core.RemoteOperations
                 throw new InvalidOperationException("Client was not connected");
             }
 
+            message.SendTime = DateTime.Now;
             udpServer.Send(message.ToArray(), connection.EndPoint);
         }
 
@@ -285,7 +286,7 @@ namespace Core.RemoteOperations
             if(message is null) {
                 throw new ArgumentNullException(nameof(message));
             }
-
+            message.SendTime = DateTime.Now;
             udpServer.Send(message.ToArray(), networkSettingProvider.BroadcastIPAddress);
         }
 
