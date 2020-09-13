@@ -242,7 +242,9 @@ namespace NetworkServer.UDP
                 var receivedBytes = socket.ReceiveFrom(buffer, BufferSize, SocketFlags.None, ref remoteEndPoint);
                 if(receivedBytes > 0) {
                     logger.Debug($"Udp server receive {receivedBytes} bytes from {remoteEndPoint}");
-                    RaiseDataReceived(buffer, BufferSize, remoteEndPoint);
+                    byte[] data = new byte[receivedBytes];
+                    Array.Copy(buffer, 0, data, 0, receivedBytes);
+                    RaiseDataReceived(data, receivedBytes, remoteEndPoint);
                 }
             }
             catch(SocketException ex) {
@@ -254,9 +256,9 @@ namespace NetworkServer.UDP
             }
         }
 
-        private void RaiseDataReceived(byte[] buffer, int size, EndPoint remoteEndPoint)
+        private void RaiseDataReceived(byte[] data, int length, EndPoint remoteEndPoint)
         {
-            DataReceived?.Invoke(this, new ReceivedDataEventArgs(buffer, size, remoteEndPoint));
+            DataReceived?.Invoke(this, new ReceivedDataEventArgs(data, length, remoteEndPoint));
         }
 
         #endregion Receive actions
