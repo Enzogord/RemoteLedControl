@@ -68,7 +68,7 @@ namespace Core
             if(State != SessionState.Test) {
                 return;
             }
-            ClientOperator.PlayFrom();
+            ClientOperator.Play();
         }
 
         public void SetAudioFile(string filePath)
@@ -89,11 +89,6 @@ namespace Core
             using(var fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read)) {
                 Player.Open(fileStream);
             }
-        }
-
-        public void SetNewTime(TimeSpan time)
-        {
-            Player.CurrentTime = time;
         }
 
         #region Modes

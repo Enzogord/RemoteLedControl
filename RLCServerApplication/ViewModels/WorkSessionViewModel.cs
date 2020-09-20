@@ -85,8 +85,7 @@ namespace RLCServerApplication.ViewModels
         {
             playFromButtonCommand = new DelegateCommand(
                 () =>  {
-                    workSession.SetNewTime(PlayFromTime);
-                    clientOperator.PlayFrom();
+                    clientOperator.PlayFrom(PlayFromTime);
                 },
                 () => clientOperator.CanPlay && workSession.State == SessionState.Test && PlayFromTime.TotalMilliseconds > 0
             );

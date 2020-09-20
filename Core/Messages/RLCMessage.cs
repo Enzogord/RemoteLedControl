@@ -10,70 +10,65 @@ namespace Core.Messages
     {
         public const int MaxMessageLength = 200;
 
-        //byte 0
         private byte sourceTypeData;
-        //byte 1-4
         private byte[] keyData = new byte[4];
-        //byte 5
+        private byte[] messageIdData = new byte[4];
         private byte messageTypeData;
-        //byte 6-7
         private byte[] clientNumberData = new byte[2];
-        //byte 8
         private byte clientStateData;
-        //byte 9-12
         private byte[] ipAddressData = new byte[4];
-        //byte 13-20
-        private byte[] playFromTimeData = new byte[8];
-        //byte 21-28
-        private byte[] sendTimeData = new byte[8];
-        //byte 6-7
+        private byte[] frameData = new byte[4];
+        private byte[] frameStartTime = new byte[8];
         private byte[] batteryChargeData = new byte[2];
 
         //Текущая длина сообщения, при изменение полей пересчитать
-        private int Length => 21;
+        private int Length => 25;
 
         public byte[] ToArray()
         {
             byte[] result = new byte[MaxMessageLength];
-            result[0] = sourceTypeData;
+            int i = 0;
 
-            result[1] = keyData[0];
-            result[2] = keyData[1];
-            result[3] = keyData[2];
-            result[4] = keyData[3];
+            result[i++] = sourceTypeData;
 
-            result[5] = messageTypeData;
+            result[i++] = keyData[0];
+            result[i++] = keyData[1];
+            result[i++] = keyData[2];
+            result[i++] = keyData[3];
 
-            result[6] = clientNumberData[0];
-            result[7] = clientNumberData[1];
+            result[i++] = messageIdData[0];
+            result[i++] = messageIdData[1];
+            result[i++] = messageIdData[2];
+            result[i++] = messageIdData[3];
 
-            result[8] = clientStateData;
+            result[i++] = messageTypeData;
 
-            result[9] = ipAddressData[0];
-            result[10] = ipAddressData[1];
-            result[11] = ipAddressData[2];
-            result[12] = ipAddressData[3];
+            result[i++] = clientNumberData[0];
+            result[i++] = clientNumberData[1];
 
-            result[13] = playFromTimeData[0];
-            result[14] = playFromTimeData[1];
-            result[15] = playFromTimeData[2];
-            result[16] = playFromTimeData[3];
-            result[17] = playFromTimeData[4];
-            result[18] = playFromTimeData[5];
-            result[19] = playFromTimeData[6];
-            result[20] = playFromTimeData[7];
+            result[i++] = clientStateData;
 
-            result[21] = sendTimeData[0];
-            result[22] = sendTimeData[1];
-            result[23] = sendTimeData[2];
-            result[24] = sendTimeData[3];
-            result[25] = sendTimeData[4];
-            result[26] = sendTimeData[5];
-            result[27] = sendTimeData[6];
-            result[28] = sendTimeData[7];
+            result[i++] = ipAddressData[0];
+            result[i++] = ipAddressData[1];
+            result[i++] = ipAddressData[2];
+            result[i++] = ipAddressData[3];
 
-            result[29] = batteryChargeData[0];
-            result[30] = batteryChargeData[1];
+            result[i++] = frameData[0];
+            result[i++] = frameData[1];
+            result[i++] = frameData[2];
+            result[i++] = frameData[3];
+
+            result[i++] = frameStartTime[0];
+            result[i++] = frameStartTime[1];
+            result[i++] = frameStartTime[2];
+            result[i++] = frameStartTime[3];
+            result[i++] = frameStartTime[4];
+            result[i++] = frameStartTime[5];
+            result[i++] = frameStartTime[6];
+            result[i++] = frameStartTime[7];
+
+            result[i++] = batteryChargeData[0];
+            result[i++] = batteryChargeData[1];
 
             return result;
         }
@@ -88,25 +83,39 @@ namespace Core.Messages
                 throw new ArgumentException($"Невозможно определить параметр {nameof(SourceType)}");
             }
 
-            if(!Enum.IsDefined(typeof(MessageType), bytes[5])) {
+            if(!Enum.IsDefined(typeof(MessageType), bytes[9])) {
                 throw new ArgumentException($"Невозможно определить параметр {nameof(MessageType)}");
             }
 
-            if(!Enum.IsDefined(typeof(ClientState), bytes[8])) {
+            if(!Enum.IsDefined(typeof(ClientState), bytes[12])) {
                 throw new ArgumentException($"Невозможно определить параметр {nameof(ClientState)}");
             }
+            int i = 0;
+            sourceTypeData = bytes[i++];
 
-            sourceTypeData = bytes[0];
-            Array.Copy(bytes, 1, keyData, 0, 4);
-            messageTypeData = bytes[5];
-            clientNumberData[0] = bytes[6];
-            clientNumberData[1] = bytes[7];
-            clientStateData = bytes[8];
-            Array.Copy(bytes, 9, ipAddressData, 0, 4);
-            Array.Copy(bytes, 13, playFromTimeData, 0, 8);
-            Array.Copy(bytes, 21, sendTimeData, 0, 8);
-            batteryChargeData[0] = bytes[29];
-            batteryChargeData[1] = bytes[30];
+            Array.Copy(bytes, i, keyData, 0, 4);
+            i += 4;
+
+            Array.Copy(bytes, i, messageIdData, 0, 4);
+            i += 4;
+
+            messageTypeData = bytes[i++];
+
+            Array.Copy(bytes, i, clientNumberData, 0, 2);
+            i += 2;
+
+            clientStateData = bytes[i++];
+
+            Array.Copy(bytes, i, ipAddressData, 0, 4);
+            i += 4;
+
+            Array.Copy(bytes, i, frameData, 0, 4);
+            i += 4;
+
+            Array.Copy(bytes, i, frameStartTime, 0, 8);
+            i += 8;
+
+            Array.Copy(bytes, i, batteryChargeData, 0, 2);
         }
 
         public RLCMessage()
@@ -120,47 +129,52 @@ namespace Core.Messages
             MessageType = messageType;
         }
 
-        public SourceType SourceType {
+        public virtual SourceType SourceType {
             get { return (SourceType)sourceTypeData; }
             set { sourceTypeData = (byte)value; }
         }
 
-        public uint Key {
+        public virtual uint Key {
             get { return BytesToUInt(keyData); }
             set { keyData = UIntToBytes(value); }
         }
 
-        public MessageType MessageType {
+        public virtual int MessageId {
+            get { return BytesToInt(messageIdData); }
+            set { messageIdData = IntToBytes(value); }
+        }
+
+        public virtual MessageType MessageType {
             get { return (MessageType)messageTypeData; }
             set { messageTypeData = (byte)value; }
         }
 
-        public ushort ClientNumber {
+        public virtual ushort ClientNumber {
             get { return BytesToUShort(clientNumberData); }
             set { clientNumberData = UShortToBytes(value); }
         }
 
-        public ClientState ClientState {
+        public virtual ClientState ClientState {
             get { return (ClientState)clientStateData; }
             set { clientStateData = (byte)value; }
         }
 
-        public IPAddress IPAddress {
+        public virtual IPAddress IPAddress {
             get { return BytesToIPAddress(ipAddressData); }
             set { ipAddressData = IPAddressToBytes(value); }
         }
 
-        public TimeSpan PlayFromTime {
-            get { return DateTimeSerializator.DeserializeTimeSpanFromNtpTime(playFromTimeData); }
-            set { DateTimeSerializator.SerializeTimeSpanToNtpTime(value, playFromTimeData); }
+        public virtual uint Frame {
+            get { return BytesToUInt(frameData); }
+            set { frameData = UIntToBytes(value); }
         }
 
-        public DateTime SendTime {
-            get { return DateTimeSerializator.TimestampToDateTime(sendTimeData); }
-            set { DateTimeSerializator.DateTimeToTimestamp(value, sendTimeData); }
+        public virtual DateTime FrameStartTime {
+            get { return DateTimeSerializator.TimestampToDateTime(frameStartTime); }
+            set { DateTimeSerializator.DateTimeToTimestamp(value, frameStartTime); }
         }
 
-        public ushort BatteryCharge {
+        public virtual ushort BatteryCharge {
             get { return BytesToUShort(batteryChargeData); }
             set { batteryChargeData = UShortToBytes(value); }
         }
@@ -173,6 +187,21 @@ namespace Core.Messages
         }
 
         private byte[] UIntToBytes(uint number)
+        {
+            byte[] result = new byte[4];
+            result[0] = (byte)(number >> 24);
+            result[1] = (byte)(number >> 16);
+            result[2] = (byte)(number >> 8);
+            result[3] = (byte)(number >> 0);
+            return result;
+        }
+
+        private int BytesToInt(byte[] bytes)
+        {
+            return (bytes[0] << 24) + (bytes[1] << 16) + (bytes[2] << 8) + (bytes[3] << 0);
+        }
+
+        private byte[] IntToBytes(int number)
         {
             byte[] result = new byte[4];
             result[0] = (byte)(number >> 24);

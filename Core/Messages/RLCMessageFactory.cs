@@ -1,40 +1,30 @@
 ﻿using System;
 using System.Net;
+using System.Threading;
 
 namespace Core.Messages
 {
     public static class RLCMessageFactory
     {
-        public static RLCMessage Play(uint key)
+        private static int messageId;
+        private static int GetNextMessageId()
         {
-            var message = new RLCMessage(SourceType.Server, key, MessageType.Play);
-            return message;
+            Interlocked.Increment(ref messageId);
+            return messageId;
         }
 
-        public static RLCMessage Stop(uint key)
+        private static void SetMessageId(RLCMessage message)
         {
-            var message = new RLCMessage(SourceType.Server, key, MessageType.Stop);
-            return message;
+            message.MessageId = GetNextMessageId();
         }
 
-        public static RLCMessage Pause(uint key)
+        public static RLCMessage State(uint key, uint frame, DateTime frameStartTime, ClientState state)
         {
-            var message = new RLCMessage(SourceType.Server, key, MessageType.Pause);
-            return message;
-        }
-
-        public static RLCMessage PlayFrom(uint key, TimeSpan time)
-        {
-            var message = new RLCMessage(SourceType.Server, key, MessageType.PlayFrom);
-            message.PlayFromTime = time;
-            return message;
-        }
-
-        public static RLCMessage Rewind(uint key, TimeSpan time, ClientState state)
-        {
-            var message = new RLCMessage(SourceType.Server, key, MessageType.Rewind);
-            message.PlayFromTime = time;
+            var message = new RLCMessage(SourceType.Server, key, MessageType.State);
+            message.Frame = frame;
+            message.FrameStartTime = frameStartTime;
             message.ClientState = state;
+            SetMessageId(message);
             return message;
         }
 
