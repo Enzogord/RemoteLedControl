@@ -29,6 +29,17 @@ namespace RLCServerApplication.ViewModels
                     Player = workSession.Player;
                 }
             );
+
+            ConfigureBindings();
+        }
+
+        private void ConfigureBindings()
+        {
+            CreateNotificationBinding()
+                .AddProperty(nameof(IsSetupMode), nameof(IsTestMode), nameof(IsWorkMode))
+                .SetNotifier(workSession)
+                .BindToProperty(x => x.State)
+                .End();
         }
 
         private SequencePlayer player;
@@ -41,7 +52,11 @@ namespace RLCServerApplication.ViewModels
         public TimeSpan PlayFromTime {
             get => playFromTime;
             set => SetField(ref playFromTime, value);
-        }        
+        }
+
+        public bool IsSetupMode => workSession.State == SessionState.Setup;
+        public bool IsTestMode => workSession.State == SessionState.Test;
+        public bool IsWorkMode => workSession.State == SessionState.Work;
 
         #region Commands
 

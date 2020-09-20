@@ -296,7 +296,6 @@
                     Margin="1,2"
                     Orientation="Horizontal">
                     <xctk:TimeSpanUpDown
-                        IsEnabled="{Binding IsEnabled, ElementName=playFromButton}"
                         Maximum="10.23:59:59"
                         Minimum="0"
                         ShowDays="False"
