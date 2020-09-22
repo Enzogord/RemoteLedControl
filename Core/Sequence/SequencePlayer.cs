@@ -58,15 +58,8 @@ namespace Core
                 OnPropertyChanged(() => Position);
                 if(Math.Abs(lastUpdatedPosition - ChannelPosition) > 1D) {
                     lastUpdatedPosition = ChannelPosition;
-                    CurrentTime = TimeSpan.FromSeconds(ChannelPosition);
                 }
             }
-        }
-
-        private TimeSpan currentTime;
-        public TimeSpan CurrentTime {
-            get => currentTime;
-            set => SetField(ref currentTime, value, () => CurrentTime);
         }
 
         public double Length => ChannelLength;

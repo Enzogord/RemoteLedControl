@@ -4,6 +4,7 @@ using NLog;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
 using System.Linq.Expressions;
 using System.Windows.Threading;
 
@@ -26,9 +27,10 @@ namespace NAudioPlayer
 
         private SampleAggregator sampleAggregator;
         private SampleAggregator waveformAggregator;
-        private string pendingWaveformPath;
-        private float[] fullLevelData;
         private float[] waveformData;
+
+        private byte[] audioData = Array.Empty<byte>();
+        private byte[] newAudioDataBuffer = Array.Empty<byte>();
         #endregion
 
         #region Constants
@@ -62,11 +64,11 @@ namespace NAudioPlayer
 
         protected virtual void Dispose(bool disposing)
         {
-            if (!disposed) {
-                if (disposing) {
+            if(!disposed) {
+                if(disposing) {
                     StopAndCloseStream();
                 }
-
+                waveformGenerateWorker.Dispose();
                 disposed = true;
             }
         }
@@ -86,7 +88,6 @@ namespace NAudioPlayer
         public double ChannelLength {
             get { return channelLength; }
             protected set {
-                double oldValue = channelLength;
                 SetField(ref channelLength, value, () => ChannelLength);
             }
         }
@@ -96,20 +97,36 @@ namespace NAudioPlayer
         public virtual double ChannelPosition {
             get { return channelPosition; }
             set {
-                if (!inChannelSet) {
-                    inChannelSet = true; // Avoid recursion                    
-                    double oldValue = channelPosition;
+                if(!inChannelSet && !audioFileEndedInvoked) {
+                    inChannelSet = true; // Avoid recursion
                     double position = Math.Max(0, Math.Min(value, ChannelLength));
                     if(!inChannelTimerUpdate && ActiveStream != null) {
                         ActiveStream.Position = (long)((position / ActiveStream.TotalTime.TotalSeconds) * ActiveStream.Length);
                     }
-                    SetField(ref channelPosition, position, () => ChannelPosition);
+                    if(Math.Abs(position - ChannelLength) <= 0.000001) {
+                        RaiseAudioFileEnded();
+                        Stop();
+                        ActiveStream.Position = 0;
+                        OnPropertyChanged(() => CurrentTime);
+                    }
+                    if(SetField(ref channelPosition, position, () => ChannelPosition)) {
+                        OnPropertyChanged(() => CurrentTime);
+                    }
                     inChannelSet = false;
                 }
             }
         }
 
+        public event EventHandler AudioFileEnded;
         public event EventHandler ChannelPositionUserChanged;
+
+        private bool audioFileEndedInvoked;
+        private void RaiseAudioFileEnded()
+        {
+            audioFileEndedInvoked = true;
+            AudioFileEnded?.Invoke(this, EventArgs.Empty);
+            audioFileEndedInvoked = false;
+        }
 
         public void ChangePosition(double position)
         {
@@ -124,11 +141,11 @@ namespace NAudioPlayer
 
         protected void OnPropertyChanged<T>(Expression<Func<T>> selectorExpression)
         {
-            if (selectorExpression == null) {
+            if(selectorExpression == null) {
                 throw new ArgumentNullException("selectorExpression should not be null");
             }
             MemberExpression body = selectorExpression.Body as MemberExpression;
-            if (body == null) {
+            if(body == null) {
                 throw new ArgumentException("The body must be a member expression");
             }
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(body.Member.Name));
@@ -136,7 +153,7 @@ namespace NAudioPlayer
 
         protected bool SetField<T>(ref T field, T value, Expression<Func<T>> selectorExpression)
         {
-            if (EqualityComparer<T>.Default.Equals(field, value)) {
+            if(EqualityComparer<T>.Default.Equals(field, value)) {
                 return false;
             }
             field = value;
@@ -148,120 +165,110 @@ namespace NAudioPlayer
         #region Waveform Generation
         private class WaveformGenerationParams
         {
-            public WaveformGenerationParams(int points, string path)
+            public WaveformGenerationParams(int points)
             {
                 Points = points;
-                Path = path;
             }
 
             public int Points { get; protected set; }
-            public string Path { get; protected set; }
         }
 
-        private void GenerateWaveformData(string path)
+        private void GenerateWaveformData()
         {
-            if (waveformGenerateWorker.IsBusy) {
-                pendingWaveformPath = path;
+            if(waveformGenerateWorker.IsBusy) {
                 waveformGenerateWorker.CancelAsync();
                 return;
             }
 
-            if (!waveformGenerateWorker.IsBusy && waveformCompressedPointCount != 0)
-                waveformGenerateWorker.RunWorkerAsync(new WaveformGenerationParams(waveformCompressedPointCount, path));
+            if(!waveformGenerateWorker.IsBusy && waveformCompressedPointCount != 0)
+                waveformGenerateWorker.RunWorkerAsync();
         }
 
         private void waveformGenerateWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
-            if (e.Cancelled) {
-                if (!waveformGenerateWorker.IsBusy && waveformCompressedPointCount != 0)
-                    waveformGenerateWorker.RunWorkerAsync(new WaveformGenerationParams(waveformCompressedPointCount, pendingWaveformPath));
+            if(e.Cancelled) {
+                if(!waveformGenerateWorker.IsBusy && waveformCompressedPointCount != 0)
+                    waveformGenerateWorker.RunWorkerAsync();
             }
         }
 
         private void waveformGenerateWorker_DoWork(object sender, DoWorkEventArgs e)
         {
-            WaveformGenerationParams waveformParams = e.Argument as WaveformGenerationParams;
-            Mp3FileReader waveformMp3Stream = new Mp3FileReader(waveformParams.Path);
-            WaveChannel32 waveformInputStream = new WaveChannel32(waveformMp3Stream);
-            waveformInputStream.Sample += waveStream_Sample;
+            using(Mp3FileReader waveformMp3Stream = new Mp3FileReader(new MemoryStream(audioData)))
+            using(WaveChannel32 waveformInputStream = new WaveChannel32(waveformMp3Stream)) {
+                waveformInputStream.Sample += waveStream_Sample;
 
-            int frameCount = (int)((double)waveformInputStream.Length / (double)fftDataSize);
-            int waveformLength = frameCount * 2;
-            byte[] readBuffer = new byte[fftDataSize];
-            waveformAggregator = new SampleAggregator(fftDataSize);
+                int frameCount = (int)((double)waveformInputStream.Length / (double)fftDataSize);
+                int waveformLength = frameCount * 2;
+                byte[] readBuffer = new byte[fftDataSize];
+                waveformAggregator = new SampleAggregator(fftDataSize);
 
-            float maxLeftPointLevel = float.MinValue;
-            float maxRightPointLevel = float.MinValue;
-            int currentPointIndex = 0;
-            float[] waveformCompressedPoints = new float[waveformParams.Points];
-            List<float> waveformData = new List<float>();
-            List<int> waveMaxPointIndexes = new List<int>();
+                float maxLeftPointLevel = float.MinValue;
+                float maxRightPointLevel = float.MinValue;
+                int currentPointIndex = 0;
+                float[] waveformCompressedPoints = new float[waveformCompressedPointCount];
+                List<float> waveformData = new List<float>();
+                List<int> waveMaxPointIndexes = new List<int>();
 
-            for (int i = 1; i <= waveformParams.Points; i++) {
-                waveMaxPointIndexes.Add((int)Math.Round(waveformLength * ((double)i / (double)waveformParams.Points), 0));
+                for(int i = 1; i <= waveformCompressedPointCount; i++) {
+                    waveMaxPointIndexes.Add((int)Math.Round(waveformLength * ((double)i / (double)waveformCompressedPointCount), 0));
+                }
+                int readCount = 0;
+                while(currentPointIndex * 2 < waveformCompressedPointCount) {
+                    waveformInputStream.Read(readBuffer, 0, readBuffer.Length);
+
+                    waveformData.Add(waveformAggregator.LeftMaxVolume);
+                    waveformData.Add(waveformAggregator.RightMaxVolume);
+
+                    if(waveformAggregator.LeftMaxVolume > maxLeftPointLevel)
+                        maxLeftPointLevel = waveformAggregator.LeftMaxVolume;
+                    if(waveformAggregator.RightMaxVolume > maxRightPointLevel)
+                        maxRightPointLevel = waveformAggregator.RightMaxVolume;
+
+                    if(readCount > waveMaxPointIndexes[currentPointIndex]) {
+                        waveformCompressedPoints[(currentPointIndex * 2)] = maxLeftPointLevel;
+                        waveformCompressedPoints[(currentPointIndex * 2) + 1] = maxRightPointLevel;
+                        maxLeftPointLevel = float.MinValue;
+                        maxRightPointLevel = float.MinValue;
+                        currentPointIndex++;
+                    }
+                    if(readCount % 3000 == 0) {
+                        float[] clonedData = (float[])waveformCompressedPoints.Clone();
+                        dispatcher.Invoke(new Action(() =>
+                        {
+                            WaveformData = clonedData;
+                        }));
+                    }
+
+                    if(waveformGenerateWorker.CancellationPending) {
+                        e.Cancel = true;
+                        break;
+                    }
+                    readCount++;
+                }
+
+                float[] finalClonedData = (float[])waveformCompressedPoints.Clone();
+                dispatcher.Invoke(new Action(() =>
+                {
+                    WaveformData = finalClonedData;
+                }));
             }
-            int readCount = 0;
-            while (currentPointIndex * 2 < waveformParams.Points) {
-                waveformInputStream.Read(readBuffer, 0, readBuffer.Length);
-
-                waveformData.Add(waveformAggregator.LeftMaxVolume);
-                waveformData.Add(waveformAggregator.RightMaxVolume);
-
-                if (waveformAggregator.LeftMaxVolume > maxLeftPointLevel)
-                    maxLeftPointLevel = waveformAggregator.LeftMaxVolume;
-                if (waveformAggregator.RightMaxVolume > maxRightPointLevel)
-                    maxRightPointLevel = waveformAggregator.RightMaxVolume;
-
-                if (readCount > waveMaxPointIndexes[currentPointIndex]) {
-                    waveformCompressedPoints[(currentPointIndex * 2)] = maxLeftPointLevel;
-                    waveformCompressedPoints[(currentPointIndex * 2) + 1] = maxRightPointLevel;
-                    maxLeftPointLevel = float.MinValue;
-                    maxRightPointLevel = float.MinValue;
-                    currentPointIndex++;
-                }
-                if (readCount % 3000 == 0) {
-                    float[] clonedData = (float[])waveformCompressedPoints.Clone();
-                    dispatcher.Invoke(new Action(() =>
-                    {
-                        WaveformData = clonedData;
-                    }));
-                }
-
-                if (waveformGenerateWorker.CancellationPending) {
-                    e.Cancel = true;
-                    break;
-                }
-                readCount++;
-            }
-
-            float[] finalClonedData = (float[])waveformCompressedPoints.Clone();
-            dispatcher.Invoke(new Action(() =>
-            {
-                fullLevelData = waveformData.ToArray();
-                WaveformData = finalClonedData;
-            }));
-            waveformInputStream.Close();
-            waveformInputStream.Dispose();
-            waveformInputStream = null;
-            waveformMp3Stream.Close();
-            waveformMp3Stream.Dispose();
-            waveformMp3Stream = null;
         }
         #endregion
 
         #region Private Utility Methods
         private void StopAndCloseStream()
         {
-            if (waveOutDevice != null) {
+            if(waveOutDevice != null) {
                 waveOutDevice.Stop();
             }
-            if (activeStream != null) {
+            if(activeStream != null) {
                 inputStream.Close();
                 inputStream = null;
                 ActiveStream.Close();
                 ActiveStream = null;
             }
-            if (waveOutDevice != null) {
+            if(waveOutDevice != null) {
                 waveOutDevice.Dispose();
                 waveOutDevice = null;
             }
@@ -272,7 +279,7 @@ namespace NAudioPlayer
         #region Public Methods
         public virtual void Stop()
         {
-            if (waveOutDevice != null) {
+            if(waveOutDevice != null) {
                 waveOutDevice.Stop();
             }
             if(ActiveStream != null) {
@@ -286,7 +293,7 @@ namespace NAudioPlayer
 
         public virtual void Pause()
         {
-            if (IsPlaying && CanPause) {
+            if(IsPlaying && CanPause) {
                 waveOutDevice.Pause();
                 IsPlaying = false;
                 CanPlay = true;
@@ -296,7 +303,7 @@ namespace NAudioPlayer
 
         public virtual void Play()
         {
-            if (CanPlay) {
+            if(CanPlay) {
                 waveOutDevice.Play();
                 IsPlaying = true;
                 CanPause = true;
@@ -305,41 +312,66 @@ namespace NAudioPlayer
             }
         }
 
-        public void OpenFile(string path)
+        private void Start()
         {
             Stop();
 
-            if (ActiveStream != null) {
+            if(ActiveStream != null) {
                 ChannelPosition = 0;
             }
 
             StopAndCloseStream();
 
-            if (System.IO.File.Exists(path)) {
-                try {
-                    WaveCallbackInfo waveCallbackInfo = WaveCallbackInfo.FunctionCallback();
-                    waveOutDevice = new WaveOut(waveCallbackInfo)
-                    {
-                        DesiredLatency = 100
-                    };
-                    ActiveStream = new Mp3FileReader(path);
-                    inputStream = new WaveChannel32(ActiveStream);
-                    sampleAggregator = new SampleAggregator(fftDataSize);
-                    inputStream.Sample += inputStream_Sample;
-                    waveOutDevice.Init(inputStream);
-                    TotalTime = inputStream.TotalTime;
-                    ChannelLength = inputStream.TotalTime.TotalSeconds;
-                    GenerateWaveformData(path);
-                    CanPlay = true;
-                    IsInitialized = true;
-                }
-                catch {
-                    ActiveStream = null;
-                    CanPlay = false;
-                    IsInitialized = false;
-                }
+            try {
+                WaveCallbackInfo waveCallbackInfo = WaveCallbackInfo.FunctionCallback();
+                waveOutDevice = new WaveOut(waveCallbackInfo)
+                {
+                    DesiredLatency = 100
+                };
+                audioData = newAudioDataBuffer;
+                ActiveStream = new Mp3FileReader(new MemoryStream(audioData));
+                inputStream = new WaveChannel32(ActiveStream);
+                sampleAggregator = new SampleAggregator(fftDataSize);
+                inputStream.Sample += inputStream_Sample;
+                waveOutDevice.Init(inputStream);
+                ChannelLength = inputStream.TotalTime.TotalSeconds;
+                GenerateWaveformData();
+                CanPlay = true;
+                IsInitialized = true;
+            }
+            catch {
+                ActiveStream = null;
+                CanPlay = false;
+                IsInitialized = false;
             }
         }
+
+        public void Open(string filePath)
+        {
+            if(!File.Exists(filePath)) {
+                return;
+            }
+            using(var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read)) {
+                Open(stream);
+            }
+        }
+
+        public void Open(Stream stream)
+        {
+            byte[] buffer;
+            try {
+                buffer = new byte[stream.Length];
+                stream.Position = 0;
+                stream.Read(buffer, 0, (int)stream.Length);
+            }
+            catch(Exception) {
+                return;
+            }
+
+            newAudioDataBuffer = buffer;
+            Start();
+        }
+
 
         public void Close()
         {
@@ -373,21 +405,22 @@ namespace NAudioPlayer
             }
         }
 
-        private TimeSpan totalTime;
-        public TimeSpan TotalTime {
-            get => totalTime;
-            private set => SetField(ref totalTime, value, () => TotalTime);
+        public TimeSpan TotalTime => ActiveStream.TotalTime;
+
+        public TimeSpan CurrentTime { 
+            get => ActiveStream.CurrentTime; 
+            set => ActiveStream.CurrentTime = value; 
         }
 
         public float Volume {
             get {
-                if (waveOutDevice == null) {
+                if(waveOutDevice == null) {
                     return 0f;
                 }
                 return waveOutDevice.Volume;
             }
             set {
-                if (waveOutDevice == null) {
+                if(waveOutDevice == null) {
                     return;
                 }
                 float volume = value;
@@ -431,7 +464,7 @@ namespace NAudioPlayer
             get { return isPlaying; }
             protected set {
                 SetField(ref isPlaying, value, () => IsPlaying);
-                positionTimer.IsEnabled = value;              
+                positionTimer.IsEnabled = value;
             }
         }
 

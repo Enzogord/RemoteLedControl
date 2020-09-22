@@ -6,7 +6,6 @@ using System.Linq;
 using Core;
 using Core.IO;
 using Core.Model;
-using RLCCore;
 using RLCCore.Domain;
 using RLCCore.Serialization;
 using RLCServerApplication.Infrastructure;
@@ -16,21 +15,24 @@ namespace RLCServerApplication.ViewModels
 {
     public class RemoteClientsViewModel : ViewModelBase
     {
-        private readonly RemoteControlProject remoteControlProject;
-        private readonly RLCProjectController projectController;
+        private readonly WorkSession workSession;
         private readonly RemovableDrivesProvider removableDrivesProvider;
+        private readonly SaveController saveController;
+        private readonly RemoteControlProject project;
 
-        public RemoteClientsViewModel(RLCProjectController projectController, RemovableDrivesProvider removableDrivesProvider)
+        public RemoteClientsViewModel(WorkSession workSession, RemovableDrivesProvider removableDrivesProvider, SaveController saveController)
         {
-            this.projectController = projectController ?? throw new System.ArgumentNullException(nameof(projectController));
+            this.workSession = workSession ?? throw new System.ArgumentNullException(nameof(workSession));
             this.removableDrivesProvider = removableDrivesProvider ?? throw new System.ArgumentNullException(nameof(removableDrivesProvider));
-            this.remoteControlProject = projectController.CurrentProject;
+            this.saveController = saveController ?? throw new System.ArgumentNullException(nameof(saveController));
+            this.project = workSession.Project;
             ConfigureBindings();
         }
 
-        public bool CanEdit => projectController.WorkMode == ProjectWorkModes.Setup;
+        public bool CanEdit => workSession.State == SessionState.Setup;
 
-        public ObservableCollection<RemoteClient> Clients => projectController.CurrentProject?.Clients;
+        public ObservableCollection<RemoteClient> Clients => project.Clients;
+
 
         private RemoteClient selectedClient;
         public RemoteClient SelectedClient {
@@ -55,7 +57,7 @@ namespace RLCServerApplication.ViewModels
 
         public void UpdateRemovableDrives()
         {
-                OnPropertyChanged(nameof(RemovableDrives));
+            OnPropertyChanged(nameof(RemovableDrives));
         }
 
         private string selectedRemovableDrive;
@@ -70,13 +72,13 @@ namespace RLCServerApplication.ViewModels
         private void ConfigureBindings()
         {
             CreateNotificationBinding().AddProperty(nameof(CanEdit))
-                .SetNotifier(projectController)
-                .BindToProperty(x => x.WorkMode)
+                .SetNotifier(workSession)
+                .BindToProperty(x => x.State)
                 .End();
 
             CreateNotificationBinding().AddProperty(nameof(Clients))
-                .SetNotifier(projectController)
-                .BindToProperty(x => x.CurrentProject)
+                .SetNotifier(project)
+                .BindToProperty(x => x.Clients)
                 .End();
         }
 
@@ -107,12 +109,12 @@ namespace RLCServerApplication.ViewModels
             SettingWriter settingWriter = new SettingWriter();
             using(Stream outputStream = new FileStream(Path.Combine(exportPath, "set.txt"), FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.Read)) {
                 outputStream.SetLength(0);
-                string clientFolder = projectController.SaveController.GetClientFolder(SelectedClient.Number, SelectedClient.Name);
+                string clientFolder = saveController.GetClientFolder(SelectedClient.Number, SelectedClient.Name);
                 string[] files = Directory.GetFiles(clientFolder);
                 foreach(var file in files) {
                     File.Copy(file, Path.Combine(exportPath, Path.GetFileName(file)), true);
                 }
-                settingWriter.WriteSettings(outputStream, remoteControlProject, SelectedClient);
+                settingWriter.WriteSettings(outputStream, project, SelectedClient);
             }
         }
 
@@ -164,8 +166,8 @@ namespace RLCServerApplication.ViewModels
                     openClientEditorCommand = new DelegateCommand(
                         () => {
                             if(SelectedClient != null) {
-                                var clientModel = new RemoteClientEditModel(SelectedClient, remoteControlProject, projectController.SaveController);
-                                RemoteClientViewModel = new RemoteClientEditViewModel(clientModel, projectController.SaveController);
+                                var clientModel = new RemoteClientEditModel(SelectedClient, project, saveController);
+                                RemoteClientViewModel = new RemoteClientEditViewModel(clientModel, saveController);
                                 RemoteClientViewModel.OnClose += (sender, e) => { RemoteClientViewModel = null; };
                             }
                         },
@@ -186,11 +188,11 @@ namespace RLCServerApplication.ViewModels
                 if(addNewClientCommand == null) {
                     addNewClientCommand = new DelegateCommand(
                         () => {
-                            var clientModel = new RemoteClientEditModel(remoteControlProject, projectController.SaveController);
-                            RemoteClientViewModel = new RemoteClientEditViewModel(clientModel, projectController.SaveController);
+                            var clientModel = new RemoteClientEditModel(project, saveController);
+                            RemoteClientViewModel = new RemoteClientEditViewModel(clientModel, saveController);
                             RemoteClientViewModel.OnClose += (sender, e) => {
                                 if(e.Commited) {
-                                    remoteControlProject.AddClient(RemoteClientViewModel.RemoteClientEditModel.RemoteClient);
+                                    project.AddClient(RemoteClientViewModel.RemoteClientEditModel.RemoteClient);
                                 }
                                 RemoteClientViewModel = null;
                             };
@@ -214,8 +216,8 @@ namespace RLCServerApplication.ViewModels
                         (selectedClients) => {
                             var selectedClientsClone = selectedClients.OfType<RemoteClient>().ToList();
                             foreach(var selectedClient in selectedClientsClone) {
-                                remoteControlProject.DeleteClient(selectedClient);
-                                projectController.SaveController.DeleteClientFolder(selectedClient);
+                                project.DeleteClient(selectedClient);
+                                saveController.DeleteClientFolder(selectedClient);
                             }
                         },
                         (selectedClients) => { 

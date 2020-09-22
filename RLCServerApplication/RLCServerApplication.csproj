@@ -1,15 +1,16 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
 
   <PropertyGroup>
-    <OutputType>WinExe</OutputType>
+    <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
 	<RootNamespace>RLCServerApplication</RootNamespace>	
     <UseWPF>true</UseWPF>	
-    <UseWindowsForms>true</UseWindowsForms>
+    <UseWindowsForms>true</UseWindowsForms>	
+    <ApplicationIcon />	
+    <StartupObject />
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Autofac" Version="5.2.0" />
 	<PackageReference Include="Extended.Wpf.Toolkit" Version="4.0.1" />
 	<PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="1.1.1" />
 	<PackageReference Include="NLog.Config" Version="4.7.2" />
@@ -19,5 +20,11 @@
   <ItemGroup>
     <ProjectReference Include="..\AudioPlayerControl\AudioPlayerControl.csproj" />
     <ProjectReference Include="..\Core\RLCCore.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="NLog.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>  
 </Project>

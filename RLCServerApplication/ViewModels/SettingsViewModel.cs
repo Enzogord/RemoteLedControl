@@ -1,7 +1,8 @@
 ﻿using System;
-using System.IO;
+using System.Net;
 using Core;
-using RLCCore;
+using Core.Services.FileDialog;
+using RLCCore.Settings;
 using RLCServerApplication.Infrastructure;
 using RLCServerApplication.Infrastructure.Command;
 
@@ -9,55 +10,57 @@ namespace RLCServerApplication.ViewModels
 {
     public class SettingsViewModel : ViewModelBase
     {
-        private readonly SequencePlayer player;
+        public WorkSession WorkSession { get; }
+        private readonly IOpenFileService openFileService;
+        public NetworkController NetworkController { get; }
 
-        public RLCProjectController RLCProjectController { get; }
-        public bool CanEdit => RLCProjectController.WorkMode == ProjectWorkModes.Setup && RLCProjectController.CurrentProject != null;
+        public bool CanEdit => WorkSession.State == SessionState.Setup;
 
-        public SettingsViewModel(RLCProjectController rlcProjectController, SequencePlayer player)
+        public SettingsViewModel(WorkSession workSession, IOpenFileService openFileService, NetworkController networkController)
         {
-            RLCProjectController = rlcProjectController ?? throw new ArgumentNullException(nameof(rlcProjectController));
-            this.player = player ?? throw new ArgumentNullException(nameof(player));
-            CreateCommands();
+            this.WorkSession = workSession ?? throw new ArgumentNullException(nameof(workSession));
+            this.openFileService = openFileService ?? throw new ArgumentNullException(nameof(openFileService));
+            this.NetworkController = networkController ?? throw new ArgumentNullException(nameof(networkController));
             ConfigureBindings();
         }
 
         private void ConfigureBindings()
         {
             CreateNotificationBinding().AddProperty(nameof(CanEdit))
-                .SetNotifier(RLCProjectController)
-                .BindToProperty(x => x.WorkMode)
-                .BindToProperty(x => x.CurrentProject)
+                .SetNotifier(WorkSession)
+                .BindToProperty(x => x.State)
                 .End();
         }
 
         #region Commands
 
-        private void CreateCommands()
-        {
-            CreateAddAudioTrackCommand();
-        }
-
         #region AddAudioTrackCommand
 
-        public DelegateCommand AddAudioTrackCommand { get; private set; }
+        private DelegateCommand addAudioTrackCommand;
+
+        public DelegateCommand AddAudioTrackCommand {
+            get {
+                if(addAudioTrackCommand == null) {
+                    CreateAddAudioTrackCommand();
+                }
+                return addAudioTrackCommand;
+            }
+        }
 
         private void CreateAddAudioTrackCommand()
         {
-            AddAudioTrackCommand = new DelegateCommand(
+            addAudioTrackCommand = new DelegateCommand(
                 () => {
-                    //FIXME убрать зависимоть от диалога
-                    Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog();
-                    dlg.DefaultExt = ".mp3";
-                    dlg.Filter = "Mp3 files|*.mp3";
-                    if(dlg.ShowDialog() == true) {
-                        RLCProjectController.SaveController.UpdateSoundTrackFile(RLCProjectController.CurrentProject.SoundtrackFileName, dlg.FileName, player);
-                        RLCProjectController.CurrentProject.SoundtrackFileName = Path.GetFileName(dlg.FileName);
+                    string filter = "Mp3 files|*.mp3";
+                    string filePath = openFileService.OpenFile(filter, "Открыть", true, true);
+                    if(string.IsNullOrWhiteSpace(filePath)) {
+                        return;
                     }
+                    WorkSession.SetAudioFile(filePath);
                 },
                 () => CanEdit
             );
-            AddAudioTrackCommand.CanExecuteChangedWith(this, x => x.CanEdit);
+            addAudioTrackCommand.CanExecuteChangedWith(this, x => x.CanEdit);
         }
 
         #endregion AddAudioTrackCommand

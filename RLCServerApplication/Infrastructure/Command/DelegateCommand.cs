@@ -19,6 +19,9 @@ namespace RLCServerApplication.Infrastructure.Command
 
         public bool CanExecute()
         {
+            if(canExecute == null) {
+                return true;
+            }
             return canExecute.Invoke();
         }
 

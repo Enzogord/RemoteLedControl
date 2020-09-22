@@ -1,479 +1,168 @@
-﻿using Core;
-using Core.IO;
+﻿using Core.IO;
 using Core.Services.FileDialog;
+using Core.Services.UserDialog;
 using RLCCore;
-using RLCCore.RemoteOperations;
 using RLCServerApplication.Infrastructure;
 using RLCServerApplication.Infrastructure.Command;
 using System;
-using System.IO;
-using System.Linq;
 using System.Windows;
 
 namespace RLCServerApplication.ViewModels
 {
     public class MainWindowViewModel : ViewModelBase
     {
-        public RLCProjectController ProjectController { get; private set; }
+        private readonly ISaveFileService saveFileService;
+        private readonly IOpenFileService openFileService;
+        private readonly IUserDialogService userDialogService;
+        private readonly RemovableDrivesProvider removableDrivesProvider;
 
-        public SequencePlayer Player { get; }
+        public WorkSessionController sessionController { get; private set; }
 
-        private SettingsViewModel settingsViewModel;
-        public SettingsViewModel SettingsViewModel {
-            get => settingsViewModel;
-            set => SetField(ref settingsViewModel, value);
+        private WorkSessionViewModel workSessionViewModel;
+        public WorkSessionViewModel WorkSessionViewModel {
+            get => workSessionViewModel;
+            private set => SetField(ref workSessionViewModel, value);
         }
 
-        private RemoteClientsViewModel remoteClientsViewModel;
-        public RemoteClientsViewModel RemoteClientsViewModel {
-            get => remoteClientsViewModel;
-            set => SetField(ref remoteClientsViewModel, value);
+        private ExceptionViewModel exceptionViewModel;
+        public ExceptionViewModel ExceptionViewModel {
+            get => exceptionViewModel;
+            set => SetField(ref exceptionViewModel, value);
         }
 
-        public bool CanEdit => ProjectController.WorkMode == ProjectWorkModes.Setup;
-
-        public MainWindowViewModel(RLCProjectController projectController, SequencePlayer player, RemovableDrivesProvider removableDrivesProvider, ISaveFileService saveFileService)
+        public MainWindowViewModel(
+            WorkSessionController sessionController,
+            ISaveFileService saveFileService,
+            IOpenFileService openFileService,
+            IUserDialogService userDialogService,
+            RemovableDrivesProvider removableDrivesProvider)
         {
-            ProjectController = projectController ?? throw new ArgumentNullException(nameof(projectController));
-            Player = player ?? throw new ArgumentNullException(nameof(player));
-            this.removableDrivesProvider = removableDrivesProvider ?? throw new ArgumentNullException(nameof(removableDrivesProvider));
+            this.sessionController = sessionController ?? throw new ArgumentNullException(nameof(sessionController));
             this.saveFileService = saveFileService ?? throw new ArgumentNullException(nameof(saveFileService));
-            SettingsViewModel = new SettingsViewModel(ProjectController, player);
-            RemoteClientsViewModel = new RemoteClientsViewModel(ProjectController, removableDrivesProvider);
-            ProjectController.TimeProvider = Player;
-            Player.ChannelPositionUserChanged += Player_ChannelPositionUserChanged;
+            this.openFileService = openFileService ?? throw new ArgumentNullException(nameof(openFileService));
+            this.userDialogService = userDialogService ?? throw new ArgumentNullException(nameof(userDialogService));
+            this.removableDrivesProvider = removableDrivesProvider ?? throw new ArgumentNullException(nameof(removableDrivesProvider));
             ConfigureBindings();
-            CreateCommands();
-        }
-
-        private void Player_ChannelPositionUserChanged(object sender, System.EventArgs e)
-        {
-            PlayFromTimelineCommand.Execute();
-        }
-
-        public void Close()
-        {
-            ProjectController.Dispose();
         }
 
         private void ConfigureBindings()
         {
             CreateNotificationBinding()
-                .AddProperty(nameof(CanEdit))
-                .AddAction(UpdatePlayerState)
-                .SetNotifier(ProjectController)
-                .BindToProperty(x => x.WorkMode)
+                .AddAction(CreateWorkSessionViewModel)
+                .SetNotifier(sessionController)
+                .BindToProperty(x => x.Session)
                 .End();
+        }
 
-            CreateNotificationBinding()
-                .AddAction(UpdateProjectCommands)
-                .AddAction(UpdatePlayerCommands)
-                .SetNotifier(ProjectController)
-                .BindToProperty(x => x.ServicesIsReady)
-                .BindToProperty(x => x.WorkMode)
-                .End();
+        private void CreateWorkSessionViewModel()
+        {
+            if(sessionController.Session == null) {
+                return;
+            }
 
-            CreateNotificationBinding()
-                .AddAction(() => {
-                    if(ProjectController.RemoteClientsOperator != null) {
-                        CreateNotificationBinding()
-                            .AddAction(UpdateProjectCommands)
-                            .AddAction(UpdatePlayerCommands)
-                            .AddProperty(nameof(CanSwitchToSetup), nameof(CanSwitchToTest), nameof(CanSwitchToWork))
-                            .SetNotifier(ProjectController.RemoteClientsOperator)
-                            .BindToProperty(x => x.State)
-                            .End();
-                    }
-                })
-                .SetNotifier(ProjectController)
-                .BindToProperty(x => x.RemoteClientsOperator)
-                .End();
+            var settingsViewModel = new SettingsViewModel(sessionController.Session, openFileService, sessionController.NetworkController);
+            var remoteClientsViewModel = new RemoteClientsViewModel(sessionController.Session, removableDrivesProvider, sessionController.SaveController);
+            WorkSessionViewModel = new WorkSessionViewModel(sessionController.Session, settingsViewModel, remoteClientsViewModel);
+        }
 
-            CreateNotificationBinding()
-                .AddAction(() => {
-                    if(ProjectController.CurrentProject != null) {
-                        CreateNotificationBinding()
-                            .AddAction(ReloadAudioTrack)
-                            .SetNotifier(ProjectController.CurrentProject)
-                            .BindToProperty(x => x.SoundtrackFileName)
-                            .End();
-                    }
-                })
-                .SetNotifier(ProjectController)
-                .BindToProperty(x => x.CurrentProject)
-                .End();
+        public void ShowException(Exception exception)
+        {
+            if(exception == null) {
+                return;
+            }
 
-            CreateNotificationBinding().AddAction(() => RemoteClientsViewModel = new RemoteClientsViewModel(ProjectController, removableDrivesProvider))
-                .SetNotifier(ProjectController)
-                .BindToProperty(x => x.CurrentProject)
-                .End();
-
-            CreateNotificationBinding().AddAction(UpdatePlayerCommands)
-                .SetNotifier(Player)
-                .BindToProperty(x => x.CanPlay)
-                .BindToProperty(x => x.CanPause)
-                .BindToProperty(x => x.CanStop)
-                .BindToProperty(x => x.IsInitialized)
-                .End();
-
-            CreateNotificationBinding().AddProperty(nameof(CanSwitchToWork))
-                .SetNotifier(Player)
-                .BindToProperty(x => x.IsInitialized)
-                .End();
+            ExceptionViewModel = new ExceptionViewModel(exception);
+            ExceptionViewModel.Close += (s, e) => ExceptionViewModel = null;
         }
 
         #region Commands
 
-        private void CreateCommands()
-        {
-            CreatePlayCommand();
-            CreatePlayFromCommand();
-            CreatePlayFromTimelineCommand();
-            CreateStopCommand();
-            CreatePauseCommand();
-            CreateSwitchToSetupCommand();
-            CreateSwitchToTestCommand();
-            CreateSwitchToWorkCommand();
-            CreateLoadCommand();
-            CreateSaveCommand();
-            CreateSaveAsCommand();
-            CreateMuteCommand();
-            CreateCreateCommand();
-        }
+        #region CreateProjectCommand
 
-        #region PlayCommand
-
-        public DelegateCommand PlayCommand { get; private set; }
-
-        private void CreatePlayCommand()
-        {
-            PlayCommand = new DelegateCommand(
-                () => {
-                    if(ProjectController.WorkMode == ProjectWorkModes.Setup) {
-                        return;
-                    }
-                    ProjectController.RemoteClientsOperator.Play();
-                    if(!Player.IsInitialized || !Player.CanPlay) {
-                        return;
-                    }
-                    Player.Play();
-                },
-                () => {
-                    if(!ProjectController.ServicesIsReady) {
-                        return false;
-                    }
-                    var playStates = new[] { OperatorStates.Ready, OperatorStates.Stop, OperatorStates.Pause };
-                    return ProjectController.WorkMode != ProjectWorkModes.Setup && playStates.Contains(ProjectController.RemoteClientsOperator.State);
-                }
-            );
-        }
-
-        #endregion PlayCommand
-
-        #region PlayFromButtonCommand
-
-        private TimeSpan playFromTime;
-        private readonly RemovableDrivesProvider removableDrivesProvider;
-        private readonly ISaveFileService saveFileService;
-
-        public TimeSpan PlayFromTime {
-            get => playFromTime;
-            set => SetField(ref playFromTime, value);
-        }
-
-        public DelegateCommand PlayFromButtonCommand { get; private set; }
-
-        private void CreatePlayFromCommand()
-        {
-            PlayFromButtonCommand = new DelegateCommand(
-                () => {
-                    if(ProjectController.WorkMode == ProjectWorkModes.Setup) {
-                        return;
-                    }
-                    ProjectController.RemoteClientsOperator.PlayFrom(PlayFromTime);
-                    if(!Player.IsInitialized || !Player.CanPlay) {
-                        return;
-                    }
-                    Player.ChannelPosition = PlayFromTime.TotalSeconds;
-                    Player.Play();
-                },
-                () => {
-                    if(!ProjectController.ServicesIsReady) {
-                        return false;
-                    }
-                    var playStates = new[] { OperatorStates.Ready, OperatorStates.Stop, OperatorStates.Pause };
-                    return ProjectController.WorkMode == ProjectWorkModes.Test
-                        && playStates.Contains(ProjectController.RemoteClientsOperator.State)
-                        && PlayFromTime.TotalMilliseconds > 0;
-                }
-            );
-            PlayFromButtonCommand.CanExecuteChangedWith(this, x => x.PlayFromTime);
-        }
-
-        #endregion PlayFromButtonCommand
-
-        #region MuteCommand
-
-        public DelegateCommand MuteCommand { get; private set; }
-
-        private void CreateMuteCommand()
-        {
-            MuteCommand = new DelegateCommand(
-                () => Player.Volume = 0f,
-                () => Player != null
-            );
-            MuteCommand.CanExecuteChangedWith(this, x => x.Player);
-        }
-
-        #endregion MuteCommand
-
-        #region PlayFromTimelineCommand
-
-        public DelegateCommand PlayFromTimelineCommand { get; private set; }
-
-        private void CreatePlayFromTimelineCommand()
-        {
-            PlayFromTimelineCommand = new DelegateCommand(
-                () => {
-                    if(ProjectController.WorkMode == ProjectWorkModes.Setup) {
-                        return;
-                    }
-                    ProjectController.RemoteClientsOperator.PlayFrom(Player.CurrentTime);
-                    if(!Player.IsInitialized || !Player.CanPlay) {
-                        return;
-                    }
-                    Player.Play();
-                },
-                () => {
-                    if(!ProjectController.ServicesIsReady) {
-                        return false;
-                    }
-                    return ProjectController.WorkMode == ProjectWorkModes.Test
-                        && Player.IsEnabled;
-                }
-            );
-        }
-
-        #endregion PlayFromTimelineCommand
-
-        #region StopCommand
-
-        public DelegateCommand StopCommand { get; private set; }
-
-        private void CreateStopCommand()
-        {
-            StopCommand = new DelegateCommand(
-                () => {
-                    if(ProjectController.WorkMode == ProjectWorkModes.Setup) {
-                        return;
-                    }
-                    ProjectController.RemoteClientsOperator.Stop();
-                    if(!Player.IsInitialized || !Player.CanStop) {
-                        return;
-                    }
-                    Player.Stop();
-                },
-                () => {
-                    if(!ProjectController.ServicesIsReady) {
-                        return false;
-                    }
-                    var stopStates = new[] { OperatorStates.Play, OperatorStates.Pause };
-                    return ProjectController.WorkMode != ProjectWorkModes.Setup && stopStates.Contains(ProjectController.RemoteClientsOperator.State);
-                }
-            );
-        }
-
-
-        #endregion StopCommand
-
-        #region PauseCommand
-
-        public DelegateCommand PauseCommand { get; private set; }
-
-        private void CreatePauseCommand()
-        {
-            PauseCommand = new DelegateCommand(
-                () => {
-                    if(ProjectController.WorkMode == ProjectWorkModes.Setup) {
-                        return;
-                    }
-                    ProjectController.RemoteClientsOperator.Pause();
-                    if(!Player.IsInitialized || !Player.CanPause) {
-                        return;
-                    }
-                    Player.Pause();
-                },
-                () => {
-                    if(!ProjectController.ServicesIsReady) {
-                        return false;
-                    }
-                    return ProjectController.WorkMode != ProjectWorkModes.Setup && ProjectController.RemoteClientsOperator.State == OperatorStates.Play;
-                }
-            );
-        }
-
-        #endregion PauseCommand
-
-        #region SwitchToSetupCommand
-
-        public bool IsSetupMode => ProjectController.WorkMode == ProjectWorkModes.Setup;
-
-        public DelegateCommand SwitchToSetupCommand { get; private set; }
-
-        private void CreateSwitchToSetupCommand()
-        {
-            SwitchToSetupCommand = new DelegateCommand(
-                () => {
-                    try {
-                        Player.Stop();
-                        ProjectController.SwitchToSetupMode();
-                    }
-                    finally {
-                        UpdateWorkModeProperties();
-                    }
-                },
-                () => CanSwitchToSetup
-            );
-            SwitchToSetupCommand.CanExecuteChangedWith(this, x => x.CanSwitchToSetup);
-        }
-
-        public bool CanSwitchToSetup {
+        private DelegateCommand createProjectCommand;
+        public DelegateCommand CreateProjectCommand {
             get {
-                if(ProjectController.RemoteClientsOperator == null) {
-                    return true;
+                if(createProjectCommand == null) {
+                    CreateCreateProjectCommand();
                 }
-                return (ProjectController.RemoteClientsOperator.State != OperatorStates.Play
-                    && ProjectController.RemoteClientsOperator.State != OperatorStates.Pause
-                );
+                return createProjectCommand;
             }
         }
 
-        #endregion SwitchToSetupCommand
-
-        #region SwitchToTestCommand
-
-        public bool IsTestMode => ProjectController.WorkMode == ProjectWorkModes.Test;
-
-        public DelegateCommand SwitchToTestCommand { get; private set; }
-
-        private void CreateSwitchToTestCommand()
+        private void CreateCreateProjectCommand()
         {
-            SwitchToTestCommand = new DelegateCommand(
-                () => {
-                    try {
-                        ProjectController.SwitchToTestMode();
-                    }
-                    finally {
-                        UpdateWorkModeProperties();
-                    }
-                },
-                () => CanSwitchToTest
+            createProjectCommand = new DelegateCommand(
+                () => CreateProject(),
+                () => sessionController.CanCreateProject
             );
-            SwitchToTestCommand.CanExecuteChangedWith(this, x => x.CanSwitchToTest);
+            createProjectCommand.CanExecuteChangedWith(sessionController, x => x.CanCreateProject);
         }
 
-        public bool CanSwitchToTest {
-            get {
-                if(ProjectController.RemoteClientsOperator == null) {
-                    return true;
+        private void CreateProject()
+        {            
+            if(WorkSessionViewModel != null) {
+                var result = userDialogService.AskQuestion(
+                    "Уже есть открытый проект, все не сохраненные изменения будут утеряны, все равно открыть новый проект?",
+                    "Внимание!",
+                    UserDialogActions.YesNo,
+                    UserDialogInformationLevel.Question);
+
+                if(result == UserDialogResult.No) {
+                    return;
                 }
-                return (ProjectController.RemoteClientsOperator.State != OperatorStates.Play
-                    && ProjectController.RemoteClientsOperator.State != OperatorStates.Pause
-                );
+            }
+
+            sessionController.CreateProject();
+        }
+
+        #endregion CreateProjectCommand	
+
+        #region SaveProjectCommand
+
+        private DelegateCommand saveProjectCommand;
+
+        public DelegateCommand SaveProjectCommand {
+            get {
+                if(saveProjectCommand == null) {
+                    CreateSaveProjectCommand();
+                }
+                return saveProjectCommand;
             }
         }
 
-        #endregion SwitchToTestCommand
-
-        #region SwitchToWorkCommand
-
-        public bool IsWorkMode => ProjectController.WorkMode == ProjectWorkModes.Work;
-
-        public DelegateCommand SwitchToWorkCommand { get; private set; }
-
-        private void CreateSwitchToWorkCommand()
+        private void CreateSaveProjectCommand()
         {
-            SwitchToWorkCommand = new DelegateCommand(
+            saveProjectCommand = new DelegateCommand(
                 () => {
-                    try {
-                        ProjectController.SwitchToWorkMode();
-                    }
-                    finally {
-                        UpdateWorkModeProperties();
-                    }
-                },
-                () => CanSwitchToWork
-            );
-
-            SwitchToWorkCommand.CanExecuteChangedWith(this, x => x.CanSwitchToWork);
-        }
-
-        public bool CanSwitchToWork {
-            get {
-                if(ProjectController.RemoteClientsOperator == null) {
-                    return Player.IsInitialized;
-                }
-                return Player.IsInitialized
-                    && ProjectController.RemoteClientsOperator.State != OperatorStates.Play
-                    && ProjectController.RemoteClientsOperator.State != OperatorStates.Pause;
-            }
-        }
-        #endregion SwitchToWorkCommand
-
-        #region CreateCommand
-
-        public DelegateCommand CreateCommand { get; private set; }
-
-        private void CreateCreateCommand()
-        {
-            CreateCommand = new DelegateCommand(
-                () => {
-                    if(ProjectController.CurrentProject != null) {
-                        if(MessageBox.Show("Уже есть открытый проект, не сохраненные изменения будут утеряны, все равно открыть новый?", "Внимание!" , MessageBoxButton.YesNo) == MessageBoxResult.No) {
-                            return;
-                        }
-                    }
-
-                    ProjectController.CreateProject();
-                },
-                () => ProjectController.CanCreateNewProject
-            );
-            CreateCommand.CanExecuteChangedWith(ProjectController, x => x.CanCreateNewProject);
-        }
-
-        #endregion CreateCommand	
-
-        #region SaveCommand
-
-        public DelegateCommand SaveCommand { get; private set; }
-
-        private void CreateSaveCommand()
-        {
-            SaveCommand = new DelegateCommand(
-                () => {
-                    if(ProjectController.NeedSelectSavePath) {
-                        SaveAsCommand.Execute();
+                    if(sessionController.NeedSelectSavePath) {
+                        SaveProjectAsCommand.Execute();
                         return;
                     }
-                    ProjectController.SaveProject();
+                    sessionController.SaveProject();
                     MessageBox.Show("Сохранено");
                 },
-                () => {
-                   return ProjectController.WorkMode == ProjectWorkModes.Setup && ProjectController.CurrentProject != null;
-                }
+                () => sessionController.CanSaveProject
             );
-            SaveCommand.CanExecuteChangedWith(ProjectController, x => x.WorkMode, x => x.CurrentProject);
+            saveProjectCommand.CanExecuteChangedWith(sessionController, x => x.CanSaveProject);
         }
 
-        #endregion SaveCommand
+        #endregion SaveProjectCommand	
 
         #region SaveAsCommand
 
-        public DelegateCommand SaveAsCommand { get; private set; }
+        public DelegateCommand saveProjectAsCommand;
+        public DelegateCommand SaveProjectAsCommand {
+            get {
+                if(saveProjectAsCommand == null) {
+                    CreateSaveAsCommand();
+                }
+                return saveProjectAsCommand;
+            }
+        }
 
         private void CreateSaveAsCommand()
         {
-            SaveAsCommand = new DelegateCommand(
+            saveProjectAsCommand = new DelegateCommand(
                 () => {
                     string filter = "RemoteLedControl save file|*.rlcsave";
                     string filePath = saveFileService.SaveFile(filter, "Сохранение проекта", ".rlcsave", true, false, false);
@@ -481,85 +170,46 @@ namespace RLCServerApplication.ViewModels
                         return;
                     }
 
-                    ProjectController.SaveProjectAs(filePath);
+                    sessionController.SaveProjectAs(filePath);
                     MessageBox.Show("Сохранено");
                 },
-                () => {
-                    return ProjectController.WorkMode == ProjectWorkModes.Setup && ProjectController.CurrentProject != null;
-                }
+                () => sessionController.CanSaveProject
             );
-            SaveAsCommand.CanExecuteChangedWith(ProjectController, x => x.WorkMode, x => x.CurrentProject);
+            saveProjectAsCommand.CanExecuteChangedWith(sessionController, x => x.CanSaveProject);
         }
 
         #endregion SaveAsCommand
 
         #region LoadCommand
 
-        public DelegateCommand LoadCommand { get; private set; }
+        private DelegateCommand loadProjectCommand;
+        public DelegateCommand LoadProjectCommand {
+            get {
+                if(loadProjectCommand == null) {
+                    CreateLoadCommand();
+                }
+                return loadProjectCommand;
+            }
+        }
 
         private void CreateLoadCommand()
         {
-            LoadCommand = new DelegateCommand(
+            loadProjectCommand = new DelegateCommand(
                 () => {
-                    //FIXME убрать зависимоть от диалога
-                    Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog();
-                    dlg.InitialDirectory = Environment.CurrentDirectory;
-                    dlg.DefaultExt = ".rlcsave";
-                    dlg.Filter = "RemoteLedControl save file|*.rlcsave";
-                    dlg.CheckFileExists = true;
-                    dlg.CheckPathExists = true;
-                    dlg.Multiselect = false;
-                    if(dlg.ShowDialog() == true) {
-                        ProjectController.LoadProject(dlg.FileName);
-                        ReloadAudioTrack();
+                    string filter = "RemoteLedControl save file|*.rlcsave";
+                    string filePath = openFileService.OpenFile(filter, "Открытие проекта", true, true);
+                    if(string.IsNullOrWhiteSpace(filePath)) {
+                        return;
                     }
+                    sessionController.LoadProject(filePath);
                 },
-                () => ProjectController.WorkMode == ProjectWorkModes.Setup
+                () => sessionController.CanLoadProject
             );
-            LoadCommand.CanExecuteChangedWith(ProjectController, x => x.WorkMode);
+            loadProjectCommand.CanExecuteChangedWith(sessionController, x => x.CanLoadProject);
         }
 
-        #endregion LoadCommand	
+        #endregion LoadCommand
 
         #endregion Commands
-
-        private void ReloadAudioTrack()
-        {
-            if(ProjectController.CurrentProject == null || Player == null || ProjectController.WorkMode != ProjectWorkModes.Setup || string.IsNullOrWhiteSpace(ProjectController.CurrentProject.SoundtrackFileName)) {
-                return;
-            }
-            string soundtrackFilePath = Path.Combine(ProjectController.SaveController.WorkDirectory, ProjectController.CurrentProject.SoundtrackFileName);
-            if(!File.Exists(soundtrackFilePath)) {
-                return;
-            }
-            Player.OpenFile(soundtrackFilePath);
-            Player.Volume = 0.1f;
-        }
-
-        private void UpdateWorkModeProperties()
-        {
-            OnPropertyChanged(nameof(IsSetupMode));
-            OnPropertyChanged(nameof(IsTestMode));
-            OnPropertyChanged(nameof(IsWorkMode));
-        }
-
-        private void UpdatePlayerCommands()
-        {
-            PlayCommand?.RaiseCanExecuteChanged();
-            PlayFromButtonCommand?.RaiseCanExecuteChanged();
-            StopCommand?.RaiseCanExecuteChanged();
-            PauseCommand?.RaiseCanExecuteChanged();
-        }
-
-        private void UpdateProjectCommands()
-        {
-            LoadCommand?.RaiseCanExecuteChanged();
-            SaveCommand?.RaiseCanExecuteChanged();
-        }
-
-        private void UpdatePlayerState()
-        {
-            Player.IsEnabled = ProjectController.WorkMode == ProjectWorkModes.Test;
-        }
     }
 }
