@@ -64,8 +64,8 @@ namespace NAudioPlayer
 
         protected virtual void Dispose(bool disposing)
         {
-            if (!disposed) {
-                if (disposing) {
+            if(!disposed) {
+                if(disposing) {
                     StopAndCloseStream();
                 }
                 waveformGenerateWorker.Dispose();
@@ -88,7 +88,6 @@ namespace NAudioPlayer
         public double ChannelLength {
             get { return channelLength; }
             protected set {
-                double oldValue = channelLength;
                 SetField(ref channelLength, value, () => ChannelLength);
             }
         }
@@ -98,20 +97,36 @@ namespace NAudioPlayer
         public virtual double ChannelPosition {
             get { return channelPosition; }
             set {
-                if (!inChannelSet) {
-                    inChannelSet = true; // Avoid recursion                    
-                    double oldValue = channelPosition;
+                if(!inChannelSet && !audioFileEndedInvoked) {
+                    inChannelSet = true; // Avoid recursion
                     double position = Math.Max(0, Math.Min(value, ChannelLength));
                     if(!inChannelTimerUpdate && ActiveStream != null) {
                         ActiveStream.Position = (long)((position / ActiveStream.TotalTime.TotalSeconds) * ActiveStream.Length);
                     }
-                    SetField(ref channelPosition, position, () => ChannelPosition);
+                    if(Math.Abs(position - ChannelLength) <= 0.000001) {
+                        RaiseAudioFileEnded();
+                        Stop();
+                        ActiveStream.Position = 0;
+                        OnPropertyChanged(() => CurrentTime);
+                    }
+                    if(SetField(ref channelPosition, position, () => ChannelPosition)) {
+                        OnPropertyChanged(() => CurrentTime);
+                    }
                     inChannelSet = false;
                 }
             }
         }
 
+        public event EventHandler AudioFileEnded;
         public event EventHandler ChannelPositionUserChanged;
+
+        private bool audioFileEndedInvoked;
+        private void RaiseAudioFileEnded()
+        {
+            audioFileEndedInvoked = true;
+            AudioFileEnded?.Invoke(this, EventArgs.Empty);
+            audioFileEndedInvoked = false;
+        }
 
         public void ChangePosition(double position)
         {
@@ -126,11 +141,11 @@ namespace NAudioPlayer
 
         protected void OnPropertyChanged<T>(Expression<Func<T>> selectorExpression)
         {
-            if (selectorExpression == null) {
+            if(selectorExpression == null) {
                 throw new ArgumentNullException("selectorExpression should not be null");
             }
             MemberExpression body = selectorExpression.Body as MemberExpression;
-            if (body == null) {
+            if(body == null) {
                 throw new ArgumentException("The body must be a member expression");
             }
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(body.Member.Name));
@@ -138,7 +153,7 @@ namespace NAudioPlayer
 
         protected bool SetField<T>(ref T field, T value, Expression<Func<T>> selectorExpression)
         {
-            if (EqualityComparer<T>.Default.Equals(field, value)) {
+            if(EqualityComparer<T>.Default.Equals(field, value)) {
                 return false;
             }
             field = value;
@@ -160,19 +175,19 @@ namespace NAudioPlayer
 
         private void GenerateWaveformData()
         {
-            if (waveformGenerateWorker.IsBusy) {
+            if(waveformGenerateWorker.IsBusy) {
                 waveformGenerateWorker.CancelAsync();
                 return;
             }
 
-            if (!waveformGenerateWorker.IsBusy && waveformCompressedPointCount != 0)
+            if(!waveformGenerateWorker.IsBusy && waveformCompressedPointCount != 0)
                 waveformGenerateWorker.RunWorkerAsync();
         }
 
         private void waveformGenerateWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
-            if (e.Cancelled) {
-                if (!waveformGenerateWorker.IsBusy && waveformCompressedPointCount != 0)
+            if(e.Cancelled) {
+                if(!waveformGenerateWorker.IsBusy && waveformCompressedPointCount != 0)
                     waveformGenerateWorker.RunWorkerAsync();
             }
         }
@@ -244,16 +259,16 @@ namespace NAudioPlayer
         #region Private Utility Methods
         private void StopAndCloseStream()
         {
-            if (waveOutDevice != null) {
+            if(waveOutDevice != null) {
                 waveOutDevice.Stop();
             }
-            if (activeStream != null) {
+            if(activeStream != null) {
                 inputStream.Close();
                 inputStream = null;
                 ActiveStream.Close();
                 ActiveStream = null;
             }
-            if (waveOutDevice != null) {
+            if(waveOutDevice != null) {
                 waveOutDevice.Dispose();
                 waveOutDevice = null;
             }
@@ -264,7 +279,7 @@ namespace NAudioPlayer
         #region Public Methods
         public virtual void Stop()
         {
-            if (waveOutDevice != null) {
+            if(waveOutDevice != null) {
                 waveOutDevice.Stop();
             }
             if(ActiveStream != null) {
@@ -278,7 +293,7 @@ namespace NAudioPlayer
 
         public virtual void Pause()
         {
-            if (IsPlaying && CanPause) {
+            if(IsPlaying && CanPause) {
                 waveOutDevice.Pause();
                 IsPlaying = false;
                 CanPlay = true;
@@ -288,7 +303,7 @@ namespace NAudioPlayer
 
         public virtual void Play()
         {
-            if (CanPlay) {
+            if(CanPlay) {
                 waveOutDevice.Play();
                 IsPlaying = true;
                 CanPause = true;
@@ -301,11 +316,11 @@ namespace NAudioPlayer
         {
             Stop();
 
-            if (ActiveStream != null) {
+            if(ActiveStream != null) {
                 ChannelPosition = 0;
             }
 
-            StopAndCloseStream();            
+            StopAndCloseStream();
 
             try {
                 WaveCallbackInfo waveCallbackInfo = WaveCallbackInfo.FunctionCallback();
@@ -319,7 +334,6 @@ namespace NAudioPlayer
                 sampleAggregator = new SampleAggregator(fftDataSize);
                 inputStream.Sample += inputStream_Sample;
                 waveOutDevice.Init(inputStream);
-                TotalTime = inputStream.TotalTime;
                 ChannelLength = inputStream.TotalTime.TotalSeconds;
                 GenerateWaveformData();
                 CanPlay = true;
@@ -391,21 +405,22 @@ namespace NAudioPlayer
             }
         }
 
-        private TimeSpan totalTime;
-        public TimeSpan TotalTime {
-            get => totalTime;
-            private set => SetField(ref totalTime, value, () => TotalTime);
+        public TimeSpan TotalTime => ActiveStream.TotalTime;
+
+        public TimeSpan CurrentTime { 
+            get => ActiveStream.CurrentTime; 
+            set => ActiveStream.CurrentTime = value; 
         }
 
         public float Volume {
             get {
-                if (waveOutDevice == null) {
+                if(waveOutDevice == null) {
                     return 0f;
                 }
                 return waveOutDevice.Volume;
             }
             set {
-                if (waveOutDevice == null) {
+                if(waveOutDevice == null) {
                     return;
                 }
                 float volume = value;
@@ -449,7 +464,7 @@ namespace NAudioPlayer
             get { return isPlaying; }
             protected set {
                 SetField(ref isPlaying, value, () => IsPlaying);
-                positionTimer.IsEnabled = value;              
+                positionTimer.IsEnabled = value;
             }
         }
 
