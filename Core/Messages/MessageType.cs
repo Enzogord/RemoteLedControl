@@ -3,14 +3,15 @@
     public enum MessageType : byte
     {
         NotSet = 0,
-        //to client
+
+        //common
         State = 1,
+
+        //to client
         SendServerIp = 5,
         RequestClientInfo = 6,
 
         //to server
-        ClientInfo = 100,
         RequestServerIp = 101,
-        BatteryCharge = 102
     }
 }
