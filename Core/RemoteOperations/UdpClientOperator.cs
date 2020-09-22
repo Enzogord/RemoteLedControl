@@ -35,8 +35,13 @@ namespace Core.RemoteOperations
             this.connectionsController = connectionsController ?? throw new ArgumentNullException(nameof(connectionsController));
             this.networkSettingProvider = networkSettingProvider ?? throw new ArgumentNullException(nameof(networkSettingProvider));
             this.player = player ?? throw new ArgumentNullException(nameof(player));
-
+            player.AudioFileEnded += Player_AudioFileEnded;
             ConfigureBindings();
+        }
+
+        private void Player_AudioFileEnded(object sender, EventArgs e)
+        {
+            Stop();
         }
 
         private void ConfigureBindings()
@@ -108,24 +113,10 @@ namespace Core.RemoteOperations
 
         #endregion Control
 
-        #region Client restore
-
-        private void CheckFirstTimeConnection(RLCMessage message)
-        {
-            if(message.MessageType == MessageType.RequestServerIp) {
-                RestoreClientPlaying(message.ClientNumber);
-            }
-        }
-
-        private void RestoreClientPlaying(int clientNumber)
-        {
-            var message = CreateStateMessage();
-            Send(clientNumber, message);
-        }
-
-        #endregion Client restore
-
         #region Play control
+
+        private DateTime startTime;
+        private uint startFrame;
 
         public bool CanPlay => player.CanPlay && new[] { OperatorStates.Ready, OperatorStates.Pause, OperatorStates.Stop }.Contains(State);
 
@@ -134,6 +125,8 @@ namespace Core.RemoteOperations
             var stateBackup = State;
             try {
                 State = OperatorStates.Play;
+                startTime = DateTime.Now;
+                startFrame = GetCurrentFrame();
                 player.Play();
                 SendStateToClients();
             }
@@ -188,7 +181,14 @@ namespace Core.RemoteOperations
         {
             var message = CreateStateMessage();
             logger.Debug($"Send {message.ClientState} state (MessageId: {message.MessageId}) to all clients");
-            SendToAll(message);
+            SendToAllWithConfirm(message);
+        }
+
+        private void SendStateToClient(ushort clientId)
+        {
+            var message = CreateStateMessage();
+            logger.Debug($"Send {message.ClientState} state (MessageId: {message.MessageId}) to client №{clientId}");
+            SendWithConfirm(clientId, message);
         }
 
         private RLCMessage CreateStateMessage()
@@ -202,15 +202,18 @@ namespace Core.RemoteOperations
 
         private uint GetNextFrame()
         {
+            return GetCurrentFrame() + 1;
+        }
+
+        private uint GetCurrentFrame()
+        {
             var currentFrame = (uint)(player.CurrentTime.TotalMilliseconds) / (uint)50;
-            return currentFrame + 1;
+            return currentFrame;
         }
 
         private DateTime GetNextFrameStartTime()
         {
-            var timeFromCurrentFrame = (uint)(player.CurrentTime.TotalMilliseconds % (double)50);
-            var timeUntilNextFrame = 50 - timeFromCurrentFrame;
-            return DateTime.Now.AddMilliseconds(timeUntilNextFrame);
+            return startTime.AddMilliseconds((GetNextFrame() - startFrame) * 50);
         }
 
         private ClientState GetClientState()
@@ -273,7 +276,6 @@ namespace Core.RemoteOperations
             if(!ValidateMessage(message)) {
                 return;
             }
-            CheckFirstTimeConnection(message);
             connectionsController.UpdateClientActivity(message.ClientNumber, e.RemoteEndPoint as IPEndPoint);
             confirmationService?.Confirm(message);
             Receive(message);
@@ -281,13 +283,17 @@ namespace Core.RemoteOperations
 
         private void Receive(RLCMessage message)
         {
-            if(message.MessageType == MessageType.ClientInfo) {
+            if(message.MessageId != 0) {
                 return;
             }
 
+            if(message.ClientState != GetClientState()) {
+                SendStateToClient(message.ClientNumber);
+            }
             if(message.MessageType == MessageType.RequestServerIp) {
                 var response = RLCMessageFactory.SendServerIP(project.Key, networkSettingProvider.GetServerIPAddress());
                 Send(message.ClientNumber, response);
+                return;
             }
 
             project.Receive(message);
@@ -297,12 +303,12 @@ namespace Core.RemoteOperations
 
         #region Sending
 
-        private void Send(RemoteClient client, RLCMessage message)
+        private void SendWithConfirm(int clientNumber, RLCMessage message)
         {
-            if(client is null) {
-                throw new ArgumentNullException(nameof(client));
+            Send(clientNumber, message);
+            if(message.MessageType == MessageType.State) {
+                confirmationService?.AddMessageToConfirm(clientNumber, message);
             }
-            Send(client.Number, message);
         }
 
         private void Send(int clientNumber, RLCMessage message)
@@ -319,10 +325,15 @@ namespace Core.RemoteOperations
             if(connection.EndPoint == null) {
                 throw new InvalidOperationException("Client was not connected");
             }
-            
+
             udpServer.Send(message.ToArray(), connection.EndPoint);
+        }
+
+        private void SendToAllWithConfirm(RLCMessage message)
+        {
+            SendToAll(message);
             if(message.MessageType == MessageType.State) {
-                confirmationService?.AddMessageToConfirm(clientNumber, message);
+                confirmationService?.AddMessageToConfirmForAll(message);
             }
         }
 
@@ -331,11 +342,8 @@ namespace Core.RemoteOperations
             if(message is null) {
                 throw new ArgumentNullException(nameof(message));
             }
-            
+
             udpServer.Send(message.ToArray(), networkSettingProvider.BroadcastIPAddress);
-            if(message.MessageType == MessageType.State) {
-                confirmationService?.AddMessageToConfirmForAll(message);
-            }
         }
 
         #endregion Sending

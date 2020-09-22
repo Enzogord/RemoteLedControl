@@ -21,7 +21,6 @@ namespace Core.RemoteOperations
 
             this.resendAction = resendAction ?? throw new ArgumentNullException(nameof(resendAction));
 
-
             foreach(var client in clients) {
                 var agent = new MessageReceiveConfimationAgent(GetResendActionForClient(client.Number), msResendDelay, msResendTimeout);
                 confirmationAgents.Add(client.Number, agent);
@@ -59,14 +58,13 @@ namespace Core.RemoteOperations
 
         public void Confirm(RLCMessage response)
         {
-            if(response == null) {
+            if(response == null || response.MessageId <= 0) {
                 return;
             }
 
             if(confirmationAgents.TryGetValue(response.ClientNumber, out MessageReceiveConfimationAgent agent)) {
                 agent.Confirm(response);
             }
-            LogJobsCount();
         }
 
         private void LogJobsCount()
