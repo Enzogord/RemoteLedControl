@@ -324,6 +324,13 @@
                         Minimum="0"
                         SmallChange="0.01"
                         Value="{Binding Player.Volume}" />
+                    <Separator Margin="5,0,0,0" Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" />
+                    <Button
+                        Margin="5,0,0,0"
+                        Padding="10,3"
+                        HorizontalAlignment="Right"
+                        Command="{Binding TestConnectionCommand}"
+                        Content="Тест подключения" />
                 </StackPanel>
                 <StackPanel
                     Grid.Column="3"

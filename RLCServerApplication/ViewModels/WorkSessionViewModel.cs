@@ -256,6 +256,21 @@ namespace RLCServerApplication.ViewModels
 
         #endregion SwitchToWorkCommand
 
+        private DelegateCommand testConnectionCommand;
+        public DelegateCommand TestConnectionCommand {
+            get {
+                if(testConnectionCommand == null) {
+                    testConnectionCommand = new DelegateCommand(
+                        () => {
+                            workSession.ClientOperator.TestConnection();
+                        },
+                        () => workSession.ClientOperator.CanTestConnection
+                    );
+                    testConnectionCommand.CanExecuteChangedWith(workSession.ClientOperator, x => x.CanTestConnection);
+                }
+                return testConnectionCommand;
+            }
+        }
 
         #endregion Commands
     }

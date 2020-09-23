@@ -40,5 +40,13 @@ namespace Core.Messages
             var message = new RLCMessage(SourceType.Server, key, MessageType.RequestClientInfo);
             return message;
         }
+
+        public static RLCMessage ConnectionTest(uint key, DateTime frameStartTime)
+        {
+            var message = new RLCMessage(SourceType.Server, key, MessageType.ConnectionTest);
+            message.FrameStartTime = frameStartTime;
+            SetMessageId(message);
+            return message;
+        }
     }
 }

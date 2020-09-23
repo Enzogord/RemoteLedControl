@@ -84,7 +84,7 @@ namespace RLCServerApplication.ViewModels
 
         #region OpenRemovableDriveCommand
 
-        public DelegateCommand openRemovableDriveCommand;
+        private DelegateCommand openRemovableDriveCommand;
         public DelegateCommand OpenRemovableDriveCommand {
             get {
                 if(openRemovableDriveCommand == null) {
@@ -118,7 +118,7 @@ namespace RLCServerApplication.ViewModels
             }
         }
 
-        public DelegateCommand<IList> exportClientDataToSDCommand;
+        private DelegateCommand<IList> exportClientDataToSDCommand;
         public DelegateCommand<IList> ExportClientDataToSDCommand {
             get {
                 if(exportClientDataToSDCommand == null) {
@@ -134,7 +134,7 @@ namespace RLCServerApplication.ViewModels
             }
         }
 
-        public DelegateCommand<IList> exportClientDataCommand;
+        private DelegateCommand<IList> exportClientDataCommand;
         public DelegateCommand<IList> ExportClientDataCommand {
             get {
                 if(exportClientDataCommand == null) {
@@ -159,7 +159,7 @@ namespace RLCServerApplication.ViewModels
 
         #region OpenClientEditorCommand
 
-        public DelegateCommand openClientEditorCommand;
+        private DelegateCommand openClientEditorCommand;
         public DelegateCommand OpenClientEditorCommand {
             get {
                 if(openClientEditorCommand == null) {
@@ -182,7 +182,7 @@ namespace RLCServerApplication.ViewModels
 
         #region AddNewClientCommand
 
-        public DelegateCommand addNewClientCommand;
+        private DelegateCommand addNewClientCommand;
         public DelegateCommand AddNewClientCommand {
             get {
                 if(addNewClientCommand == null) {
@@ -208,7 +208,7 @@ namespace RLCServerApplication.ViewModels
 
         #region DeleteClientCommand
 
-        public DelegateCommand<IList> deleteClientCommand;
+        private DelegateCommand<IList> deleteClientCommand;
         public DelegateCommand<IList> DeleteClientCommand {
             get {
                 if(deleteClientCommand == null) {
@@ -229,6 +229,6 @@ namespace RLCServerApplication.ViewModels
             }
         }
 
-        #endregion DeleteClientCommand	
+        #endregion DeleteClientCommand
     }
 }

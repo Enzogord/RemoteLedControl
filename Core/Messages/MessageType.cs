@@ -10,6 +10,7 @@
         //to client
         SendServerIp = 5,
         RequestClientInfo = 6,
+        ConnectionTest = 7,
 
         //to server
         RequestServerIp = 101,

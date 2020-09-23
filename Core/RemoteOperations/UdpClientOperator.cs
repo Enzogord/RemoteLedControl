@@ -8,6 +8,7 @@ using System.Net;
 using NotifiedObjectsFramework;
 using RLCCore.RemoteOperations;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace Core.RemoteOperations
 {
@@ -71,6 +72,7 @@ namespace Core.RemoteOperations
                     OnPropertyChanged(nameof(CanPlay));
                     OnPropertyChanged(nameof(CanPause));
                     OnPropertyChanged(nameof(CanStop));
+                    OnPropertyChanged(nameof(CanTestConnection));
                 }
             }
         }
@@ -175,6 +177,15 @@ namespace Core.RemoteOperations
         {
             player.CurrentTime = time;
             Play();
+        }
+
+        public bool CanTestConnection => State == OperatorStates.Stop || State == OperatorStates.Ready;
+
+        public void TestConnection()
+        {
+            var message = RLCMessageFactory.ConnectionTest(project.Key, DateTime.Now);
+            logger.Debug($"Send connection test (MessageId: {message.MessageId}) to all clients");
+            SendToAllWithConfirm(message);
         }
 
         private void SendStateToClients()
@@ -306,7 +317,7 @@ namespace Core.RemoteOperations
         private void SendWithConfirm(int clientNumber, RLCMessage message)
         {
             Send(clientNumber, message);
-            if(message.MessageType == MessageType.State) {
+            if(GetConfimationMessageTypes().Contains(message.MessageType)) {
                 confirmationService?.AddMessageToConfirm(clientNumber, message);
             }
         }
@@ -332,7 +343,7 @@ namespace Core.RemoteOperations
         private void SendToAllWithConfirm(RLCMessage message)
         {
             SendToAll(message);
-            if(message.MessageType == MessageType.State) {
+            if(GetConfimationMessageTypes().Contains(message.MessageType)) {
                 confirmationService?.AddMessageToConfirmForAll(message);
             }
         }
@@ -347,5 +358,10 @@ namespace Core.RemoteOperations
         }
 
         #endregion Sending
+
+        private IEnumerable<MessageType> GetConfimationMessageTypes()
+        {
+            return new[] { MessageType.State, MessageType.ConnectionTest };
+        }
     }
 }
