@@ -42,15 +42,9 @@ namespace Core.RemoteOperations
         {
         }
 
-        public void RefreshState(bool connected, IPEndPoint endPoint)
+        public void UpdateConnection()
         {
-            EndPoint = endPoint;
-            RefreshState(connected);
-        }
-
-        public void RefreshState(bool connected)
-        {
-            Connected = connected;
+            Connected = true;
             var now = DateTime.Now;
             LastRefreshTime = now;
             if(Connected) {
@@ -59,6 +53,13 @@ namespace Core.RemoteOperations
                     firstUpdate = false;
                 }
                 LastConnectionRefreshTime = now;
+            }
+        }
+
+        public void Refresh()
+        {
+            if((DateTime.Now - LastConnectionRefreshTime).TotalSeconds > 5) {
+                Connected = false;
             }
         }
     }

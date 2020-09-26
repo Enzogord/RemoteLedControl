@@ -103,7 +103,7 @@
                     ScrollViewer.CanContentScroll="False"
                     ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                     ScrollViewer.VerticalScrollBarVisibility="Auto"
-                    SelectedItem="{Binding SelectedClient}">
+                    SelectedItem="{Binding SelectedItemViewModel}">
                     <ListView.ItemsPanel>
                         <ItemsPanelTemplate>
                             <StackPanel />
@@ -173,7 +173,7 @@
                                     HorizontalAlignment="Left"
                                     VerticalAlignment="Center"
                                     FontSize="14"
-                                    Text="{Binding BatteryChargeLevel, Mode=OneWay, StringFormat='{}{0}%'}"
+                                    Text="{Binding BatteryChargeLevel}"
                                     TextAlignment="Left" />
                             </Grid>
                         </DataTemplate>

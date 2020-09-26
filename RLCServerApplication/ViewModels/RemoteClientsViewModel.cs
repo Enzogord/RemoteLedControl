@@ -1,11 +1,13 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
 using Core;
 using Core.IO;
 using Core.Model;
+using Core.RemoteOperations;
 using RLCCore.Domain;
 using RLCCore.Serialization;
 using RLCServerApplication.Infrastructure;
@@ -18,26 +20,56 @@ namespace RLCServerApplication.ViewModels
         private readonly WorkSession workSession;
         private readonly RemovableDrivesProvider removableDrivesProvider;
         private readonly SaveController saveController;
+        private readonly IClientConnectionProvider clientConnectionProvider;
         private readonly RemoteControlProject project;
 
-        public RemoteClientsViewModel(WorkSession workSession, RemovableDrivesProvider removableDrivesProvider, SaveController saveController)
+        public RemoteClientsViewModel(WorkSession workSession, RemovableDrivesProvider removableDrivesProvider, SaveController saveController, IClientConnectionProvider clientConnectionProvider)
         {
             this.workSession = workSession ?? throw new System.ArgumentNullException(nameof(workSession));
             this.removableDrivesProvider = removableDrivesProvider ?? throw new System.ArgumentNullException(nameof(removableDrivesProvider));
             this.saveController = saveController ?? throw new System.ArgumentNullException(nameof(saveController));
+            this.clientConnectionProvider = clientConnectionProvider ?? throw new System.ArgumentNullException(nameof(clientConnectionProvider));
             this.project = workSession.Project;
+            project.Clients.CollectionChanged += Clients_CollectionChanged;
             ConfigureBindings();
+            UpdateClients();
+        }
+
+        private void Clients_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            UpdateClients();
+        }
+
+        private void UpdateClients()
+        {
+            var clientsViewModels = project.Clients.Select(x => new ClientItemViewModel(x, clientConnectionProvider));
+            var obsClients = new ObservableCollection<ClientItemViewModel>(clientsViewModels);
+            Clients = new ReadOnlyObservableCollection<ClientItemViewModel>(obsClients);
         }
 
         public bool CanEdit => workSession.State == SessionState.Setup;
 
-        public ObservableCollection<RemoteClient> Clients => project.Clients;
+        private ReadOnlyObservableCollection<ClientItemViewModel> clients;
+        public ReadOnlyObservableCollection<ClientItemViewModel> Clients {
+            get => clients;
+            private set => SetField(ref clients, value);
+        }
+
+        private ClientItemViewModel selectedClientViewModel;
+        public ClientItemViewModel SelectedItemViewModel {
+            get => selectedClientViewModel;
+            set {
+                if(SetField(ref selectedClientViewModel, value)) {
+                    SelectedClient = selectedClientViewModel.Client;
+                }
+            }
+        }
 
 
         private RemoteClient selectedClient;
         public RemoteClient SelectedClient {
             get => selectedClient;
-            set {
+            private set {
                 if(SetField(ref selectedClient, value)) {
                     if(selectedClient == null) {
                         RemoteClientViewModel = null;
@@ -76,7 +108,7 @@ namespace RLCServerApplication.ViewModels
                 .BindToProperty(x => x.State)
                 .End();
 
-            CreateNotificationBinding().AddProperty(nameof(Clients))
+            CreateNotificationBinding().AddAction(UpdateClients)
                 .SetNotifier(project)
                 .BindToProperty(x => x.Clients)
                 .End();

@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using Core.IO;
+using Core.RemoteOperations;
 using Core.Sequence;
 using Core.Services.FileDialog;
 using NLog;
@@ -32,11 +33,12 @@ namespace RLCServerApplication
             var saveController = new SaveController();
             var fileDialogService = new FileDialogService();
             var playerFactory = new PlayerFactory(App.Current.Dispatcher);
-            var sessionController = new WorkSessionController(saveController, networkController, playerFactory);
+            var clientConnectionsController = new ClientConnectionsController();
+            var sessionController = new WorkSessionController(saveController, networkController, playerFactory, clientConnectionsController);
             var removableDrivesProvider = new RemovableDrivesProvider();
             var userDialogService = new UserDialogService();
 
-            mainWindowViewModel = new MainWindowViewModel(sessionController, fileDialogService, fileDialogService, userDialogService, removableDrivesProvider);
+            mainWindowViewModel = new MainWindowViewModel(sessionController, fileDialogService, fileDialogService, userDialogService, removableDrivesProvider, clientConnectionsController);
         }
 
         protected override void OnStartup(StartupEventArgs e)

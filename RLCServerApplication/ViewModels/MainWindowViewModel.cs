@@ -1,4 +1,5 @@
 ﻿using Core.IO;
+using Core.RemoteOperations;
 using Core.Services.FileDialog;
 using Core.Services.UserDialog;
 using RLCCore;
@@ -15,6 +16,7 @@ namespace RLCServerApplication.ViewModels
         private readonly IOpenFileService openFileService;
         private readonly IUserDialogService userDialogService;
         private readonly RemovableDrivesProvider removableDrivesProvider;
+        private readonly IClientConnectionProvider clientConnectionProvider;
 
         public WorkSessionController sessionController { get; private set; }
 
@@ -35,13 +37,15 @@ namespace RLCServerApplication.ViewModels
             ISaveFileService saveFileService,
             IOpenFileService openFileService,
             IUserDialogService userDialogService,
-            RemovableDrivesProvider removableDrivesProvider)
+            RemovableDrivesProvider removableDrivesProvider,
+            IClientConnectionProvider clientConnectionProvider)
         {
             this.sessionController = sessionController ?? throw new ArgumentNullException(nameof(sessionController));
             this.saveFileService = saveFileService ?? throw new ArgumentNullException(nameof(saveFileService));
             this.openFileService = openFileService ?? throw new ArgumentNullException(nameof(openFileService));
             this.userDialogService = userDialogService ?? throw new ArgumentNullException(nameof(userDialogService));
             this.removableDrivesProvider = removableDrivesProvider ?? throw new ArgumentNullException(nameof(removableDrivesProvider));
+            this.clientConnectionProvider = clientConnectionProvider ?? throw new ArgumentNullException(nameof(clientConnectionProvider));
             ConfigureBindings();
         }
 
@@ -61,7 +65,7 @@ namespace RLCServerApplication.ViewModels
             }
 
             var settingsViewModel = new SettingsViewModel(sessionController.Session, openFileService, sessionController.NetworkController);
-            var remoteClientsViewModel = new RemoteClientsViewModel(sessionController.Session, removableDrivesProvider, sessionController.SaveController);
+            var remoteClientsViewModel = new RemoteClientsViewModel(sessionController.Session, removableDrivesProvider, sessionController.SaveController, clientConnectionProvider);
             WorkSessionViewModel = new WorkSessionViewModel(sessionController.Session, settingsViewModel, remoteClientsViewModel);
         }
 

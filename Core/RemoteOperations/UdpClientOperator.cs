@@ -18,7 +18,7 @@ namespace Core.RemoteOperations
 
         private readonly UdpServer udpServer;
         private readonly RemoteControlProject project;
-        private readonly IClientConnectionsController connectionsController;
+        private readonly ClientConnectionsController connectionsController;
         private readonly INetworkSettingProvider networkSettingProvider;
         private readonly SequencePlayer player;
         private MessageReceiveConfirmationService confirmationService;
@@ -26,7 +26,7 @@ namespace Core.RemoteOperations
         public UdpClientOperator(
             UdpServer udpServer, 
             RemoteControlProject project,
-            IClientConnectionsController connectionsController,
+            ClientConnectionsController connectionsController,
             INetworkSettingProvider networkSettingProvider,
             SequencePlayer player
             )
@@ -257,7 +257,7 @@ namespace Core.RemoteOperations
                 return false;
             }
 
-            if(!connectionsController.ContainsClient(message.ClientNumber)) {
+            if(!connectionsController.ContainsClientConnection(message.ClientNumber)) {
                 logger.Info($"Получено сообщение от клиента ({message.ClientNumber}) не добавленного в текущий проект." +
                     $"Сообщение будет проигнорировано");
                 return false;
@@ -287,7 +287,7 @@ namespace Core.RemoteOperations
             if(!ValidateMessage(message)) {
                 return;
             }
-            connectionsController.UpdateClientActivity(message.ClientNumber, e.RemoteEndPoint as IPEndPoint);
+            connectionsController.UpdateConnection(message.ClientNumber, e.RemoteEndPoint as IPEndPoint);
             confirmationService?.Confirm(message);
             Receive(message);
         }
@@ -328,8 +328,8 @@ namespace Core.RemoteOperations
                 throw new ArgumentNullException(nameof(message));
             }
 
-            var connection = connectionsController.GetClientConnection(clientNumber);
-            if(connection == null) {
+            
+            if(!connectionsController.TryGetClientConnection(clientNumber, out IClientConnection connection)) {
                 throw new InvalidOperationException("Client was not been added to the clients list");
             }
 

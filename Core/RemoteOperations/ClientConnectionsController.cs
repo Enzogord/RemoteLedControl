@@ -1,80 +1,105 @@
 ﻿using RLCCore.Domain;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Timers;
 
 namespace Core.RemoteOperations
 {
-    public class ClientConnectionsController : IClientConnectionsController
+    public class ClientConnectionsController : IClientConnectionProvider, IDisposable
     {
-        private Dictionary<RemoteClient, ClientConnection> connections;
+        private Dictionary<int, ClientConnection> connections;
+        private Timer timer;
+
+        public event EventHandler ConnectionsUpdated;
 
         public ClientConnectionsController()
         {
+            timer = new Timer();
+            timer.Elapsed += (s, e) => RefreshConnections();
+            timer.Interval = 1000;
+        }
+
+        private void RefreshConnections()
+        {
+            foreach(var con in connections.Values) {
+                con.Refresh();
+            }
         }
 
         public void CreateConnections(IEnumerable<RemoteClient> clients)
         {
-            connections = new Dictionary<RemoteClient, ClientConnection>();
-            foreach(var client in clients) {
-                connections.Add(client, new ClientConnection());
+            if(clients is null) {
+                throw new ArgumentNullException(nameof(clients));
             }
+
+            connections = new Dictionary<int, ClientConnection>();
+            foreach(var clientId in clients.Select(x => x.Number)) {
+                connections.Add(clientId, new ClientConnection());
+            }
+            RaiseConnectionsUpdated();
+            timer.Start();
         }
 
         public void ClearConnections()
         {
+            timer.Stop();
+            foreach(var c in connections.Values) {
+                c.Connected = false;
+            }
             connections.Clear();
+            RaiseConnectionsUpdated();
         }
 
-        public IClientConnection GetClientConnection(RemoteClient client)
+        private void RaiseConnectionsUpdated()
         {
-            return GetConnection(client);
+            ConnectionsUpdated?.Invoke(this, EventArgs.Empty);
         }
 
-        public IClientConnection GetClientConnection(int clientNumber)
+        public bool ContainsClientConnection(int clientNumber)
         {
-            return GetConnection(clientNumber);
+            return connections.ContainsKey(clientNumber);
         }
 
-        public void UpdateClientActivity(int clientNumber, IPEndPoint endPoint)
+        public bool TryGetClientConnection(int clientNumber, out IClientConnection connection)
         {
-            var connection = GetConnection(clientNumber);
-            if(connection == null) {
+            connection = null;
+            if(!connections.TryGetValue(clientNumber, out ClientConnection result)) {
+                return false;
+            }
+            connection = result;
+            return true;
+        }
+
+        public void UpdateConnection(int clientNumber, IPEndPoint endPoint)
+        {
+            if(!connections.TryGetValue(clientNumber, out ClientConnection connection)) {
                 return;
             }
-            if(endPoint == null) {
-                connection.RefreshState(true);
+            if(endPoint != null) {
+                connection.EndPoint = endPoint;
             }
-            else {
-                connection.RefreshState(true, endPoint);
+            connection.UpdateConnection();
+        }        
+
+        #region IDisposable Support
+        private bool disposedValue = false;
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if(!disposedValue) {
+                if(disposing) {
+                    timer.Dispose();
+                }
+                disposedValue = true;
             }
         }
 
-        public bool ContainsClient(RemoteClient client)
+        public void Dispose()
         {
-            return connections.ContainsKey(client);
+            Dispose(true);
         }
-
-        public bool ContainsClient(int clientNumber)
-        {
-            return connections.Any(x => x.Key.Number == clientNumber);
-        }
-
-        private ClientConnection GetConnection(RemoteClient client)
-        {
-            if(!ContainsClient(client)) {
-                return null;
-            }
-            return connections[client];
-        }
-
-        private ClientConnection GetConnection(int clientNumber)
-        {
-            var connection = connections.Where(x => x.Key.Number == clientNumber).Select(x => x.Value).FirstOrDefault();
-            if(connection == null) {
-                return null;
-            }
-            return connection;
-        }
+        #endregion
     }
 }

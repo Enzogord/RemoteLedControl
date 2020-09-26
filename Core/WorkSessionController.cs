@@ -22,6 +22,7 @@ namespace RLCCore
 
         private WorkSession session;
         private readonly PlayerFactory playerFactory;
+        private readonly ClientConnectionsController clientConnectionsController;
 
         public WorkSession Session {
             get => session;
@@ -31,11 +32,12 @@ namespace RLCCore
             }
         }
 
-        public WorkSessionController(SaveController saveController, NetworkController networkController, PlayerFactory playerFactory)
+        public WorkSessionController(SaveController saveController, NetworkController networkController, PlayerFactory playerFactory, ClientConnectionsController clientConnectionsController)
         {
             SaveController = saveController ?? throw new ArgumentNullException(nameof(saveController));
             NetworkController = networkController ?? throw new ArgumentNullException(nameof(networkController));
             this.playerFactory = playerFactory ?? throw new ArgumentNullException(nameof(playerFactory));
+            this.clientConnectionsController = clientConnectionsController ?? throw new ArgumentNullException(nameof(clientConnectionsController));
             SaveController.ClearTempFolder();
         }
 
@@ -65,7 +67,6 @@ namespace RLCCore
         public void CreateSession(RemoteControlProject project)
         {
             var udpServer = new UdpServer();
-            var clientConnectionsController = new ClientConnectionsController();
             var player = playerFactory.CreatePlayer();
             var clientOperator = new UdpClientOperator(udpServer, project, clientConnectionsController, NetworkController, player);
 
