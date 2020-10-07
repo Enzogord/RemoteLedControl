@@ -50,6 +50,7 @@
                     <MenuItem Command="{Binding SaveProjectCommand}" Header="Сохранить" />
                     <MenuItem Command="{Binding SaveProjectAsCommand}" Header="Сохранить как" />
                 </MenuItem>
+                <MenuItem Click="MenuItem_Click" Header="О программе" />
             </Menu>
             <ContentControl
                 Grid.Row="1"

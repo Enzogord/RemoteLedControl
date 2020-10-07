@@ -32,5 +32,11 @@ namespace RLCServerApplication.Views
             }
             base.OnClosing(e);
         }
+
+        private void MenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            var aboutView = new AboutView();
+            aboutView.ShowDialog();
+        }
     }
 }
