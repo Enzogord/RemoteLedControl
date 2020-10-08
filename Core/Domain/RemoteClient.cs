@@ -76,7 +76,7 @@ namespace RLCCore.Domain
             set => SetField(ref microcontrollerUnit, value);
         }
 
-        private ClientState clientState;        
+        private ClientState clientState;
         public ClientState ClientState {
             get => clientState;
             set => SetField(ref clientState, value);

@@ -27,13 +27,14 @@ namespace RLCCore.Settings
             }
         }
 
-        private int port;
-        public int Port {
-            get => port;
-            set => SetField(ref port, value);
+        public IPAddress BroadcastIPAddress {
+            get {
+                if(CurrentAddressSetting == null) {
+                    return IPAddress.Broadcast;
+                }
+                return CurrentAddressSetting.BroadcastAddress;
+            }
         }
-
-        public IPAddress BroadcastIPAddress => IPAddress.Broadcast;
 
         public ObservableCollection<NetworkAddressSetting> AddressSettings { get; set; }
 

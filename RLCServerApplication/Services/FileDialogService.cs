@@ -40,7 +40,7 @@ namespace RLCServerApplication.Services
 
         #endregion
 
-        #region IOpenFileService implementation
+        #region ISaveFileService implementation
 
         public string SaveFile(string filter, string title, string defaultExt)
         {

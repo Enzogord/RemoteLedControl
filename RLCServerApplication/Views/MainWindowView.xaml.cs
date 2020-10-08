@@ -13,15 +13,11 @@ namespace RLCServerApplication.Views
         public MainWindowView()
         {
             InitializeComponent();
+
         }
 
         public MainWindowViewModel ViewModel => DataContext as MainWindowViewModel;
 
-        public void InitPlayer()
-        {
-            ViewModel.Player.Init(Application.Current.Dispatcher);
-            Player.RegisterSoundPlayer(ViewModel.Player);
-        }
 
         protected override void OnClosed(EventArgs e)
         {
@@ -35,6 +31,12 @@ namespace RLCServerApplication.Views
                 e.Cancel = true;
             }
             base.OnClosing(e);
+        }
+
+        private void MenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            var aboutView = new AboutView();
+            aboutView.ShowDialog();
         }
     }
 }

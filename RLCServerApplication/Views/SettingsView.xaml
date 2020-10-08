@@ -17,41 +17,6 @@
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="VisibilityConverter" />
         <converters:UIntToStringConverter x:Key="StringToIntConverter" />
-        <DataTemplate x:Key="SettingsTemplate" DataType="{x:Type model:RLCProjectController}">
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="auto" />
-                    <RowDefinition Height="auto" />
-                </Grid.RowDefinitions>
-                <StackPanel
-                    Grid.Row="0"
-                    Height="auto"
-                    Margin="6,4,0,0"
-                    VerticalAlignment="Top"
-                    Orientation="Horizontal">
-                    <TextBlock
-                        Margin="0,0,5,0"
-                        FontSize="18"
-                        Text="IP адресс:" />
-                    <ComboBox
-                        IsEnabled="{Binding NetworkController.Editable}"
-                        ItemsSource="{Binding NetworkController.AddressSettings}"
-                        SelectedItem="{Binding NetworkController.CurrentAddressSetting}" />
-                </StackPanel>
-                <StackPanel
-                    Grid.Row="1"
-                    Height="auto"
-                    Margin="6,4,0,0"
-                    VerticalAlignment="Top"
-                    Orientation="Horizontal">
-                    <TextBlock
-                        Margin="0,0,5,0"
-                        FontSize="18"
-                        Text="Ключ проекта:" />
-                    <TextBox Text="{Binding CurrentProject.Key, Converter={StaticResource StringToIntConverter}}" />
-                </StackPanel>
-            </Grid>
-        </DataTemplate>
     </UserControl.Resources>
 
     <Grid Width="auto">
@@ -91,9 +56,9 @@
                     Grid.Row="0"
                     Grid.Column="1"
                     Margin="0,2"
-                    IsEnabled="{Binding RLCProjectController.NetworkController.Editable}"
-                    ItemsSource="{Binding RLCProjectController.NetworkController.AddressSettings}"
-                    SelectedItem="{Binding RLCProjectController.NetworkController.CurrentAddressSetting}" />
+                    IsEnabled="{Binding NetworkController.Editable}"
+                    ItemsSource="{Binding NetworkController.AddressSettings}"
+                    SelectedItem="{Binding NetworkController.CurrentAddressSetting}" />
             </Grid>
         </GroupBox>
 
@@ -127,7 +92,7 @@
                     Grid.Row="0"
                     Grid.Column="1"
                     Margin="0,2"
-                    Text="{Binding RLCProjectController.CurrentProject.Key}" />
+                    Text="{Binding WorkSession.Project.Key}" />
 
                 <TextBlock
                     Grid.Row="1"
@@ -140,7 +105,7 @@
                     Grid.Row="1"
                     Grid.Column="1"
                     Margin="0,2"
-                    Text="{Binding RLCProjectController.CurrentProject.WifiSSID}" />
+                    Text="{Binding WorkSession.Project.WifiSSID}" />
 
                 <TextBlock
                     Grid.Row="2"
@@ -153,7 +118,7 @@
                     Grid.Row="2"
                     Grid.Column="1"
                     Margin="0,2"
-                    Text="{Binding RLCProjectController.CurrentProject.WifiPassword}" />
+                    Text="{Binding WorkSession.Project.WifiPassword}" />
 
                 <TextBlock
                     Grid.Row="3"
@@ -166,7 +131,7 @@
                     Grid.Row="3"
                     Grid.Column="1"
                     Margin="0,2"
-                    Text="{Binding RLCProjectController.CurrentProject.RlcPort}" />
+                    Text="{Binding WorkSession.Project.RlcPort}" />
 
                 <TextBlock
                     Grid.Row="4"
@@ -179,7 +144,7 @@
                     Grid.Row="4"
                     Grid.Column="1"
                     Margin="0,2"
-                    Text="{Binding RLCProjectController.CurrentProject.SntpPort}" />
+                    Text="{Binding WorkSession.Project.SntpPort}" />
 
                 <TextBlock
                     Grid.Row="5"
@@ -200,7 +165,7 @@
                         Grid.Column="0"
                         HorizontalAlignment="Stretch"
                         IsReadOnly="True"
-                        Text="{Binding RLCProjectController.CurrentProject.SoundtrackFileName}" />
+                        Text="{Binding WorkSession.Project.SoundtrackFileName}" />
                     <Button
                         Grid.Column="1"
                         Margin="2,0,0,0"

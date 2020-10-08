@@ -18,6 +18,7 @@
     <ProjectReference Include="..\SNTPService\SNTPService.csproj" />
     <ProjectReference Include="..\TCPCommunicationService\TCPCommunicationService.csproj" />
     <ProjectReference Include="..\UDPCommunication\UDPCommunication.csproj" />
+    <ProjectReference Include="..\UdpServer\NetworkServer.csproj" />
     <ProjectReference Include="..\UDPTransmission\UDPTransmission.csproj" />
   </ItemGroup>
 

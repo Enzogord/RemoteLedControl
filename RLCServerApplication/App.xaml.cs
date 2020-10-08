@@ -2,7 +2,14 @@
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using Core.IO;
+using Core.RemoteOperations;
+using Core.Sequence;
+using Core.Services.FileDialog;
 using NLog;
+using RLCCore;
+using RLCCore.Settings;
+using RLCServerApplication.Services;
 using RLCServerApplication.ViewModels;
 using RLCServerApplication.Views;
 
@@ -22,7 +29,16 @@ namespace RLCServerApplication
 
         private void InitMainViewModel()
         {
-            mainWindowViewModel = Bootstrapper.RootViewModel;
+            var networkController = new NetworkController();
+            var saveController = new SaveController();
+            var fileDialogService = new FileDialogService();
+            var playerFactory = new PlayerFactory(App.Current.Dispatcher);
+            var clientConnectionsController = new ClientConnectionsController();
+            var sessionController = new WorkSessionController(saveController, networkController, playerFactory, clientConnectionsController);
+            var removableDrivesProvider = new RemovableDrivesProvider();
+            var userDialogService = new UserDialogService();
+
+            mainWindowViewModel = new MainWindowViewModel(sessionController, fileDialogService, fileDialogService, userDialogService, removableDrivesProvider, clientConnectionsController);
         }
 
         protected override void OnStartup(StartupEventArgs e)
@@ -31,13 +47,10 @@ namespace RLCServerApplication
 
             if(createdMutex && mutex.WaitOne()) {
                 base.OnStartup(e);
-                Current.Exit += (sender, eventArg) => Bootstrapper.Stop();
                 SubscribeUnhandledException();
 
-                Bootstrapper.Start();
                 InitMainViewModel();
                 MainWindowView mainWindowView = new MainWindowView() { DataContext = mainWindowViewModel };
-                mainWindowView.InitPlayer();
                 mainWindowView.Show();
             }
             else {
@@ -49,7 +62,6 @@ namespace RLCServerApplication
 
         protected override void OnExit(ExitEventArgs e)
         {
-            mainWindowViewModel.Close();
             mutex.ReleaseMutex();
             base.OnExit(e);
             Environment.Exit(0);
@@ -60,9 +72,10 @@ namespace RLCServerApplication
             Application.Current.DispatcherUnhandledException += Current_DispatcherUnhandledException;
 
             AppDomain.CurrentDomain.UnhandledException += (sender, e) =>
-            {                
+            {
+                var exception = (Exception)e.ExceptionObject;
                 logger.Fatal((Exception)e.ExceptionObject, $"Поймано необработаное исключение в Application Domain. Is terminating: {e.IsTerminating}");
-                MessageBox.Show($"Возникла непредвиденная ошибка.{Environment.NewLine} Техническая информация: {(Exception)e.ExceptionObject}", "Исключение", MessageBoxButton.OK, MessageBoxImage.Error);
+                mainWindowViewModel.ShowException(exception);
             };
 
             TaskScheduler.UnobservedTaskException += (object sender, UnobservedTaskExceptionEventArgs eventArgs) =>
@@ -79,7 +92,7 @@ namespace RLCServerApplication
         private void Current_DispatcherUnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
         {
             e.Handled = true;
-            MessageBox.Show($"Возникла непредвиденная ошибка.{Environment.NewLine} Техническая информация: {e.Exception}", "Исключение", MessageBoxButton.OK, MessageBoxImage.Error);
+            mainWindowViewModel.ShowException(e.Exception);
         }
     }
 }

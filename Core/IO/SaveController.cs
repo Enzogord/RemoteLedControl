@@ -23,19 +23,15 @@ namespace Core.IO
         private string workFilePath;
         
 
-        public void UpdateSoundTrackFile(string oldFileName, string newFilePath, SequencePlayer player)
+        public void UpdateSoundTrackFile(string oldFileName, string newFilePath)
         {
             string newFileName = Path.GetFileName(newFilePath);
             string workFilePath = Path.Combine(WorkDirectory, newFileName);
-            if(newFileName == oldFileName) {
-                player.Close();
-            }
+
             File.Copy(newFilePath, workFilePath, true);
             if(string.IsNullOrWhiteSpace(oldFileName)) {
                 return;
             }
-            player.Close();
-            player.OpenFile(workFilePath);
             if(newFileName != oldFileName) {
                 File.Delete(Path.Combine(WorkDirectory, oldFileName));
             }

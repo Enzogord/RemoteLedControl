@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 
 namespace Core
 {
@@ -13,6 +14,8 @@ namespace Core
         void Stop();
         double Position { get; }
         double Length { get; }
+        TimeSpan CurrentTime { get; }
+
     }
 
     public enum SequenceState

@@ -5,30 +5,35 @@ using NLog;
 
 namespace SNTPService
 {
-    public class SntpService
+    public sealed class SntpService : IDisposable
     {
-        Logger logger = LogManager.GetCurrentClassLogger();
+        private Logger logger = LogManager.GetCurrentClassLogger();
 
         private UdpListener udpListener;
-        private readonly int port;
 
-        public IPAddress InterfaceAddress { get; set; }
+        private IPAddress address { get; set; }
+        private int port { get; set; }
 
-        public SntpService(int port)
+        public SntpService()
         {
-            this.port = port;
         }
 
-        public bool Start()
+        public bool Start(IPAddress address, int port)
         {
+            this.address = address ?? throw new ArgumentNullException(nameof(address));
+            if(port <= 0 || port > 65535) {
+                throw new ArgumentException("Invalid port", nameof(port));
+            }
+            this.port = port;
+
             udpListener = new UdpListener();
-            udpListener.InterfaceAddress = InterfaceAddress;
+            udpListener.InterfaceAddress = this.address;
             udpListener.BufferSize = Constants.SNTP_MAX_MESSAGE_SIZE;
             udpListener.ReceiveTimeout = Constants.SNTP_RECEIVE_TIMEOUT;
             udpListener.SendTimeout = Constants.SNTP_SEND_TIMEOUT;
             udpListener.ClientConnected += OnClientConnect;
             udpListener.ClientDisconnected += OnClientDisconnect;
-            return udpListener.Start(port, true);
+            return udpListener.Start(this.port, true);
         }
 
         public void Stop()
@@ -138,5 +143,10 @@ namespace SNTPService
         public event SntpMessageEventHandler OnSntpMessageSent = delegate { };
 
         #endregion Events
+
+        void IDisposable.Dispose()
+        {
+            Stop();
+        }
     }
 }

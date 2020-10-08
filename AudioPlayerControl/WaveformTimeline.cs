@@ -16,7 +16,6 @@ namespace AudioPlayer.TimeLine
     public class WaveformTimeline : Control
     {
         #region Fields
-        private IWaveformPlayer soundPlayer;
         private Canvas waveformCanvas;
         private Canvas timelineCanvas;
         private Canvas progressCanvas;
@@ -210,7 +209,7 @@ namespace AudioPlayer.TimeLine
 
         private void CreateProgressIndicator()
         {
-            if (soundPlayer == null || timelineCanvas == null || progressCanvas == null)
+            if (SoundPlayer == null || timelineCanvas == null || progressCanvas == null)
                 return;
 
             const double xLocation = 0.0d;
@@ -236,12 +235,12 @@ namespace AudioPlayer.TimeLine
 
         private void UpdateProgressIndicator()
         {
-            if (soundPlayer == null || progressCanvas == null)
+            if (SoundPlayer == null || progressCanvas == null)
                 return;
 
             double xLocation = 0.0d;
-            if (soundPlayer.ChannelLength != 0) {
-                double progressPercent = soundPlayer.ChannelPosition / soundPlayer.ChannelLength;
+            if (SoundPlayer.ChannelLength != 0) {
+                double progressPercent = SoundPlayer.ChannelPosition / SoundPlayer.ChannelLength;
                 xLocation = progressPercent * progressCanvas.RenderSize.Width;
             }
             progressLine.Margin = new Thickness(xLocation, 0, 0, 0);
@@ -303,7 +302,7 @@ namespace AudioPlayer.TimeLine
 
         private void CreatePositionSelectorIndicator()
         {
-            if (soundPlayer == null || timelineCanvas == null || progressCanvas == null)
+            if (SoundPlayer == null || timelineCanvas == null || progressCanvas == null)
                 return;
 
             const double xLocation = 0d;
@@ -726,18 +725,31 @@ namespace AudioPlayer.TimeLine
         }
         #endregion
 
-        #region Public Methods
-        /// <summary>
-        /// Register a sound player from which the waveform timeline
-        /// can get the necessary playback data.
-        /// </summary>
-        /// <param name="soundPlayer">A sound player that provides waveform data through the IWaveformPlayer interface methods.</param>
-        public void RegisterSoundPlayer(IWaveformPlayer soundPlayer)
-        {
-            this.soundPlayer = soundPlayer;
-            soundPlayer.PropertyChanged += soundPlayer_PropertyChanged;
+        public IWaveformPlayer SoundPlayer {
+            get => (IWaveformPlayer)GetValue(SoundPlayerProperty);
+            set => SetValue(SoundPlayerProperty, value);
         }
-        #endregion
+
+        // Using a DependencyProperty as the backing store for SoundPlayer.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty SoundPlayerProperty =
+            DependencyProperty.Register(nameof(SoundPlayer), typeof(IWaveformPlayer), typeof(WaveformTimeline), new PropertyMetadata(null, OnSoundPlayerValuePropertyChanged));
+
+        private static void OnSoundPlayerValuePropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            var timeline = (WaveformTimeline)d;
+            var player = (IWaveformPlayer)e.NewValue;
+            if(player != null) {
+                timeline.SubscribeSoundPlayer(player);
+            }
+            timeline.UpdateAllRegions();
+        }
+
+        private void SubscribeSoundPlayer(IWaveformPlayer player)
+        {
+            player.PropertyChanged -= soundPlayer_PropertyChanged;
+            player.PropertyChanged += soundPlayer_PropertyChanged;
+        }
+
 
         #region Event Handlers
         private void soundPlayer_PropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -753,7 +765,7 @@ namespace AudioPlayer.TimeLine
                     UpdateAllRegions();
                     break;
                 case "IsEnabled":
-                    IsEnabled = soundPlayer.IsEnabled;
+                    IsEnabled = SoundPlayer.IsEnabled;
                     break;
             }
         }
@@ -802,8 +814,8 @@ namespace AudioPlayer.TimeLine
             if (Math.Abs(currentPoint.X - mouseDownPoint.X) > mouseMoveTolerance) {
                 initialPositionX = currentPoint.X;
             }
-            double position = (initialPositionX / RenderSize.Width) * soundPlayer.ChannelLength;
-            soundPlayer.ChangePosition(Math.Min(soundPlayer.ChannelLength, Math.Max(0, position)));
+            double position = (initialPositionX / RenderSize.Width) * SoundPlayer.ChannelLength;
+            SoundPlayer.ChangePosition(Math.Min(SoundPlayer.ChannelLength, Math.Max(0, position)));
         }
 
         /// <summary>
@@ -871,7 +883,7 @@ namespace AudioPlayer.TimeLine
 
         private void UpdateTimeline()
         {
-            if (soundPlayer == null || timelineCanvas == null)
+            if (SoundPlayer == null || timelineCanvas == null)
                 return;
 
             foreach (TextBlock textblock in timestampTextBlocks) {
@@ -891,24 +903,24 @@ namespace AudioPlayer.TimeLine
 
             double minorTickDuration = 1.00d; // Major tick = 5 seconds, Minor tick = 1.00 second
             double majorTickDuration = 5.00d;
-            if (soundPlayer.ChannelLength >= 120.0d) // Major tick = 1 minute, Minor tick = 15 seconds.
+            if (SoundPlayer.ChannelLength >= 120.0d) // Major tick = 1 minute, Minor tick = 15 seconds.
             {
                 minorTickDuration = 15.0d;
                 majorTickDuration = 60.0d;
-            } else if (soundPlayer.ChannelLength >= 60.0d) // Major tick = 30 seconds, Minor tick = 5.0 seconds.
+            } else if (SoundPlayer.ChannelLength >= 60.0d) // Major tick = 30 seconds, Minor tick = 5.0 seconds.
               {
                 minorTickDuration = 5.0d;
                 majorTickDuration = 30.0d;
-            } else if (soundPlayer.ChannelLength >= 30.0d) // Major tick = 10 seconds, Minor tick = 2.0 seconds.
+            } else if (SoundPlayer.ChannelLength >= 30.0d) // Major tick = 10 seconds, Minor tick = 2.0 seconds.
               {
                 minorTickDuration = 2.0d;
                 majorTickDuration = 10.0d;
             }
 
-            if (soundPlayer.ChannelLength < minorTickDuration)
+            if (SoundPlayer.ChannelLength < minorTickDuration)
                 return;
 
-            int minorTickCount = (int)(soundPlayer.ChannelLength / minorTickDuration);
+            int minorTickCount = (int)(SoundPlayer.ChannelLength / minorTickDuration);
             for (int i = 1; i <= minorTickCount; i++) {
                 Line timelineTick = new Line()
                 {
@@ -917,7 +929,7 @@ namespace AudioPlayer.TimeLine
                 };
                 if (i % (majorTickDuration / minorTickDuration) == 0) // Draw Large Ticks and Timestamps at minute marks
                 {
-                    double xLocation = ((i * minorTickDuration) / soundPlayer.ChannelLength) * timelineCanvas.RenderSize.Width;
+                    double xLocation = ((i * minorTickDuration) / SoundPlayer.ChannelLength) * timelineCanvas.RenderSize.Width;
 
                     bool drawTextBlock = false;
                     double lastTimestampEnd;
@@ -967,7 +979,7 @@ namespace AudioPlayer.TimeLine
                     }
                 } else // Draw small ticks
                   {
-                    double xLocation = ((i * minorTickDuration) / soundPlayer.ChannelLength) * timelineCanvas.RenderSize.Width;
+                    double xLocation = ((i * minorTickDuration) / SoundPlayer.ChannelLength) * timelineCanvas.RenderSize.Width;
                     timelineTick.X1 = xLocation;
                     timelineTick.Y1 = bottomLoc;
                     timelineTick.X2 = xLocation;
@@ -984,14 +996,21 @@ namespace AudioPlayer.TimeLine
             const double maxValue = 1.5;
             const double dbScale = (maxValue - minValue);
 
-            if (soundPlayer == null || soundPlayer.WaveformData == null || waveformCanvas == null ||
-                waveformCanvas.RenderSize.Width < 1 || waveformCanvas.RenderSize.Height < 1)
+            if (SoundPlayer == null || 
+                SoundPlayer.WaveformData == null || 
+                waveformCanvas == null ||
+                waveformCanvas.RenderSize.Width < 1 || 
+                waveformCanvas.RenderSize.Height < 1
+                ) {
+                leftPath.Data = null;
+                rightPath.Data = null;
                 return;
+            }
 
             double leftRenderHeight;
             double rightRenderHeight;
 
-            int pointCount = (int)(soundPlayer.WaveformData.Length / 2.0d);
+            int pointCount = (int)(SoundPlayer.WaveformData.Length / 2.0d);
             double pointThickness = waveformCanvas.RenderSize.Width / pointCount;
             double waveformSideHeight = waveformCanvas.RenderSize.Height / 2.0d;
             double centerHeight = waveformSideHeight;
@@ -1003,7 +1022,7 @@ namespace AudioPlayer.TimeLine
                 centerLine.Y2 = centerHeight;
             }
 
-            if (soundPlayer.WaveformData != null && soundPlayer.WaveformData.Length > 1) {
+            if (SoundPlayer.WaveformData != null && SoundPlayer.WaveformData.Length > 1) {
                 PolyLineSegment leftWaveformPolyLine = new PolyLineSegment();
                 leftWaveformPolyLine.Points.Add(new Point(0, centerHeight));
 
@@ -1011,11 +1030,11 @@ namespace AudioPlayer.TimeLine
                 rightWaveformPolyLine.Points.Add(new Point(0, centerHeight));
 
                 double xLocation = 0.0d;
-                for (int i = 0; i < soundPlayer.WaveformData.Length; i += 2) {
+                for (int i = 0; i < SoundPlayer.WaveformData.Length; i += 2) {
                     xLocation = (i / 2) * pointThickness;
-                    leftRenderHeight = ((soundPlayer.WaveformData[i] - minValue) / dbScale) * waveformSideHeight;
+                    leftRenderHeight = ((SoundPlayer.WaveformData[i] - minValue) / dbScale) * waveformSideHeight;
                     leftWaveformPolyLine.Points.Add(new Point(xLocation, centerHeight - leftRenderHeight));
-                    rightRenderHeight = ((soundPlayer.WaveformData[i + 1] - minValue) / dbScale) * waveformSideHeight;
+                    rightRenderHeight = ((SoundPlayer.WaveformData[i + 1] - minValue) / dbScale) * waveformSideHeight;
                     rightWaveformPolyLine.Points.Add(new Point(xLocation, centerHeight + rightRenderHeight));
                 }
 
