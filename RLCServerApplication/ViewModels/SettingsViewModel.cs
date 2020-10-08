@@ -51,7 +51,7 @@ namespace RLCServerApplication.ViewModels
         {
             addAudioTrackCommand = new DelegateCommand(
                 () => {
-                    string filter = "Mp3 files|*.mp3";
+                    string filter = "Все форматы|*.mp3;*.wav|Mp3|*.mp3|Wav|*.wav";
                     string filePath = openFileService.OpenFile(filter, "Открыть", true, true);
                     if(string.IsNullOrWhiteSpace(filePath)) {
                         return;

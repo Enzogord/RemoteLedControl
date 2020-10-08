@@ -84,11 +84,8 @@ namespace Core
             if(string.IsNullOrWhiteSpace(fileName)) {
                 return;
             }
-
             string filePath = Path.Combine(saveController.WorkDirectory, fileName);
-            using(var fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read)) {
-                Player.Open(fileStream);
-            }
+            Player.Open(filePath);
         }
 
         #region Modes

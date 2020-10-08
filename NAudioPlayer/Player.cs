@@ -24,6 +24,7 @@ namespace NAudioPlayer
         private WaveOut waveOutDevice;
         private WaveStream activeStream;
         private WaveChannel32 inputStream;
+        private AudioFormat audioFormat;
 
         private SampleAggregator sampleAggregator;
         private SampleAggregator waveformAggregator;
@@ -194,8 +195,8 @@ namespace NAudioPlayer
 
         private void waveformGenerateWorker_DoWork(object sender, DoWorkEventArgs e)
         {
-            using(Mp3FileReader waveformMp3Stream = new Mp3FileReader(new MemoryStream(audioData)))
-            using(WaveChannel32 waveformInputStream = new WaveChannel32(waveformMp3Stream)) {
+            using(WaveStream waveStream = CreateWaveStream())
+            using(WaveChannel32 waveformInputStream = new WaveChannel32(waveStream)) {
                 waveformInputStream.Sample += waveStream_Sample;
 
                 int frameCount = (int)((double)waveformInputStream.Length / (double)fftDataSize);
@@ -329,7 +330,7 @@ namespace NAudioPlayer
                     DesiredLatency = 100
                 };
                 audioData = newAudioDataBuffer;
-                ActiveStream = new Mp3FileReader(new MemoryStream(audioData));
+                ActiveStream = CreateWaveStream();
                 inputStream = new WaveChannel32(ActiveStream);
                 sampleAggregator = new SampleAggregator(fftDataSize);
                 inputStream.Sample += inputStream_Sample;
@@ -346,18 +347,46 @@ namespace NAudioPlayer
             }
         }
 
+        private WaveStream CreateWaveStream()
+        {
+            var memoryStream = new MemoryStream(audioData);
+            switch(audioFormat) {
+                case AudioFormat.WAV:
+                    return new WaveFileReader(memoryStream);
+                case AudioFormat.MP3:
+                default:
+                    return new Mp3FileReader(memoryStream);
+            }
+    }
+
         public void Open(string filePath)
         {
-            if(!File.Exists(filePath)) {
+            var file = new FileInfo(filePath);
+            if(!file.Exists) {
                 return;
             }
+
+            AudioFormat format;
+
+            switch(file.Extension.Trim('.').Trim()) {
+                case "wav":
+                    format = AudioFormat.WAV;
+                    break;
+                case "mp3":
+                    format = AudioFormat.MP3;
+                    break;
+                default:
+                    throw new FileFormatException($"Неподдерживаемый формат файла \"{file.Extension}\"");
+            }
+
             using(var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read)) {
-                Open(stream);
+                Open(stream, format);
             }
         }
 
-        public void Open(Stream stream)
+        public void Open(Stream stream, AudioFormat audioFormat)
         {
+            this.audioFormat = audioFormat;
             byte[] buffer;
             try {
                 buffer = new byte[stream.Length];
@@ -488,5 +517,11 @@ namespace NAudioPlayer
             inChannelTimerUpdate = false;
         }
         #endregion
+    }
+
+    public enum AudioFormat
+    {
+        MP3,
+        WAV
     }
 }
