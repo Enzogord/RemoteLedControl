@@ -45,10 +45,12 @@ namespace Core.RemoteOperations
         public void ClearConnections()
         {
             timer.Stop();
-            foreach(var c in connections.Values) {
-                c.Connected = false;
+            if(connections != null) {
+                foreach(var c in connections.Values) {
+                    c.Connected = false;
+                }
+                connections.Clear();
             }
-            connections.Clear();
             RaiseConnectionsUpdated();
         }
 

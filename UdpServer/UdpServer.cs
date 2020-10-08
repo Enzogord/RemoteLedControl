@@ -212,10 +212,10 @@ namespace NetworkServer.UDP
 
         private void StopListening()
         {
-            cts.Cancel();
+            cts?.Cancel();
             cts = null;
             task = null;
-            logger.Debug($"Udp server stop listening socket on {socket.LocalEndPoint}");
+            logger.Debug($"Udp server stop listening socket on {socket?.LocalEndPoint}");
         }
 
         private void ReadingSocketLoop(CancellationToken token)

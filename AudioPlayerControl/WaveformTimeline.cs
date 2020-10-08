@@ -738,7 +738,9 @@ namespace AudioPlayer.TimeLine
         {
             var timeline = (WaveformTimeline)d;
             var player = (IWaveformPlayer)e.NewValue;
-            timeline.SubscribeSoundPlayer(player);
+            if(player != null) {
+                timeline.SubscribeSoundPlayer(player);
+            }
             timeline.UpdateAllRegions();
         }
 
@@ -994,9 +996,16 @@ namespace AudioPlayer.TimeLine
             const double maxValue = 1.5;
             const double dbScale = (maxValue - minValue);
 
-            if (SoundPlayer == null || SoundPlayer.WaveformData == null || waveformCanvas == null ||
-                waveformCanvas.RenderSize.Width < 1 || waveformCanvas.RenderSize.Height < 1)
+            if (SoundPlayer == null || 
+                SoundPlayer.WaveformData == null || 
+                waveformCanvas == null ||
+                waveformCanvas.RenderSize.Width < 1 || 
+                waveformCanvas.RenderSize.Height < 1
+                ) {
+                leftPath.Data = null;
+                rightPath.Data = null;
                 return;
+            }
 
             double leftRenderHeight;
             double rightRenderHeight;

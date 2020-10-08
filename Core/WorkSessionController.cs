@@ -29,7 +29,21 @@ namespace RLCCore
             set {
                 SetField(ref session, value);
                 OnPropertyChanged(nameof(CanSaveProject));
+                OnPropertyChanged(nameof(CanLoadProject));
+                UpdateSessionSubscription();
             }
+        }
+
+        private void UpdateSessionSubscription()
+        {
+            if(Session == null) {
+                return;
+            }
+
+            CreateNotificationBinding().AddProperty(nameof(CanLoadProject), nameof(CanCreateProject))
+                .SetNotifier(Session)
+                .BindToProperty(x => x.State)
+                .End();
         }
 
         public WorkSessionController(SaveController saveController, NetworkController networkController, PlayerFactory playerFactory, ClientConnectionsController clientConnectionsController)
@@ -66,6 +80,7 @@ namespace RLCCore
 
         public void CreateSession(RemoteControlProject project)
         {
+            ClearSession();
             var udpServer = new UdpServer();
             var player = playerFactory.CreatePlayer();
             var clientOperator = new UdpClientOperator(udpServer, project, clientConnectionsController, NetworkController, player);
@@ -74,6 +89,14 @@ namespace RLCCore
             var sntpService = new SntpService();
             var sntpServer = new SntpServer(sntpService, NetworkController, project);
             Session = new WorkSession(project, player, clientOperator, sntpServer, SaveController, NetworkController);
+        }
+
+        private void ClearSession()
+        {
+            if(Session == null) {
+                return;
+            }
+            Session.StopServices();
         }
 
         public bool CanCreateProject {
@@ -99,7 +122,7 @@ namespace RLCCore
             CreateSession(project);
         }
 
-        public bool CanLoadProject => true;
+        public bool CanLoadProject => Session == null || Session.State == SessionState.Setup;
 
         #endregion Load
 

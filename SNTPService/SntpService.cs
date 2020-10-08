@@ -5,7 +5,7 @@ using NLog;
 
 namespace SNTPService
 {
-    public class SntpService
+    public sealed class SntpService : IDisposable
     {
         private Logger logger = LogManager.GetCurrentClassLogger();
 
@@ -16,11 +16,6 @@ namespace SNTPService
 
         public SntpService()
         {
-        }
-
-        ~SntpService()
-        {
-            udpListener?.Dispose();
         }
 
         public bool Start(IPAddress address, int port)
@@ -148,5 +143,10 @@ namespace SNTPService
         public event SntpMessageEventHandler OnSntpMessageSent = delegate { };
 
         #endregion Events
+
+        void IDisposable.Dispose()
+        {
+            Stop();
+        }
     }
 }

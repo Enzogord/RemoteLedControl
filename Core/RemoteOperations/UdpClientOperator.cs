@@ -109,7 +109,7 @@ namespace Core.RemoteOperations
 
         private void StopMessageConfirmationService()
         {
-            confirmationService.Dispose();
+            confirmationService?.Dispose();
             confirmationService = null;
         }
 
@@ -175,7 +175,9 @@ namespace Core.RemoteOperations
 
         public void PlayFrom(TimeSpan time)
         {
-            player.CurrentTime = time;
+            if(player.IsInitialized) {
+                player.CurrentTime = time;
+            }
             Play();
         }
 
@@ -218,6 +220,10 @@ namespace Core.RemoteOperations
 
         private uint GetCurrentFrame()
         {
+            if(!player.IsInitialized) {
+                return 0;
+            }
+            
             var currentFrame = (uint)(player.CurrentTime.TotalMilliseconds) / (uint)50;
             return currentFrame;
         }

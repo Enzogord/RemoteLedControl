@@ -140,7 +140,7 @@ namespace Core
 
         #region Services
 
-        public void StartServices()
+        private void StartServices()
         {
             if(ServicesIsReady) {
                 return;
@@ -185,6 +185,7 @@ namespace Core
             ClientOperator.StopOperator();
             sntpServer.Stop();
 
+            State = SessionState.Setup;
             ServicesIsReady = false;
         }
 

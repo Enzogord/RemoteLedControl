@@ -22,13 +22,7 @@ namespace RLCServerApplication.ViewModels
 
             SettingsViewModel = settingsViewModel ?? throw new ArgumentNullException(nameof(settingsViewModel));
             RemoteClientsViewModel = remoteClientsViewModel ?? throw new ArgumentNullException(nameof(remoteClientsViewModel));
-
-            System.Threading.Tasks.Task.Run(
-                () => {
-                    Thread.Sleep(5000);
-                    Player = workSession.Player;
-                }
-            );
+            Player = workSession.Player;
 
             ConfigureBindings();
         }
