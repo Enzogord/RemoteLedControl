@@ -7,7 +7,14 @@
     <UseWPF>true</UseWPF>	
     <UseWindowsForms>true</UseWindowsForms>	
     <ApplicationIcon />	
-    <StartupObject />
+    <StartupObject />	
+    <Authors>Gordeev Vadim, Shafikov Ilyas</Authors>	
+    <Company>RemoteLedControl</Company>	
+    <Product>RemoteLedControl</Product>	
+    <Version>1.1.0</Version>	
+    <PackageId>RemoteLedControlServer</PackageId>	
+    <Copyright>RemoteLedControl</Copyright>	
+    <NeutralLanguage>en-US</NeutralLanguage>
   </PropertyGroup>
 
   <ItemGroup>
