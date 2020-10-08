@@ -7,7 +7,6 @@
     xmlns:local="clr-namespace:RLCServerApplication.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:vm="clr-namespace:RLCServerApplication.ViewModels"
-    Title="RemoteLedControl"
     Width="800"
     Height="450"
     MinWidth="700"

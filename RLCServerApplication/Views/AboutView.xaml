@@ -38,10 +38,10 @@
             FontWeight="Bold"
             Text="Remote LED Control Server" />
         <TextBlock
+            x:Name="VersionText"
             Grid.Row="2"
             Grid.Column="1"
-            FontWeight="Bold"
-            Text="Версия 1.1" />
+            FontWeight="Bold" />
         <TextBlock
             Grid.Row="3"
             Grid.Column="1"

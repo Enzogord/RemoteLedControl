@@ -13,7 +13,8 @@ namespace RLCServerApplication.Views
         public MainWindowView()
         {
             InitializeComponent();
-
+           
+            Title = "RemoteLedControl server" + $" ({App.Version})";
         }
 
         public MainWindowViewModel ViewModel => DataContext as MainWindowViewModel;

@@ -1,11 +1,11 @@
 ﻿using System;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using Core.IO;
 using Core.RemoteOperations;
 using Core.Sequence;
-using Core.Services.FileDialog;
 using NLog;
 using RLCCore;
 using RLCCore.Settings;
@@ -26,6 +26,20 @@ namespace RLCServerApplication
         Mutex mutex;
 
         MainWindowViewModel mainWindowViewModel;
+
+        private static string version;
+        public static string Version {
+            get {
+                if(string.IsNullOrWhiteSpace(version)) {
+                    var currentAssembly = Assembly.GetExecutingAssembly();
+                    var versionInfo = currentAssembly.GetName().Version;
+                    if(versionInfo != null) {
+                        version = $"{versionInfo.Major}.{versionInfo.Minor}.{versionInfo.Build}";
+                    }
+                }
+                return version;
+            }
+        }
 
         private void InitMainViewModel()
         {
