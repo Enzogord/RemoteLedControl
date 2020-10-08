@@ -11,7 +11,7 @@
     <Authors>Gordeev Vadim, Shafikov Ilyas</Authors>	
     <Company>RemoteLedControl</Company>	
     <Product>RemoteLedControl</Product>	
-    <Version>1.1.0</Version>	
+    <Version>1.1.1</Version>	
     <PackageId>RemoteLedControlServer</PackageId>	
     <Copyright>RemoteLedControl</Copyright>	
     <NeutralLanguage>en-US</NeutralLanguage>
