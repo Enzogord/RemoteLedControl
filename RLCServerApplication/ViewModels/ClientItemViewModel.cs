@@ -49,6 +49,11 @@ namespace RLCServerApplication.ViewModels
                 .SetNotifier(Client)
                 .BindToProperty(x => x.BatteryChargeLevel)
                 .End();
+            CreateNotificationBinding()
+                .AddProperty(nameof(BatteryVoltage))
+                .SetNotifier(Client)
+                .BindToProperty(x => x.BatteryVoltage)
+                .End();
         }
 
         public RemoteClient Client { get; private set; }
@@ -60,6 +65,8 @@ namespace RLCServerApplication.ViewModels
         public int Number => Client.Number;
 
         public string BatteryChargeLevel => $"{Client.BatteryChargeLevel}%";
+
+        public string BatteryVoltage => $"{Math.Round(Client.BatteryVoltage, 2)}V";
 
         public string ClientState => $"{Client.ClientState}";
     }

@@ -131,7 +131,9 @@
                                     <ColumnDefinition Width="22" />
                                     <ColumnDefinition Width="auto" />
                                     <ColumnDefinition Width="auto" />
-                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="auto" />
+                                    <ColumnDefinition Width="auto" />
+                                    <ColumnDefinition Width="auto" />
                                     <ColumnDefinition Width="auto" />
                                 </Grid.ColumnDefinitions>
 
@@ -173,7 +175,25 @@
                                     HorizontalAlignment="Left"
                                     VerticalAlignment="Center"
                                     FontSize="14"
+                                    Text="Батарея: "
+                                    TextAlignment="Left" />
+                                <TextBlock
+                                    Grid.Column="4"
+                                    Margin="3,0"
+                                    Padding="4,0"
+                                    HorizontalAlignment="Left"
+                                    VerticalAlignment="Center"
+                                    FontSize="14"
                                     Text="{Binding BatteryChargeLevel}"
+                                    TextAlignment="Left" />
+                                <TextBlock
+                                    Grid.Column="5"
+                                    Margin="3,0"
+                                    Padding="4,0"
+                                    HorizontalAlignment="Left"
+                                    VerticalAlignment="Center"
+                                    FontSize="14"
+                                    Text="{Binding BatteryVoltage}"
                                     TextAlignment="Left" />
                             </Grid>
                         </DataTemplate>
